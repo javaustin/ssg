@@ -1,0 +1,7 @@
+name: SpeedSG
+version: '0.0'
+main: com.carrotguy69.ssg.SpeedSG
+api-version: '1.21'
+
+depend:
+  - cxyz
