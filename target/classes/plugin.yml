@@ -1,7 +1,21 @@
-name: SpeedSG
+name: ssg
 version: '0.0'
 main: com.carrotguy69.ssg.SpeedSG
 api-version: '1.21'
 
 depend:
   - cxyz
+  - WorldEdit
+
+softdepend:
+  - PlaceholderAPI
+
+commands:
+  test:
+    description: Test this command
+    usage: /test <content>
+    permission: "ssg.test"
+
+permissions:
+  ssg.test:
+    default: true

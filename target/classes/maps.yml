@@ -1,0 +1,56 @@
+maps:
+
+  example1:
+    display-name: "A map loaded from a schematic"
+
+    source:
+      type: SCHEMATIC
+      file: example.schematic
+
+      paste-location: {world: "games", x: 0, y: 0, z: 0}
+
+    spawns:
+      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
+      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
+      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    bounds:
+      pos1: {world: "games", x: 0, y: 0, z: 0}
+      pos2: {world: "games", x: 0, y: 0, z: 0}
+
+  example2:
+    display-name: "A map copied and pasted from an existing world"
+
+    source:
+      type: WORLD_COPY
+      world: backup
+
+      copy-bounds:
+        pos1: {world: "backup", x: 100, y: 100, z: 100}
+        pos2: {world: "backup", x: -100, y: -100, z: -100}
+
+      paste-location: {world: "games", x: 0, y: 0, z: 0, rotation: 0}
+
+    spawns:
+      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
+      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
+      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    bounds:
+      pos1: {world: "games", x: 0, y: 0, z: 0}
+      pos2: {world: "games", x: 0, y: 0, z: 0}
+
+  example3:
+    display-name: "A map that already exists (no copying/pasting needed)"
+
+    source:
+      type: STATIC
+
+    spawns:
+      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
+      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
+      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    bounds:
+      pos1: {world: "games", x: 0, y: 0, z: 0}
+      pos2: {world: "games", x: 0, y: 0, z: 0}

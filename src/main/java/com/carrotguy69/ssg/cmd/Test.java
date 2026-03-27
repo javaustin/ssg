@@ -20,6 +20,7 @@ public class Test implements CommandExecutor {
         }
 
         if (args.length == 0) {
+            MessageUtils.sendParsedMessage(sender, MessageKey.MISSING_CONTENT, Map.of());
             return true;
         }
 

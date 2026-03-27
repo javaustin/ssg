@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="cxyz-1.0-SNAPSHOT (2)">
+  <library name="cxyz-0.0">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/src/libs/cxyz-1.0-SNAPSHOT.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/carrotguy69/cxyz/0.0/cxyz-0.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
