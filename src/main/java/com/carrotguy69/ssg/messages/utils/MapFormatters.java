@@ -1,6 +1,6 @@
 package com.carrotguy69.ssg.messages.utils;
 
-import com.carrotguy69.ssg.models.GamePlayer;
+import com.carrotguy69.ssg.game.GamePlayer;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.models;
+package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import org.bukkit.entity.Player;

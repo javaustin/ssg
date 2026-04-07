@@ -1,28 +1,36 @@
-package com.carrotguy69.ssg.models;
+package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
+import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.MessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.models.map.GameMap;
+import com.carrotguy69.ssg.game.map.GameMap;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.Location;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Random;
 
 public class Game {
 
@@ -45,9 +53,15 @@ public class Game {
 
     // Game specific variables
     private boolean invulnerability = false;
-    private List<Block> barrierBlocks = new ArrayList<>();
+    private final List<Block> barrierBlocks = new ArrayList<>();
+    private List<Block> chests = new ArrayList<>();
+    private LootTable lootTable;
 
-    public Game(int gameID, GameMap map, int minTeams, int maxTeams, int minTeamCapacity, int maxTeamCapacity) {
+    public Game(int gameID, GameMap map, LootTable lootTable, int minTeams, int maxTeams, int minTeamCapacity, int maxTeamCapacity) {
+        // todo:
+        //  - think of how to allow voting for a map (this means the map must not be determined when creating this class)
+        //  - implement loot table into the class constructor ✅
+
         this.gameID = gameID;
         this.map = map;
 
@@ -61,11 +75,18 @@ public class Game {
         this.minTeamCapacity = minTeamCapacity;
         this.maxTeamCapacity = maxTeamCapacity;
 
+        this.lootTable = lootTable;
+
         createTeams(maxTeams);
 
         this.gameState = GameState.WAITING;
 
-        map.load();
+        try {
+            map.paste();
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         tryGameCountdown();
     }
@@ -109,6 +130,10 @@ public class Game {
             boolean allowJoinDuringStart = false;
             // todo: ^ expose this boolean to config
 
+            if (allowJoinDuringStart) {
+
+            }
+
 
         }
     }
@@ -117,28 +142,16 @@ public class Game {
 
     }
 
-    public void idle() {
+    private void tryLobbyCountdown() {
         /*
-        COUNTDOWNS:
-
         Lobby countdown:
         - gs == WAITING
         - Players are at the lobby spawn point
         - Teams are not assigned and switching is allowed
         - Leaving may cancel the countdown if it leaves an insufficient amount of players
         - If a lobby countdown finalizes (without breaking), it triggers the start() method which triggers the game countdown.
+         */
 
-        Game countdown:
-        - gs == STARTING
-        - Teams are final and unswitchable
-        - Players have been teleported to their respective spawn points
-        - Leaving may cancel the countdown if it leaves an insufficient amount of players
-        - Leaving may count as an elimination since this state is during the game.
-        - If a game countdown finalizes (w/out breaking), the game will start.
-        */
-    }
-
-    private void tryLobbyCountdown() {
         // Will return if there is already a countdown in progress.
         if (counting) {
             return;
@@ -154,7 +167,7 @@ public class Game {
 
                 this.cancel();
                 counting = false;
-                idle();
+                // Cancel the countdown and do nothing; wait for another player join.
             }
 
 
@@ -175,6 +188,15 @@ public class Game {
     }
 
     private void tryGameCountdown() {
+        /*
+        Game countdown:
+        - gs == STARTING
+        - Players have been teleported to their respective spawn points
+        - Teams are final and unswitchable (a new joining player *may* still be able to join a team but not by their choice)
+        - Leaving may cancel the countdown if it leaves an insufficient amount of players
+        - Leaving may count as an elimination since this state is during the game.
+        - If a game countdown finalizes (w/out breaking), the game will start.
+        */
 
         final int[] count = {10};
 
@@ -188,29 +210,44 @@ public class Game {
 
             else if (count[0] > 0) {
                 // Not really in the mood to expose this to the config. We will keep this countdown as a hard coded title.
-                String color = "&a";
+                String color = switch (count[0]) {
+                    case 3 -> "&e&l";
+                    case 2 -> "&6&l";
+                    case 1 -> "&c&l";
+                    default -> "&a";
+                };
 
-                switch (count[0]) {
-                    case 3:
-                        color = "&e";
-                    case 2:
-                        color = "&6";
-                    case 1:
-                        color = "&c";
-                }
-
+                List<Player> gamePlayers = players.stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getPlayer).toList();
                 MessageUtils.sendTitle(
-                        players.stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getPlayer).collect(Collectors.toList()),
+                        gamePlayers,
                         color + count[0],
                         "",
                         0,
                         20,
                         40
                 );
+                for (Player p : gamePlayers) {
+                    p.playSound(p, Sound.UI_BUTTON_CLICK, 0.7F, 1F);
+                }
                 count[0] -= 1;
             }
 
             else { // count == 0
+                List<Player> gamePlayers = players.stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getPlayer).toList();
+
+                MessageUtils.sendTitle(
+                        gamePlayers,
+                        "&a&lGO!",
+                        "",
+                        0,
+                        20,
+                        40
+                );
+
+                for (Player p : gamePlayers) {
+                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.7F, 1F);
+                }
+
                 this.cancel();
                 start();
             }
@@ -226,20 +263,29 @@ public class Game {
         Prepare the game for a start
            - cleaning and locking down teams
            - spawning teams/players in their respective spawnpoints
+           - fill chests
            - updating game state
            - start the countdown
         */
 
-        teams.removeIf(GameTeam::isEmpty);
 
-        // todo: fill chests
-        //      - create yml serializer for enchants and items (for loot table)
+        teams.removeIf(GameTeam::isEmpty);
 
         setBarriers();
 
         spawnTeams();
 
         gameState = GameState.STARTING;
+
+        chests = getChestLocations();
+        fillChests(true);
+
+        boolean useWorldBorder = true; // todo expose flag to Game class and to config
+
+        if (useWorldBorder) {
+            map.getWorld().getWorldBorder().setCenter(map.getBounds().getCenterX(), map.getBounds().getCenterZ());
+            map.getWorld().getWorldBorder().setSize(Math.max(map.getBounds().getWidthX(), map.getBounds().getWidthZ()));
+        }
 
         tryGameCountdown();
     }
@@ -342,6 +388,59 @@ public class Game {
             }
 
         }
+    }
+
+    private void fillChests(boolean clearExisting) {
+
+        for (Block block : chests) {
+            Chest chest = (Chest) block;
+
+            if (clearExisting) {
+                chest.getInventory().clear();
+            }
+
+            int max = lootTable.getItemsPerChestRange().generateRandom(0).intValue();
+
+            for (int i = 0; i < max; i++) {
+                chest.getInventory().setItem(
+                        new Random().nextInt(0, chest.getInventory().getSize() - 1),
+                        lootTable.getLootManager().selectItem().toItemStack()
+                );
+            }
+        }
+    }
+
+    private List<Block> getChestLocations() {
+        // warning: expensive!
+        List<Block> results = new ArrayList<>();
+
+        BoundingBox bounds = this.map.getBounds();
+
+        int minChunkX = bounds.getMin().getBlockX() >> 4; // binary shifting (equivalent to multiply by 16)
+        int minChunkZ = bounds.getMin().getBlockZ() >> 4;
+
+        int maxChunkX = bounds.getMax().getBlockX() >> 4;
+        int maxChunkZ = bounds.getMax().getBlockZ() >> 4;
+
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                Chunk chunk = map.getWorld().getChunkAt(cx, cz);
+
+                for (BlockState tile : chunk.getTileEntities()) {
+                    if (tile instanceof Chest chest) {
+
+                        Block block = chest.getLocation().getBlock();
+
+                        if (bounds.contains(block.getX(), block.getY(), block.getZ())) {
+                            results.add(block);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return results;
     }
 
     private void setBarriers() {

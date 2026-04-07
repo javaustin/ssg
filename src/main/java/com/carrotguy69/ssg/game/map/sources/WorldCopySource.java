@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.models.map.sources;
+package com.carrotguy69.ssg.game.map.sources;
 
 import org.bukkit.Location;
 import org.bukkit.util.BoundingBox;

@@ -1,12 +1,10 @@
-# schema is work in progress
-
 teams:
   # The plugin will iterate through this list to find its team prefixes.
-  # In solos mode (team maxCapacity=1), the prefixes will just be the player names.
   # If this list is left empty or too small to cover all teams, the default behavior is: ["&aTeam 1", "&aTeam 2", "&Team 3", ...]
   # Team color is derived from the prefix text.
   names:
     ["&aTeam 1", "&bTeam 2", "&cTeam 3", "&dTeam 4"]
+  solos-use-player-names: true # In solos mode (any mode where team maxCapacity=1), the prefixes will just be the player names.
 
 timers:
   # Amount of seconds to count down from, before moving the lobby to the game arena

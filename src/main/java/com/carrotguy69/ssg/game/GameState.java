@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.models;
+package com.carrotguy69.ssg.game;
 
 public enum GameState {
     WAITING,

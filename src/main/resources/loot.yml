@@ -1,35 +1,37 @@
-
-# Randomly apply enchants to enchantable items that don't already have enchants.
-simple-enchant:
-  enabled: true
-
-  enchants:
-    - id: SHARPNESS
-      level: 1-3 # can be integer or range of integer
-      weight: 1 # integer or double/float
-
-    - id: FIRE_ASPECT
-      level: 1-3
-      weight: 1
-
-    - id: KNOCKBACK
-      level: 1-2
-      weight: 1
-
 loot-tables:
+  example:
+    simple-enchant:
+      enabled: true
+      max-enchants-per-item: 3
 
-  normal:
-    - item: diamond_sword
-      amount: 1 # can be integer or range of integer
-      name: "&4God Sword"
-      lore:
-        - "&eFancy lore"
-        - "&fa the second line"
-      enchant:
-        id: SHARPNESS,
-        level: 1
-      weight: 0.1
+      enchant-pool:
+        - id: SHARPNESS
+          level: 1-3 # can be integer or range of integer
+          weight: 1 # (double) -> higher weight -> higher chance of appearing in a chest
 
-    - item: steak
-      amount: 2-4 # can be integer or range of integer
-      weight: 1
+        - id: FIRE_ASPECT
+          level: 1-3
+          weight: 1
+
+        - id: KNOCKBACK
+          level: 1-2
+          weight: 1
+
+    item-pool:
+
+      - id: diamond_sword
+        amount: 0-1 # can be integer or range of integer
+        name: "&4God Sword"
+        lore:
+          - "&eFancy lore"
+          - "&fa the second line"
+
+        enchants: # Always applied
+          - id: SHARPNESS
+            level: 1
+
+        weight: 0.1
+
+      - id: steak
+        amount: 2-4 # can be integer or range of integer
+        weight: 1

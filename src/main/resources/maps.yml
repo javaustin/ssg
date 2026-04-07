@@ -9,10 +9,14 @@ maps:
 
       paste-location: {world: "games", x: 0, y: 0, z: 0}
 
+    world: "games"
+
     spawns:
       - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    lobby-spawn: {world: "games", x: 0, y: 0, z: 0}
 
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}
@@ -29,12 +33,16 @@ maps:
         pos1: {world: "backup", x: 100, y: 100, z: 100}
         pos2: {world: "backup", x: -100, y: -100, z: -100}
 
-      paste-location: {world: "games", x: 0, y: 0, z: 0, rotation: 0}
+      paste-location: {world: "games", x: 0, y: 0, z: 0}
+
+    world: "games"
 
     spawns:
       - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    lobby-spawn: { world: "games", x: 0, y: 0, z: 0 }
 
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}
@@ -46,10 +54,14 @@ maps:
     source:
       type: STATIC
 
+    world: "games"
+
     spawns:
       - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+
+    lobby-spawn: {world: "games", x: 0, y: 0, z: 0}
 
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}

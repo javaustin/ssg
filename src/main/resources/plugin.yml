@@ -16,6 +16,14 @@ commands:
     usage: /test <content>
     permission: "ssg.test"
 
+  print:
+    description: Print
+    usage: /test <content>
+    permission: "ssg.test"
+
 permissions:
   ssg.test:
-    default: true
+    default: op
+
+  ssg.print:
+    default: op

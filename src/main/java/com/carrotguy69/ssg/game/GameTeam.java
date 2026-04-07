@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.models;
+package com.carrotguy69.ssg.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
