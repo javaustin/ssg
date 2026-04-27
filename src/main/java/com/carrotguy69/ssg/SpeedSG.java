@@ -38,8 +38,10 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
-    - YAMLFormatException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
-      We still probably want to keep an exception that is related to the config, but we can use builtin exceptions like FileNotFoundException
+    - InvalidConfigurationException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
+      We still probably want to keep this exception, but we can use builtin exceptions like FileNotFoundException more often
+
+    - Do not throw exceptions from the CXYZ package
 
     */
 

@@ -10,8 +10,8 @@ import java.util.Random;
 public class NumberRange {
 
     public static boolean strictMode = true;
-    public Number min;
-    public Number max;
+    private Number min;
+    private Number max;
 
     public NumberRange(Number min, Number max) {
         if (compare(min, max) == -1) {
@@ -89,6 +89,14 @@ public class NumberRange {
 
     public Number generateRandom(int precision) {
         return generateRandom(new Random(), precision);
+    }
+
+    public Number min() {
+        return min;
+    }
+
+    public Number max() {
+        return max;
     }
 
     public Number generateRandom(Random r, int precision) {

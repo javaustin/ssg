@@ -1,10 +1,28 @@
+game:
+
+
+command-actions:
+  # Execute console commands upon common game events
+
+  on-death:
+    # placeholders: {player}
+    - "coins remove 5 {player}"
+
+  on-kill:
+    # placeholders: {attacker}, {player}
+    - show {player} You were killed by {attacker}
+
+  on-win:
+    # placeholder {player}
+    - "show {player} &6Congratulations on winning!"
+
 teams:
   # The plugin will iterate through this list to find its team prefixes.
   # If this list is left empty or too small to cover all teams, the default behavior is: ["&aTeam 1", "&aTeam 2", "&Team 3", ...]
   # Team color is derived from the prefix text.
   names:
     ["&aTeam 1", "&bTeam 2", "&cTeam 3", "&dTeam 4"]
-  solos-use-player-names: true # In solos mode (any mode where team maxCapacity=1), the prefixes will just be the player names.
+  solos-use-player-names: true # In solos mode (any mode where team maxCapacity=1), team prefixes will just be the player names.
 
 timers:
   # Amount of seconds to count down from, before moving the lobby to the game arena
@@ -13,14 +31,14 @@ timers:
   # Amount of seconds to count down from, before starting the game (when players are already in the arena)
   game-countdown: 10
 
-  # Amount of seconds to count down from the game start, before removing global invulnerability.
-  invulnerability-countdown: 15
+  # Amount of seconds to count down from the game start, before removing global invulnerability
+  invul-countdown: 15
 
-  # Amount of seconds to count down from the game start, before refilling chests.
+  # Amount of seconds to count down from the game start, before refilling chests
   chest-refill: 150
 
   # Amount of seconds to count down from the game start, until the SHOWDOWN event (players are highlighted)
   showdown: 300
 
-  # Amount of seconds to count down from the game start, before the game forcibly declares a winner and ends.
+  # Amount of seconds to count down from the game start, before the game forcibly declares a winner and ends
   game-end: 360

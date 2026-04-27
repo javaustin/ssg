@@ -10,7 +10,7 @@ lobby:
   leave: "{player-rank-prefix}{player-rank-color}{player-display-name} &eleft the lobby." # playerFormatter
 
   info:
-    countdown: "&eGame starting in &6{count} &eseconds." # {count}
+    start-countdown: "&eGame starting in &6{count} &eseconds." # {count}
     start-cancel: "&eStart cancelled! There are not enough players to start a game." # none
 
 game:
@@ -20,7 +20,92 @@ game:
 
   info:
     blurb: |
-      &f-------------------- &6&lSpeed&e&lSG &f--------------------
-      &eblurb something something something
-      -----------------------------------------------------
-    invul: "&c..."
+        &f-------------------- &6&lSpeed&e&lSG &f--------------------
+        &eblurb something something something
+        -----------------------------------------------------
+    invul-countdown: "&cInvulnerability wears off in {count} seconds."
+    refill-announcement: "&6Chests refilled!"
+
+  # Indicators that display on a gamePlayer
+  alive-indicator: ""
+  dead-indicator: "💀"
+
+  # gameTeam {team}, gamePlayer {player}, gamePlayer {attacker}
+  death-announcement:
+    team:
+      default: "&4{team} &4has been eliminated!"
+
+    player:
+      melee: "&c{player} was killed by {attacker}!"
+      projectile: "&c{player} was shot by {attacker}!"
+      explosive: "&c{player} was blown up by {attacker}!"
+      default: "&c{player} died"
+
+  death-message:
+    team:
+      default: "&4Your team has been eliminated."
+
+    player:
+      melee: "&cYou were killed by {attacker}!"
+      projectile: "&cYou were shot by {attacker}!"
+      explosive: "&cYou were blown up by {attacker}!"
+      default: "&cYou died"
+
+  kill-message:
+    team:
+      default: "&4You eliminated {team}"
+
+    player:
+      melee: "&cYou killed {player}!"
+      projectile: "&cYou shot {player}!"
+      default: "&cYou blew up {player}!"
+
+  win:
+    victory-title:
+      title: "&6&lVICTORY"
+      subtitle: "&eYou've won the match!"
+      fade-in-ticks: 0
+      stay-ticks: 40
+      fade-out-ticks: 20
+
+    lose-title:
+      title: "&6&lGame over!"
+      subtitle: "&eBetter luck next time!"
+      fade-in-ticks: 0
+      stay-ticks: 40
+      fade-out-ticks: 20
+
+    recaps:
+
+      # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
+      top-killers-numbered-list:
+        entry-format: "{player-color}{player}: {player-stat-round-kills} kills"
+        separator: "\n{i}.) "
+        max-entries: 3
+
+      # This defines the {team-members} placeholder in the recaps
+      team-list:
+        entry-format: "{player-color}{player}"
+        separator: ", "
+        max-entries: 9999
+
+      solo-winner: |
+        ---------------------------------------------
+        {player-color}{player-display-name} &6&lwon the game!
+        &4Final health: {player-health}
+        &cRound kills: {player-stat-round-kills}
+        &6Lifetime kills: {player-stat-lifetime-kills}
+        &eLifetime wins: {player-stat-lifetime-wins}
+        
+        Top killers:
+        {top-killers}
+        ---------------------------------------------
+
+      team-winner: |
+        ---------------------------------------------
+        {team-color}{team} &6&lwon the game!
+        Members: {team-members}
+        
+        Top killers:
+        {top-killers}
+        ---------------------------------------------

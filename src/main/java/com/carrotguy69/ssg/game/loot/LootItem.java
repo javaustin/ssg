@@ -20,7 +20,8 @@ public class LootItem {
     private String displayName;
     private String[] lore;
 
-    private List<LootEnchant> enchants = new ArrayList<>();
+    private List<LootEnchant> weightedEnchants = new ArrayList<>();
+    private List<LootEnchant> bindingEnchants = new ArrayList<>();
 
     public LootItem(String id, NumberRange amount, double weight) {
         this.id = id;
@@ -51,8 +52,12 @@ public class LootItem {
         return lore;
     }
 
-    public List<LootEnchant> getEnchants() {
-        return enchants;
+    public List<LootEnchant> getWeightedEnchants() {
+        return weightedEnchants;
+    }
+
+    public List<LootEnchant> getBindingEnchants() {
+        return bindingEnchants;
     }
 
     public void setDisplayName(String displayName) {
@@ -63,17 +68,30 @@ public class LootItem {
         this.lore = lore;
     }
 
-    public void setEnchants(List<LootEnchant> enchants) {
-        this.enchants = enchants;
+    public void setWeightedEnchants(List<LootEnchant> weightedEnchants) {
+        this.weightedEnchants = weightedEnchants;
     }
 
     public void addEnchant(LootEnchant enchant) {
-        this.enchants.add(enchant);
+        this.weightedEnchants.add(enchant);
     }
 
     public boolean removeEnchant(LootEnchant enchant) {
-        return this.enchants.remove(enchant);
+        return this.weightedEnchants.remove(enchant);
     }
+
+    public void setBindingEnchants(List<LootEnchant> bindingEnchants) {
+        this.bindingEnchants = bindingEnchants;
+    }
+
+    public void addBindingEnchant(LootEnchant enchant) {
+        this.bindingEnchants.add(enchant);
+    }
+
+    public boolean removeBindingEnchant(LootEnchant enchant) {
+        return this.weightedEnchants.remove(enchant);
+    }
+
 
     public ItemStack toItemStack() {
         ItemStack is = new ItemStack(
@@ -102,8 +120,8 @@ public class LootItem {
             meta.setLore(lines);
         }
 
-        if (enchants != null) {
-            for (LootEnchant enchant : enchants) {
+        if (weightedEnchants != null) {
+            for (LootEnchant enchant : weightedEnchants) {
                 Enchantment mcEnchantment = Enchantment.getByName(enchant.getID());
 
                 if (mcEnchantment == null) {
@@ -123,7 +141,7 @@ public class LootItem {
         LootItem lootItem = new LootItem(this.id, this.amount, this.weight);
         lootItem.displayName = displayName;
         lootItem.lore = lore;
-        lootItem.enchants = new ArrayList<>(this.enchants);
+        lootItem.weightedEnchants = new ArrayList<>(this.weightedEnchants);
 
         return lootItem;
     }
@@ -136,7 +154,8 @@ public class LootItem {
                 "weight=" + weight + "," +
                 "displayName=" + displayName + "," +
                 "lore=" + Arrays.toString(lore) + "," +
-                "enchants=" + enchants +
+                "weightedEnchants=" + weightedEnchants + "," +
+                "bindingEnchants=" + bindingEnchants +
                 "}";
     }
 }

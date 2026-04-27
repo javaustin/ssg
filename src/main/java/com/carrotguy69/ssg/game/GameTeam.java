@@ -1,5 +1,9 @@
 package com.carrotguy69.ssg.game;
 
+import com.carrotguy69.cxyz.messages.MessageUtils;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +19,7 @@ public class GameTeam {
     // Matchmaking scores (if the score is lower than the team is underbalanced and needs more players)
     public final double matchmakingScore = 0;
 
-    private final Map<String, Integer> stats = new HashMap<>();
+    private final Map<String, Double> stats = new HashMap<>();
 
     public GameTeam(String prefix, String color, List<GamePlayer> players, int capacity) {
         this.prefix = prefix;
@@ -31,7 +35,6 @@ public class GameTeam {
     public String getColor() {
         return this.color;
     }
-
 
     public boolean isAlive() {
         return !getAliveMembers().isEmpty();
@@ -66,6 +69,10 @@ public class GameTeam {
     }
 
     public void addPlayer(GamePlayer gp) {
+        if (this.players.size() == capacity) {
+            throw new RuntimeException("Cannot add player to team because the team is full!");
+        }
+
         this.players.add(gp);
     }
 
@@ -73,16 +80,33 @@ public class GameTeam {
         this.players.remove(gp);
     }
 
-    public int getStat(String key) {
-        return stats.getOrDefault(key, 0);
+    public Map<String, Double> getStats() {
+        return stats;
     }
 
-    public void addStat(String key, int value) {
-        stats.put(key, getStat(key) + value);
+    public double getStat(String key, double def) {
+        return stats.getOrDefault(key, def);
     }
 
-    public void setStat(String key, int value) {
+    public void setStat(String key, double value) {
         stats.put(key, value);
+    }
+
+    public void sendTeamMessage(String unparsedContent, Map<String, Object> formatMap, List<GamePlayer> excludingPlayers) {
+        TextComponent component = MessageUtils.createMessage(unparsedContent, formatMap);
+
+        for (GamePlayer gp : this.players) {
+            if (gp.getBukkitPlayer() == null) {
+                continue;
+            }
+
+            if (excludingPlayers.contains(gp))
+                continue;
+
+            Player p = gp.getBukkitPlayer();
+
+            p.sendMessage(component);
+        }
     }
 
 }

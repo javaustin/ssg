@@ -1,6 +1,6 @@
 package com.carrotguy69.ssg.game.loot;
 
-import com.carrotguy69.cxyz.exceptions.YAMLFormatException;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,15 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.carrotguy69.ssg.SpeedSG.lootTables;
+
 public class LootTable {
     private final String name;
-    private final NumberRange itemsPerChest;
     private final LootManager lootManager;
 
-    public LootTable(String name, LootManager lootManager, NumberRange itemsPerChest) {
+    public LootTable(String name, LootManager lootManager) {
         this.name = name;
         this.lootManager = lootManager;
-        this.itemsPerChest = itemsPerChest;
     }
 
     public String getName() {
@@ -28,16 +28,12 @@ public class LootTable {
         return this.lootManager;
     }
 
-    public NumberRange getItemsPerChestRange() {
-        return this.itemsPerChest;
-    }
-
     public static List<LootTable> loadLootTables() {
 
         ConfigurationSection section = SpeedSG.lootYML.getConfigurationSection("loot-tables");
 
         if (section == null) {
-            throw new YAMLFormatException("loot.yml", "loot-tables", "Could not find section!");
+            throw new InvalidConfigurationException("loot.yml", "loot-tables", "Could not find section!");
         }
 
         List<LootTable> results = new ArrayList<>();
@@ -45,25 +41,26 @@ public class LootTable {
         for (String lootTableName : section.getKeys(false)) {
             ConfigurationSection lootTableSection = section.getConfigurationSection(lootTableName);
 
-            // Not worth doing a proper check, because we are getting the table name from the section itself. It HAS to exist.
-            assert lootTableSection != null;
+
+            if (lootTableSection == null) {
+                // Since we are getting the section name from the parent section itself, it HAS to exist, or else there are much larger problems.
+                throw new InvalidConfigurationException("loot.yml", "loot-tables." + lootTableName, "Could not find section! Is the YAML malformed?");
+            }
+
+            NumberRange itemsPerChest = NumberRange.fromString(lootTableSection.getString("settings.items-per-chest", "3-7"));
+
+            boolean simpleEnchant = lootTableSection.getBoolean("settings.simple-enchant", false);
+            NumberRange enchantsPerItem = NumberRange.fromString(lootTableSection.getString("settings.enchants-per-item", "23"));
 
 
-            boolean simpleEnchant = lootTableSection.getBoolean("simple-enchant.enabled", false);
-
-            // Assume that every YAML key that accepts a Number also accepts a Number (not supported in YAML, so a String). So instead convert from String -> NumberRange -> Number.
-            // It's better to consistently allow NumberRange than to switch every other YAML key, albeit a NumberRange doesn't entirely make sense with this setting.
-            int maxEnchantsPerItem = NumberRange.fromString(lootTableSection.getString("simple-enchant.max-enchants-per-item", "2")).generateRandom(0).intValue();
-
-            // do NOT get enchant pool if simpleEnchant is disabled
+            // Do not get simpleEnchantPool if simple-enchant is disabled.
             List<LootEnchant> enchantPool = simpleEnchant ? getEnchantPool(lootTableSection): new ArrayList<>();
 
             List<LootItem> itemPool = getItemPool(lootTableSection);
 
-            LootManager manager = new LootManager(itemPool, enchantPool, maxEnchantsPerItem);
+            LootManager manager = new LootManager(itemPool, enchantPool, itemsPerChest, enchantsPerItem, simpleEnchant);
 
-            // todo: expose itemsPerChest NumberRange to loot.yml for configurability when you have thought of a decent structure
-            LootTable table = new LootTable(lootTableName, manager, new NumberRange(3,  7));
+            LootTable table = new LootTable(lootTableName, manager);
 
             results.add(table);
         }
@@ -114,12 +111,14 @@ public class LootTable {
 
             List<LootEnchant> enchants = new ArrayList<>();
             if (enchantsListMap != null)
-                getEnchantPool(enchantsListMap);
+                enchants = getEnchantPool(enchantsListMap);
 
             LootItem it = new LootItem(id.toUpperCase(), amount, weight.generateRandom(2).doubleValue());
             it.setDisplayName(name);
             it.setLore(lore);
-            it.setEnchants(enchants);
+
+            it.setWeightedEnchants(enchants.stream().filter(e -> e.getWeight() < 0).toList());
+            it.setBindingEnchants(enchants.stream().filter(e -> e.getWeight() >= 0).toList());
 
             results.add(it);
         }
@@ -132,7 +131,7 @@ public class LootTable {
             return new ArrayList<>();
         }
 
-        List<Map<?, ?>> enchants = lootTableSection.getMapList("simple-enchant.enchant-pool");
+        List<Map<?, ?>> enchants = lootTableSection.getMapList("enchant-pool");
 
         return getEnchantPool(enchants);
     }
@@ -154,7 +153,7 @@ public class LootTable {
             }
 
             if (weightObj == null) {
-                weightObj = "1";
+                weightObj = "-1";
             }
 
             String id = idObj.toString();
@@ -165,6 +164,16 @@ public class LootTable {
         }
 
         return results;
+    }
+
+    public static LootTable getByName(String name) {
+        for (LootTable table : lootTables) {
+            if (table.getName().equalsIgnoreCase(name)) {
+                return table;
+            }
+        }
+
+        return null;
     }
 
     @Override

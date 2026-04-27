@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.game.map;
 
-import com.carrotguy69.cxyz.exceptions.YAMLFormatException;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
 import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
 import com.carrotguy69.ssg.game.map.sources.StaticSource;
@@ -44,8 +45,39 @@ public class GameMap {
     private final List<Location> spawns;
     private final BoundingBox bounds;
     private final World world;
+    private final WorldBorderConfig worldBorderSettings;
 
-    private GameMap(String id, String name, MapSource source, List<Location> spawns, Location lobbySpawnPoint, BoundingBox bounds, World world) {
+    public static class WorldBorderConfig {
+        private final boolean enabled;
+        private final boolean shrink;
+        private final double finalWidth;
+        private final int shrinkTimeSeconds;
+
+        public WorldBorderConfig(boolean enabled, boolean shrink, double finalWidth, int shrinkTimeSeconds) {
+            this.enabled = enabled;
+            this.shrink = shrink;
+            this.finalWidth = finalWidth;
+            this.shrinkTimeSeconds = shrinkTimeSeconds;
+        }
+
+        public boolean isBorderEnabled() {
+            return this.enabled;
+        }
+
+        public boolean isBorderShrink() {
+            return this.shrink;
+        }
+
+        public double getFinalWidth() {
+            return this.finalWidth;
+        }
+
+        public int getShrinkTimeSeconds() {
+            return this.shrinkTimeSeconds;
+        }
+    }
+
+    private GameMap(String id, String name, MapSource source, List<Location> spawns, Location lobbySpawnPoint, BoundingBox bounds, World world, WorldBorderConfig worldBorderSettings) {
         this.id = id;
         this.name = name;
         this.source = source;
@@ -53,6 +85,7 @@ public class GameMap {
         this.lobbySpawn = lobbySpawnPoint;
         this.bounds = bounds;
         this.world = world;
+        this.worldBorderSettings = worldBorderSettings;
     }
 
     public String getID() {
@@ -81,6 +114,10 @@ public class GameMap {
 
     public World getWorld() {
         return world;
+    }
+
+    public WorldBorderConfig getWorldBorderSettings() {
+        return worldBorderSettings;
     }
 
     public void paste() throws FileNotFoundException {
@@ -166,7 +203,7 @@ public class GameMap {
         ConfigurationSection section = mapYML.getConfigurationSection("maps");
 
         if (section == null) {
-            throw new YAMLFormatException("maps.yml", "maps", "Could not find YAML section!");
+            throw new InvalidConfigurationException("maps.yml", "maps", "Could not find YAML section!");
         }
 
         for (String mapID : section.getKeys(false)) {
@@ -178,7 +215,7 @@ public class GameMap {
 
             String gameWorldName = section.getString(mapID + ".world", null);
             if (gameWorldName == null) {
-                throw new YAMLFormatException("maps.yml", "maps." + mapID + ".world", "World not defined!");
+                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".world", "World not defined!");
             }
 
             World world = Bukkit.getWorld(gameWorldName);
@@ -221,8 +258,6 @@ public class GameMap {
             List<Map<?, ?>> boundsMapList2 = section.getMapList(mapID + ".bounds.pos2");
             Location boundsPos2 = LocationUtils.getLocationFromYML(boundsMapList2);
 
-            // todo: enforce that all destination worlds are equal to the one provided: 'world'
-
             BoundingBox mapBounds;
 
 
@@ -232,10 +267,10 @@ public class GameMap {
                 case "SCHEMATIC":
 
                     if (sourceFileName == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.file", "Source file not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.file", "Source file not defined!");
                     }
                     if (sourceWorldName == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
                     }
 
                     source = new SchematicSource(sourceFileName, pasteLocation);
@@ -244,19 +279,19 @@ public class GameMap {
                 case "WORLD_COPY":
 
                     if (sourceWorldName == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
                     }
 
                     if (copyBoundsPos1 == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos1", "Position 1 not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos1", "Position 1 not defined!");
                     }
 
                     if (copyBoundsPos2 == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
                     }
 
                     if (pasteLocation == null) {
-                        throw new YAMLFormatException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
+                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
                     }
 
                     source = new WorldCopySource(sourceWorldName, copyBounds, pasteLocation);
@@ -271,25 +306,31 @@ public class GameMap {
             }
 
             if (spawns.isEmpty()) {
-                throw new YAMLFormatException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
+                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
             }
 
             if (lobbySpawnLocation == null) {
-                throw new YAMLFormatException("maps.yml", "maps." + mapID + ".lobby-spawn", "Lobby spawn not defined!");
+                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".lobby-spawn", "Lobby spawn not defined!");
             }
 
             if (boundsPos1 == null) {
-                throw new YAMLFormatException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");
+                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");
             }
 
             if (boundsPos2 == null) {
-                throw new YAMLFormatException("maps.yml", "maps." + mapID + ".bounds.pos2", "Position 2 not defined!");
+                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".bounds.pos2", "Position 2 not defined!");
             }
 
             mapBounds = new BoundingBox(boundsPos1.x(), boundsPos1.y(), boundsPos1.z(), boundsPos2.x(), boundsPos2.y(), boundsPos2.z());
 
+            boolean enabled = section.getBoolean(mapID + "world-border.enabled", true);
+            boolean shrink = section.getBoolean(mapID + ".world-border.shrink", true);
+            double width = section.getDouble(mapID + ".world-border.shrink.width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
+            int seconds = section.getInt(mapID + ".world-border.shrink.seconds", 60);
 
-            GameMap map = new GameMap(mapID, displayName, source, spawns, lobbySpawnLocation, mapBounds, world);
+            WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, width, seconds);
+
+            GameMap map = new GameMap(mapID, displayName, source, spawns, lobbySpawnLocation, mapBounds, world, borderConfig);
 
             results.add(map);
         }

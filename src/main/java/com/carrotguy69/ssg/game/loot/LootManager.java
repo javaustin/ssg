@@ -1,5 +1,6 @@
 package com.carrotguy69.ssg.game.loot;
 
+import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
@@ -18,14 +19,19 @@ public class LootManager {
 
     private double totalItemWeight = 0;
 
-    private final int maxEnchantsPerItem;
+    private final NumberRange itemsPerChest;
+    private final NumberRange enchantsPerItem;
+
+    private final boolean simpleEnchantEnabled;
 
     private Random r;
 
-    public LootManager(List<LootItem> itemPool, List<LootEnchant> simpleEnchantPool, int maxEnchantsPerItem) {
+    public LootManager(List<LootItem> itemPool, List<LootEnchant> simpleEnchantPool, NumberRange itemsPerChest, NumberRange enchantsPerItem, boolean simpleEnchantEnabled) {
         this.itemPool = itemPool;
         this.simpleEnchantPool = simpleEnchantPool;
-        this.maxEnchantsPerItem = maxEnchantsPerItem;
+        this.itemsPerChest = itemsPerChest;
+        this.enchantsPerItem = enchantsPerItem;
+        this.simpleEnchantEnabled = simpleEnchantEnabled;
         this.r = new Random();
 
         sumWeights();
@@ -59,6 +65,18 @@ public class LootManager {
         return this.simpleEnchantPool;
     }
 
+    public NumberRange getItemsPerChest() {
+        return this.itemsPerChest;
+    }
+
+    public NumberRange getEnchantsPerItem() {
+        return this.enchantsPerItem;
+    }
+
+    public boolean isSimpleEnchantEnabled() {
+        return this.simpleEnchantEnabled;
+    }
+
 
     private void sumWeights() {
         this.totalItemWeight = 0;
@@ -74,7 +92,9 @@ public class LootManager {
 
         LootItem item = getLootItem(roll);
 
-        return applyEnchants(item);
+        applySimpleEnchants(item);
+
+        return item;
     }
 
     private LootItem getLootItem(double roll) {
@@ -91,59 +111,46 @@ public class LootManager {
         }
 
         if (item == null) {
-            throw new RuntimeException("No item could be selected.");
+            throw new RuntimeException("No LootItem could be selected.");
         }
 
-        // Copy so our enchant methods don't point to the original item and stack enchants recursively
         item = item.copy();
         return item;
     }
 
-    private LootItem applyEnchants(LootItem item) {
+
+    private void applySimpleEnchants(LootItem item) {
         // Use simple-enchant to apply enchants.
         // simple-enchant is considered to be enabled if (enchants != null && !enchants.isEmpty())
 
-        if (simpleEnchantPool == null || simpleEnchantPool.isEmpty()) {
-            return item;
+        if (!simpleEnchantEnabled || simpleEnchantPool == null || simpleEnchantPool.isEmpty()) {
+            return;
         }
 
-        if (item.getEnchants() != null && !item.getEnchants().isEmpty()) {
-            // Skip if item is already enchanted (why does it have enchants to begin with?)
-            return item;
-        }
+//        if (item.getWeightedEnchants() != null && !item.getWeightedEnchants().isEmpty()) {
+//            // Skip if item is already enchanted
+//            return;
+//        }
 
-        // 1. Determine the # of enchants to apply
+        // 1. Determine the amount of enchants to apply using a distribution
         int bias = 3;
 
-        // A loop of these creates a distribution skewed towards (1 - 1 = 0)
-        int amountOfEnchants = (int) Math.ceil(Math.pow(r.nextDouble(0, 1), bias) * (maxEnchantsPerItem + 1)) - 1;
+        int amount = (int) Math.ceil(Math.pow(r.nextDouble(0, 1), bias) * (enchantsPerItem.max().intValue() + 1)) + enchantsPerItem.min().intValue() - 1;
 
-        if (amountOfEnchants == 0) {
-            return item;
-        }
+        if (amount == 0)
+            return;
 
         // 2. Determine compatible enchants
         List<String> compatibleEnchantmentNames = getCompatibleEnchants(item).stream().map(Enchantment::getKey).map(NamespacedKey::getKey).toList();
 
-        // 3. Apply LootEnchant(s) to the LootItem.
-        List<LootEnchant> selected = selectEnchants(amountOfEnchants);
+        // 3. Select an amount of enchants from the simpleEnchantPool
+        List<LootEnchant> selected = selectEnchants(simpleEnchantPool, amount);
 
-        // 4. Remove incompatible enchantments
-        List<LootEnchant> remove = new ArrayList<>();
+        // 4. Filter our any incompatible enchantments
+        selected = selected.stream().filter(e -> !compatibleEnchantmentNames.contains(e.getID())).toList();
 
-        for (LootEnchant selection : selected) {
-            if (!compatibleEnchantmentNames.contains(selection.getID())) {
-                remove.add(selection);
-            }
-        }
-
-        for (LootEnchant rm : remove) {
-            selected.remove(rm);
-        }
-
-        item.getEnchants().addAll(selected);
-
-        return item;
+        // 5. Bind enchants to item
+        item.setBindingEnchants(selected);
     }
 
     public LootItem[] selectItems(int limit) {
@@ -167,36 +174,40 @@ public class LootManager {
                 .collect(Collectors.toList());
     }
 
-    private LootEnchant selectEnchant() {
+
+    private LootEnchant selectEnchant(List<LootEnchant> pool) {
         double totalWeight = 0;
 
-        for (LootEnchant lootEnchant : simpleEnchantPool) {
+        for (LootEnchant lootEnchant : pool) {
+            if (lootEnchant.getWeight() < 0)
+                continue;
+
             totalWeight += lootEnchant.getWeight();
         }
 
         double roll = 0 != totalWeight ? r.nextDouble(0, totalWeight) : 0;
 
         double cumulative = 0;
-        for (LootEnchant lootEnchant : simpleEnchantPool) {
+        for (LootEnchant lootEnchant : pool) {
             cumulative += lootEnchant.getWeight();
             if (roll < cumulative) {
                 return lootEnchant;
             }
         }
 
-        if (!simpleEnchantPool.isEmpty()) {
-            return simpleEnchantPool.getFirst();
+        if (!pool.isEmpty()) {
+            return pool.getFirst();
         }
 
-        throw new RuntimeException("options cannot be empty.");
+        throw new RuntimeException("LootEnchant pool cannot be empty.");
     }
 
 
-    private List<LootEnchant> selectEnchants(int limit) {
+    private List<LootEnchant> selectEnchants(List<LootEnchant> pool, int limit) {
         List<LootEnchant> enchants = new ArrayList<>();
 
         for (int i = 0; i < limit; i++) {
-            LootEnchant enchant = selectEnchant();
+            LootEnchant enchant = selectEnchant(pool);
 
             enchants.add(enchant);
         }
@@ -209,7 +220,9 @@ public class LootManager {
         return "LootManager{" +
                 "itemPool=" + itemPool + "," +
                 "simpleEnchantPool=" + simpleEnchantPool + "," +
-                "maxEnchantsPerItem=" + maxEnchantsPerItem +
+                "itemsPerChest=" + itemsPerChest + "," +
+                "enchantsPerItem=" + enchantsPerItem + "," +
+                "simpleEnchantEnabled=" + simpleEnchantEnabled +
                 "}";
     }
 
