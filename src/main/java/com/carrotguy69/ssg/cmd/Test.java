@@ -10,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class Test implements CommandExecutor {
+
+    public static CommandExecutor executor = new Test();
+
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
         String node = "ssg.test";

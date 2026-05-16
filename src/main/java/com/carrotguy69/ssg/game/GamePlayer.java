@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.carrotguy69.ssg.SpeedSG.configYML;
+
 public class GamePlayer {
     private final UUID uuid;
     private boolean alive;
@@ -16,22 +18,20 @@ public class GamePlayer {
     private GameTeam team;
     private final Map<String, Double> stats = new HashMap<>();
 
-
-    public GamePlayer(Player p) {
-        this.uuid = p.getUniqueId();
-        this.alive = false;
-        this.kills = 0;
-        this.lives = 1;
+    public GamePlayer(UUID uuid) {
+        this.uuid = uuid;
         this.team = null;
-
+        this.lives = configYML.getInt("game.respawns.default-lives");
+        this.alive = true;
+        this.kills = 0;
     }
 
-    public GamePlayer(UUID uuid, GameTeam team, int lives, boolean alive, int kills) {
-        this.uuid = uuid;
-        this.team = team;
-        this.lives = lives;
-        this.alive = alive;
-        this.kills = kills;
+    public int getLives() {
+        return this.lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = Math.max(0, lives);
     }
 
     public Player getBukkitPlayer() {
@@ -70,16 +70,19 @@ public class GamePlayer {
         this.team = team;
     }
 
-    public Map<String, Double> getStats() {
+    public Map<String, Double> getTemporaryStat() {
         return stats;
     }
 
-    public double getStat(String key, double def) {
+    public double getTemporaryStat(String key, double def) {
         return stats.getOrDefault(key, def);
     }
 
-    public void setStat(String key, double value) {
+    public void setTemporaryStat(String key, double value) {
         stats.put(key, value);
     }
 
+    public Game getGame() {
+        return Game.getByPlayer(this.getBukkitPlayer());
+    }
 }

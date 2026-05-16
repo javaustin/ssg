@@ -1,9 +1,11 @@
 package com.carrotguy69.ssg.messages.utils;
 
+import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameTeam;
 import com.carrotguy69.ssg.messages.MessageGrabber;
-import com.carrotguy69.ssg.messages.MessageKey;
+import com.carrotguy69.ssg.messages.SSGMessageKey;
+import com.carrotguy69.ssg.utils.objects.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +13,61 @@ import java.util.List;
 import java.util.Map;
 
 public class MapFormatters {
+
+    public static Map<String, Object> gamePlayerFormatter(GamePlayer gp) {
+        Map<String, Object> commonMap = com.carrotguy69.cxyz.messages.utils.MapFormatters.playerFormatter(gp.getNetworkPlayer());
+
+        if (gp.getTeam() != null)
+            commonMap.putAll(cloneFormaterToNewKey(MapFormatters.teamFormatter(gp.getTeam()), "team", "player-team"));
+
+        String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
+        String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
+
+        commonMap.put("player-dead", !gp.isAlive() ? deadIndicator : aliveIndicator);
+
+        commonMap.put("player-health", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
+        commonMap.put("player-hp", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
+
+        for (Map.Entry<String, Double> entry : gp.getTemporaryStat().entrySet()) {
+            String key = entry.getKey();
+            double val = entry.getValue();
+
+            if (String.valueOf(val).contains("."))
+                commonMap.put("player-stat-" + key, String.format("%.1f", val));
+
+            else
+                commonMap.put("player-stat-" + key, String.format("%.0f", val));
+        }
+
+        return commonMap;
+    }
+
+    public static Map<String, Object> teamFormatter(GameTeam gt) {
+        // We fill these with ternary operators with default="" because sometimes there is not a team, and we'd rather have the placeholders filled as "" than remaining.
+
+        Map<String, Object> commonMap = new HashMap<>();
+
+        commonMap.put("team", gt != null ? gt.getName() : "");
+        commonMap.put("team-prefix", gt != null ? gt.getName() : "");
+        commonMap.put("team-name", gt != null ? gt.getName() : "");
+
+        commonMap.put("team-short-name", gt != null ? gt.getShortName() : "");
+        commonMap.put("team-color", gt != null ? ColorUtils.getColorCode(gt.getRGBColor()) : "");
+        commonMap.put("team-capacity", gt != null ? gt.getCapacity() : "");
+
+        if (gt != null)
+            for (Map.Entry<String, Double> entry : gt.getStats().entrySet()) {
+                String key = entry.getKey();
+                double val = entry.getValue();
+
+                if (String.valueOf(val).contains("."))
+                    commonMap.put("team-stat-" + key, String.format("%.1f", val));
+                else
+                    commonMap.put("team-stat-" + key, String.format("%.0f", val));
+            }
+
+        return commonMap;
+    }
 
     public static com.carrotguy69.cxyz.messages.utils.MapFormatters.ListFormatter gamePlayerListFormatter(List<GamePlayer> players, String format, String delimiter, int maxEntriesPerPage, int pageNumber) {
 
@@ -51,61 +108,6 @@ public class MapFormatters {
         return new com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter(formatter.getEntries(), formatter.getDelimiter(), formatter.getFormatMap(), maxEntriesPerPage, pageNumber);
     }
 
-    public static Map<String, Object> gamePlayerFormatter(GamePlayer gp) {
-        Map<String, Object> commonMap = com.carrotguy69.cxyz.messages.utils.MapFormatters.playerFormatter(gp.getNetworkPlayer());
-
-        if (gp.getTeam() != null)
-            commonMap.putAll(cloneFormaterToNewKey(MapFormatters.teamFormatter(gp.getTeam()), "team", "player-team"));
-
-        String aliveIndicator = MessageGrabber.grab(MessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(MessageKey.ALIVE_INDICATOR) : "";
-        String deadIndicator = MessageGrabber.grab(MessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(MessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
-
-        commonMap.put("player-dead", !gp.isAlive() ? deadIndicator : aliveIndicator);
-
-        commonMap.put("player-health", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
-        commonMap.put("player-hp", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
-
-        for (Map.Entry<String, Double> entry : gp.getStats().entrySet()) {
-            String key = entry.getKey();
-            double val = entry.getValue();
-
-            if (String.valueOf(val).contains("."))
-                commonMap.put("player-stat-" + key, String.format("%.1f", val));
-
-            else
-                commonMap.put("player-stat-" + key, String.format("%.0f", val));
-        }
-
-        return commonMap;
-    }
-
-    public static Map<String, Object> teamFormatter(GameTeam gt) {
-        Map<String, Object> commonMap = new HashMap<>();
-
-        commonMap.put("team", gt != null ? gt.getPrefix() : "");
-        commonMap.put("team-prefix", gt != null ? gt.getPrefix() : "");
-        commonMap.put("team-color", gt != null ? gt.getColor() : "");
-        commonMap.put("team-capacity", gt != null ? gt.getCapacity() : "");
-
-        if (gt != null)
-            for (Map.Entry<String, Double> entry : gt.getStats().entrySet()) {
-                String key = entry.getKey();
-                double val = entry.getValue();
-
-                if (String.valueOf(val).contains("."))
-                    commonMap.put("team-stat-" + key, String.format("%.1f", val));
-                else
-                    commonMap.put("team-stat-" + key, String.format("%.0f", val));
-            }
-
-
-        // todo:
-        //  - team stats {team-stat-{key}}
-        //  - list formatter for players
-
-        return commonMap;
-    }
-
     public static Map<String, Object> cloneFormaterToNewKey(Map<String, Object> originalMap, String fromKey, String toKey) {
         // Returns a new map with identical values but with keys renamed by replacing a given prefix/identifier (fromKey) with a new one (toKey).
         // e.g.: clonePlayerFormatter(playerFormatter(np), "player", "mod") -> {player} will be {mod}, {player-prefix} will be {mod-prefix}
@@ -120,5 +122,13 @@ public class MapFormatters {
         }
 
         return result;
+    }
+
+    public static Map<String, Object> gameFormatter(Game game) {
+        Map<String, Object> commonMap = new HashMap<>();
+
+        commonMap.put("game-id", game.getGameID());
+
+        return commonMap;
     }
 }

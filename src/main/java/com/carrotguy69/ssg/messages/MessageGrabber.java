@@ -12,11 +12,11 @@ public class MessageGrabber {
         return formatPlaceholders(template, values);
     }
 
-    public static String grab(MessageKey key, Map<String, Object> values) {
+    public static String grab(SSGMessageKey key, Map<String, Object> values) {
         return grab(key.getPath(), values);
     }
 
-    public static String grab(MessageKey key) {
+    public static String grab(SSGMessageKey key) {
         return grab(key.getPath(), Map.of());
     }
 

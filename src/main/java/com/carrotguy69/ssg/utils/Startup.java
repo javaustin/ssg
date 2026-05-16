@@ -2,6 +2,8 @@ package com.carrotguy69.ssg.utils;
 
 import com.carrotguy69.ssg.cmd.Print;
 import com.carrotguy69.ssg.cmd.Test;
+import com.carrotguy69.ssg.cmd.game._GameSupercommand;
+import com.carrotguy69.ssg.cmd.team._TeamSupercommand;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -59,11 +61,15 @@ public class Startup {
     }
 
     public static void registerCommands() {
-        Objects.requireNonNull(plugin.getCommand("test")).setExecutor(new Test());
+        Objects.requireNonNull(plugin.getCommand("test")).setExecutor(Test.executor);
         Objects.requireNonNull(plugin.getCommand("test")).setTabCompleter(new com.carrotguy69.ssg.tabCompleters.Test());
 
-        Objects.requireNonNull(plugin.getCommand("print")).setExecutor(new Print());
+        Objects.requireNonNull(plugin.getCommand("print")).setExecutor(Print.executor);
         Objects.requireNonNull(plugin.getCommand("print")).setTabCompleter(new com.carrotguy69.ssg.tabCompleters.Print());
+
+        Objects.requireNonNull(plugin.getCommand("game")).setExecutor(_GameSupercommand.executor);
+
+        Objects.requireNonNull(plugin.getCommand("team")).setExecutor(_TeamSupercommand.executor);
     }
 
     public static void registerEvents() {

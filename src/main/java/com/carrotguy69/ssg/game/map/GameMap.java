@@ -1,12 +1,13 @@
 package com.carrotguy69.ssg.game.map;
 
 import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
-import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
+import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
 import com.carrotguy69.ssg.game.map.sources.StaticSource;
 import com.carrotguy69.ssg.game.map.sources.WorldCopySource;
 import com.carrotguy69.ssg.utils.objects.LocationUtils;
+
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -21,9 +22,11 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.BoundingBox;
 
@@ -41,11 +44,11 @@ public class GameMap {
     private final String id;
     private final String name;
     private final MapSource source;
-    private final Location lobbySpawn;
     private final List<Location> spawns;
     private final BoundingBox bounds;
     private final World world;
     private final WorldBorderConfig worldBorderSettings;
+    public boolean isInUse;
 
     public static class WorldBorderConfig {
         private final boolean enabled;
@@ -77,15 +80,15 @@ public class GameMap {
         }
     }
 
-    private GameMap(String id, String name, MapSource source, List<Location> spawns, Location lobbySpawnPoint, BoundingBox bounds, World world, WorldBorderConfig worldBorderSettings) {
+    private GameMap(String id, String name, MapSource source, List<Location> spawns, BoundingBox bounds, World world, WorldBorderConfig worldBorderSettings) {
         this.id = id;
         this.name = name;
         this.source = source;
         this.spawns = spawns;
-        this.lobbySpawn = lobbySpawnPoint;
         this.bounds = bounds;
         this.world = world;
         this.worldBorderSettings = worldBorderSettings;
+        this.isInUse = false;
     }
 
     public String getID() {
@@ -102,10 +105,6 @@ public class GameMap {
 
     public List<Location> getSpawns() {
         return spawns;
-    }
-
-    public Location getLobbySpawnPoint() {
-        return lobbySpawn;
     }
 
     public BoundingBox getBounds() {
@@ -245,12 +244,6 @@ public class GameMap {
             List<Map<?, ?>> spawnsMapList = section.getMapList(mapID + ".spawns");
             List<Location> spawns = LocationUtils.getLocationsFromYML(spawnsMapList);
 
-
-            // Get lobby spawn
-            List<Map<?, ?>> lobbySpawnMapList = section.getMapList(mapID + ".lobby-spawn");
-            Location lobbySpawnLocation = LocationUtils.getLocationFromYML(lobbySpawnMapList);
-
-
             // Get map bounds
             List<Map<?, ?>> boundsMapList1 = section.getMapList(mapID + ".bounds.pos1");
             Location boundsPos1 = LocationUtils.getLocationFromYML(boundsMapList1);
@@ -309,10 +302,6 @@ public class GameMap {
                 throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
             }
 
-            if (lobbySpawnLocation == null) {
-                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".lobby-spawn", "Lobby spawn not defined!");
-            }
-
             if (boundsPos1 == null) {
                 throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");
             }
@@ -324,13 +313,13 @@ public class GameMap {
             mapBounds = new BoundingBox(boundsPos1.x(), boundsPos1.y(), boundsPos1.z(), boundsPos2.x(), boundsPos2.y(), boundsPos2.z());
 
             boolean enabled = section.getBoolean(mapID + "world-border.enabled", true);
-            boolean shrink = section.getBoolean(mapID + ".world-border.shrink", true);
-            double width = section.getDouble(mapID + ".world-border.shrink.width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
+            boolean shrink = section.getBoolean(mapID + ".world-border.shrink", false);
+            double finalWidth = section.getDouble(mapID + ".world-border.shrink.final-width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
             int seconds = section.getInt(mapID + ".world-border.shrink.seconds", 60);
 
-            WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, width, seconds);
+            WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, finalWidth, seconds);
 
-            GameMap map = new GameMap(mapID, displayName, source, spawns, lobbySpawnLocation, mapBounds, world, borderConfig);
+            GameMap map = new GameMap(mapID, displayName, source, spawns, mapBounds, world, borderConfig);
 
             results.add(map);
         }
@@ -338,6 +327,24 @@ public class GameMap {
 
 
         return results;
+    }
+
+    public static GameMap getByID(String mapID) {
+        for (GameMap map : SpeedSG.gameMaps) {
+            if (map.getID().equalsIgnoreCase(mapID)) {
+                return map;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof GameMap))
+            return false;
+
+        return this.getID().equalsIgnoreCase(((GameMap) other).getID());
     }
 
 

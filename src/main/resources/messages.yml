@@ -1,65 +1,131 @@
-# GamePlayer formatter:
+# the gamePlayer formatter includes:
 #     playerFormatter
 #     player-team = player-team-prefix
 #     player-team-color
 #     player-dead
 
+indicators:
+  # Indicators that display on a gamePlayer
+  alive-indicator: ""
+  dead-indicator: "&7&lDEAD "
+
 lobby:
-  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player-display-name}: &f{content}" # gamePlayer, content
-  join: "{player-rank-prefix}{player-rank-color}{player-display-name} &ejoined the lobby." # playerFormatter
-  leave: "{player-rank-prefix}{player-rank-color}{player-display-name} &eleft the lobby." # playerFormatter
+  # gamePlayer
+  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player}: &f{content}" # + content
+  join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the lobby."
+  leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the lobby."
+
+  # teamFormatter, gamePlayer
+  team:
+    join: "You joined {team-color}{team-name}"
+    join-announcement: "{player-team-color}{player} joined the team"
+
 
   info:
-    start-countdown: "&eGame starting in &6{count} &eseconds." # {count}
-    start-cancel: "&eStart cancelled! There are not enough players to start a game." # none
+    start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
+    start-cancel: "&eStart cancelled! There are not enough players to start a game. You will be teleported to the lobby..." # N/A
 
 game:
-  chat: "{player-dead}{player-team-prefix}{player-rank-color}{player-display-name}: &f{content}" # gamePlayer
-  join: "{player-rank-prefix}{player-rank-color}{player-display-name} &ejoined the game." # gamePlayer
-  leave: "{player-rank-prefix}{player-rank-color}{player-display-name} &eleft the game." # gamePlayer
+  # gamePlayer
+  chat: "{player-dead}{player-team-prefix}{player-rank-color}{player}: &f{content}" # + {content}
+  join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the game."
+  leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the game."
+
 
   info:
     blurb: |
         &f-------------------- &6&lSpeed&e&lSG &f--------------------
         &eblurb something something something
         -----------------------------------------------------
-    invul-countdown: "&cInvulnerability wears off in {count} seconds."
-    refill-announcement: "&6Chests refilled!"
+    start-cancel: "&eStart cancelled! There are not enough player to start a game." # N/A
+    invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
+    refill-announcement: "&6Chests refilled!" # N/A
 
-  # Indicators that display on a gamePlayer
-  alive-indicator: ""
-  dead-indicator: "💀"
+    mid-game-join:
+      title:
+        title: "&aYou are spectating!"
+        subtitle: "&eYou will spawn in the next round!"
+        fade-in-ticks: 0
+        stay-ticks: 40
+        fade-out-ticks: 20
 
-  # gameTeam {team}, gamePlayer {player}, gamePlayer {attacker}
-  death-announcement:
-    team:
-      default: "&4{team} &4has been eliminated!"
+      message: "&aYou have joined as a spectator, use your hotbar to teleport to other players."
 
-    player:
-      melee: "&c{player} was killed by {attacker}!"
-      projectile: "&c{player} was shot by {attacker}!"
-      explosive: "&c{player} was blown up by {attacker}!"
-      default: "&c{player} died"
+    showdown:
+      title:
+        title: "&6&lSHOWDOWN"
+        subtitle: "&eThe world border will start shrinking!"
+        fade-in-ticks: 0
+        stay-ticks: 40
+        fade-out-ticks: 20
 
-  death-message:
-    team:
-      default: "&4Your team has been eliminated."
+      message: "&6The world border will start shrinking!"
 
-    player:
-      melee: "&cYou were killed by {attacker}!"
-      projectile: "&cYou were shot by {attacker}!"
-      explosive: "&cYou were blown up by {attacker}!"
-      default: "&cYou died"
 
-  kill-message:
-    team:
-      default: "&4You eliminated {team}"
+  # ALL (if applicable): playerFormatter ({player}, {attacker}), teamFormatter ({team})
+  death:
+    announcement:
 
-    player:
-      melee: "&cYou killed {player}!"
-      projectile: "&cYou shot {player}!"
-      default: "&cYou blew up {player}!"
+      team:
+        default: "&4{team} &4has been eliminated!"
 
+      player:
+        melee: "&c{player} was killed by {attacker}!"
+        projectile: "&c{player} was shot by {attacker}!"
+        explosive: "&c{player} was blown up by {attacker}!"
+        default: "&c{player} died!"
+
+    message:
+      team:
+        default: "&4Your team has been eliminated."
+
+      player:
+        melee: "&cYou were killed by {attacker}."
+        projectile: "&cYou were shot by {attacker}."
+        explosive: "&cYou were blown up by {attacker}."
+        default: "&cYou died."
+
+    title-with-respawn:
+      title: "&c&lYOU DIED!"
+      subtitle: "&aYou will respawn in &f{count} &aseconds." # {count}
+      fade-in-ticks: 0
+      stay-ticks: 40
+      fade-out-ticks: 20
+
+    title-with-no-respawn:
+      title: "&c&lYOU DIED!"
+      subtitle: "&eBetter luck next time!"
+      fade-in-ticks: 0
+      stay-ticks: 40
+      fade-out-ticks: 20
+
+
+  # gamePlayerFormatter {player}, teamFormatter {team}
+  kill:
+    message:
+      team:
+        default: "&4You eliminated {team}!"
+
+      player:
+        melee: "&cYou killed {player}!"
+        projectile: "&cYou shot {player}!"
+        explosive: "&cYou blew up {player}!"
+        default: "&cYou eliminated {player}!"
+
+
+  # N/A
+  respawn:
+    title:
+      title: "&a&lRespawned!"
+      subtitle: ""
+      fade-in-ticks: 0
+      stay-ticks: 40
+      fade-out-ticks: 20
+
+    message: "&aYou have been respawned!"
+
+
+  # gamePlayerFormatter ({winner-player}, {player}), teamFormatter ({winner-team}, {team})
   win:
     victory-title:
       title: "&6&lVICTORY"
@@ -75,37 +141,66 @@ game:
       stay-ticks: 40
       fade-out-ticks: 20
 
-    recaps:
 
-      # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
-      top-killers-numbered-list:
-        entry-format: "{player-color}{player}: {player-stat-round-kills} kills"
-        separator: "\n{i}.) "
-        max-entries: 3
+  recaps:
+    # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
+    top-killers-numbered-list:
+      entry-format: "{player-color}{player}: {player-stat-round-kills} kills"
+      separator: "\n{i}.) "
+      max-entries: 3
 
-      # This defines the {team-members} placeholder in the recaps
-      team-list:
-        entry-format: "{player-color}{player}"
-        separator: ", "
-        max-entries: 9999
+    # This defines the {team-members} placeholder in the recaps
+    team-list:
+      entry-format: "{player-color}{player}"
+      separator: ", "
+      max-entries: 9999
 
-      solo-winner: |
-        ---------------------------------------------
-        {player-color}{player-display-name} &6&lwon the game!
-        &4Final health: {player-health}
-        &cRound kills: {player-stat-round-kills}
-        &6Lifetime kills: {player-stat-lifetime-kills}
-        &eLifetime wins: {player-stat-lifetime-wins}
-        
-        Top killers:
-        {top-killers}
-        ---------------------------------------------
+    # You can still use the team formatter {team} in the solo-winner recap.
+    solo-winner: |
+      ---------------------------------------------
+      {winner-player-color}{winner-player} &6&lwon the game!
+      &4Final health: {winner-player-health}
+      &cRound kills: {winner-player-stat-round-kills}
+      &6Lifetime kills: {winner-player-stat-lifetime-kills}
+      &eLifetime wins: {winner-player-stat-lifetime-wins}
+      
+      Top killers:
+      {top-killers}
+      ---------------------------------------------
 
-      team-winner: |
-        ---------------------------------------------
-        {team-color}{team} &6&lwon the game!
-        Members: {team-members}
-        
-        Top killers:
-        {top-killers}
-        ---------------------------------------------
+    team-winner: |
+      ---------------------------------------------
+      {winner-team-color}{winner-team} &6&lwon the game!
+      Members: {winner-team-members}
+      
+      Top killers:
+      {top-killers}
+      ---------------------------------------------
+
+
+
+command:
+  # gameFormatter
+  create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/sg join {game-id})"
+  join: "&aYou joined game #{game-id}!"
+  leave: "&aYou left game #{game-id}!"
+
+error:
+
+  # placeholders: {input}
+  args:
+    invalid:
+      game: "&cGame not found!"
+      map: "&cMap not found!"
+      team: "&cTeam not found!"
+      loot-table: "&cPlease provide a valid loot table!"
+      team-capacity: "&cPlease provide a valid mode (solos, duos, trios, squads)."
+
+
+  game:
+    no-games: "&cThere are no SSG games running!"
+    duplicate-game: "&cThere is already a game with this id!"
+    not-in-game: "&cYou are not in a game."
+
+  team:
+    no-switching: "&cYou may not switch teams at this time."

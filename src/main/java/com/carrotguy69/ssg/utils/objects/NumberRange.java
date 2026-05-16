@@ -75,16 +75,8 @@ public class NumberRange {
             return 0;
         }
 
-        if (min.doubleValue() < max.doubleValue()) {
-            return 1;
-        }
+        return Double.compare(max.doubleValue(), min.doubleValue());
 
-        if (min.doubleValue() > max.doubleValue()) {
-            return -1;
-        }
-
-        // Unreachable unless a wild mishap occurs
-        throw new RuntimeException("max and min values are not comparable!");
     }
 
     public Number generateRandom(int precision) {

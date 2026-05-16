@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.game;
+package com.carrotguy69.ssg.game.other;
 
 import static com.carrotguy69.ssg.SpeedSG.configYML;
 

@@ -11,8 +11,10 @@ import java.util.Map;
 
 public class GameTeam {
 
-    private final String prefix;
-    private final String color;
+    private int index;
+    private String name;
+    private String shortName;
+    private final int rgbColor;
     private final List<GamePlayer> players;
     private final int capacity;
 
@@ -21,19 +23,41 @@ public class GameTeam {
 
     private final Map<String, Double> stats = new HashMap<>();
 
-    public GameTeam(String prefix, String color, List<GamePlayer> players, int capacity) {
-        this.prefix = prefix;
-        this.color = color;
+    public GameTeam(int index, String prefix, String shortName, int rgbColor, List<GamePlayer> players, int capacity) {
+        this.index = index;
+        this.name = prefix;
+        this.shortName = shortName;
+        this.rgbColor = rgbColor;
         this.players = players;
         this.capacity = capacity;
     }
 
-    public String getPrefix() {
-        return this.prefix;
+    public int getIndex() {
+        return this.index;
     }
 
-    public String getColor() {
-        return this.color;
+    public void setIndex(int i) {
+        this.index = i;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getShortName() {
+        return this.shortName;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setShortName(String name) {
+        this.shortName = name;
+    }
+
+    public int getRGBColor() {
+        return this.rgbColor;
     }
 
     public boolean isAlive() {

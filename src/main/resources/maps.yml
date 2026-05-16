@@ -1,3 +1,21 @@
+lobby:
+  # IMPORTANT: do not rename this map
+  # This is the waiting lobby players will be teleported to if a game is not active.
+  source:
+    type: SCHEMATIC
+    file: example.schematic
+
+    paste-location: { world: "lobby", x: 0, y: 0, z: 0 }
+
+  world: "lobby"
+
+  spawns:
+    - { world: "games", x: 0, y: 0, z: 0, yaw: 0, pitch: 0 }
+
+  bounds:
+    pos1: { world: "games", x: 0, y: 0, z: 0 }
+    pos2: { world: "games", x: 0, y: 0, z: 0 }
+
 maps:
 
   example1:
@@ -16,11 +34,15 @@ maps:
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
 
-    lobby-spawn: {world: "games", x: 0, y: 0, z: 0}
-
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}
       pos2: {world: "games", x: 0, y: 0, z: 0}
+
+    world-border:
+      enabled: true
+      shrink: true
+      final-final-width: 25
+      seconds: 60
 
   example2:
     display-name: "A map copied and pasted from an existing world"
@@ -42,11 +64,15 @@ maps:
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
 
-    lobby-spawn: { world: "games", x: 0, y: 0, z: 0 }
-
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}
       pos2: {world: "games", x: 0, y: 0, z: 0}
+
+    world-border:
+      enabled: true
+      shrink: true
+      final-width: 25
+      seconds: 60
 
   example3:
     display-name: "A map that already exists (no copying/pasting needed)"
@@ -61,8 +87,12 @@ maps:
       - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
       - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
 
-    lobby-spawn: {world: "games", x: 0, y: 0, z: 0}
-
     bounds:
       pos1: {world: "games", x: 0, y: 0, z: 0}
       pos2: {world: "games", x: 0, y: 0, z: 0}
+
+    world-border:
+      enabled: true
+      shrink: true
+      final-width: 25
+      seconds: 60

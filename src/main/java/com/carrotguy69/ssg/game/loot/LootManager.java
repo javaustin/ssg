@@ -127,11 +127,6 @@ public class LootManager {
             return;
         }
 
-//        if (item.getWeightedEnchants() != null && !item.getWeightedEnchants().isEmpty()) {
-//            // Skip if item is already enchanted
-//            return;
-//        }
-
         // 1. Determine the amount of enchants to apply using a distribution
         int bias = 3;
 
