@@ -1,5 +1,5 @@
 lobby:
-  # IMPORTANT: do not rename this map
+  # IMPORTANT: do not rename or delete this map
   # This is the waiting lobby players will be teleported to if a game is not active.
   source:
     type: SCHEMATIC

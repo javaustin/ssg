@@ -23,7 +23,7 @@ commands:
 
   game:
     description: Create, join, or leave a SpeedSG game
-    usage: /game <create | join | leave>
+    usage: /game <create | delete | join | leave>
     permission: "ssg.game"
 
   team:

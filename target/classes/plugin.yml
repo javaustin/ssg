@@ -16,6 +16,24 @@ commands:
     usage: /test <content>
     permission: "ssg.test"
 
+  print:
+    description: Print
+    usage: /test <content>
+    permission: "ssg.test"
+
+  game:
+    description: Create, join, or leave a SpeedSG game
+    usage: /game <create | delete | join | leave>
+    permission: "ssg.game"
+
+  team:
+    description: Join or leave a SpeedSG team
+    usage: /team <join | leave>
+    permission: "ssg.team"
+
 permissions:
   ssg.test:
-    default: true
+    default: op
+
+  ssg.print:
+    default: op

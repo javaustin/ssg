@@ -114,6 +114,7 @@ public enum SSGMessageKey {
     ERROR_NO_SWITCHING("error.team.no-switching"),
 
     COMMAND_CREATE_GAME("command.create"),
+    COMMAND_DELETE_GAME("command.delete"),
     COMMAND_JOIN_GAME("command.join"),
     COMMAND_LEAVE_GAME("command.leave"),
 

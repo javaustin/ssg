@@ -22,10 +22,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -62,7 +67,9 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
-    - InvalidConfigurationException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
+    - fix my server startup shell script task already
+
+    - InvalidConfigException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
       We still probably want to keep this exception, but we can use builtin exceptions like FileNotFoundException more often
 
     - Do not throw exceptions from the CXYZ package
@@ -79,7 +86,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        cxyz = JavaPlugin.getPlugin(CXYZ.class);
         plugin = JavaPlugin.getPlugin(SpeedSG.class);
 
         Startup.loadConfigYMLs();
@@ -95,22 +101,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public void onDisable() {
         // Plugin shutdown logic
     }
-
-    // todo:
-    //     Fulfill the following events
-    //         - [name]                 [API class]                      [intended purpose]
-    //         - onDamage               (EntityDamageEvent)              handle general damage
-    //         - onDamagePlayer         (EntityDamageByEntityEvent)      handle general damage
-    //         - onChat                 (AsyncPlayerChatEvent)           handle chat
-    //         - onHunger               (FoodLevelChangeEvent)           cancel hunger in lobbies
-    //         ( Optional )
-    //         - onSnowball             (ProjectileHitEvent)             reinstate projectile knockback
-    //         - onEnderPearl           (PlayerTeleportEvent)            cancel ender pearl damage
-    //         - onDeath                (PlayerDeathEvent)               handle death (should not occur)
-    //         - onRespawn              (PlayerRespawnEvent)             handle respawn if death occurs
-    //         ( Grief prevention )
-    //         - onContainerOpen        (InventoryOpenEvent)             prevent looting non-chest containers
-    //         - onBreak                (BlockBreakEvent)                prevent block breaking
 
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
@@ -188,7 +178,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        // todo: (eventually) how should we handle explosions? we currently don't even have a way to die from explosions, unless we implement throwable tnt once again
+        // todo: When an explosion occurs, players will immediately be killed before we can cancel damage through here. To prevent this immediate killing, we will need to
+        // (eventually) cancel all explosions and replace them with an explosion particle effect and sound.
 
         Game game = Game.getByPlayer(p);
 
@@ -260,15 +251,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
     }
 
-    //         ( Optional )
-    //         - onSnowball             (ProjectileHitEvent)             reinstate projectile knockback
-    //         - onEnderPearl           (PlayerTeleportEvent)            cancel ender pearl damage
-    //         - onDeath                (PlayerDeathEvent)               handle death (should not occur)
-    //         - onRespawn              (PlayerRespawnEvent)             handle respawn if death occurs
-    //         ( Grief prevention )
-    //         - onContainerOpen        (InventoryOpenEvent)             prevent looting non-chest containers
-    //         - onBreak                (BlockBreakEvent)                prevent block breaking
-
     @EventHandler
     public void onSnowball(ProjectileHitEvent e) {
         // Reinstate projectile (snowball, egg, ...) knockback similar to 1.8.
@@ -318,6 +300,33 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             p.teleport(e.getTo());
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_TELEPORT, 1.0f, 1.0f);
             e.setCancelled(true);
+        }
+
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent e) {
+        Game game = Game.getByPlayer(e.getPlayer());
+
+        if (game == null) {
+            return;
+        }
+
+        e.getPlayer().teleport(game.getGameMap().getSpawns().getFirst());
+    }
+
+    @EventHandler
+    public void onContainerOpen(InventoryOpenEvent e) {
+        Player p = (Player) e.getPlayer();
+
+        Game game = Game.getByPlayer(p);
+
+        if (game == null) {
+            return;
+        }
+
+        if ((e.getInventory().getType() != InventoryType.PLAYER || e.getInventory().getType() != InventoryType.CHEST)) {
+             e.setCancelled(true);
         }
 
     }

@@ -1,6 +1,6 @@
 package com.carrotguy69.ssg.game.map;
 
-import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
@@ -202,7 +202,7 @@ public class GameMap {
         ConfigurationSection section = mapYML.getConfigurationSection("maps");
 
         if (section == null) {
-            throw new InvalidConfigurationException("maps.yml", "maps", "Could not find YAML section!");
+            throw new InvalidConfigException("maps.yml", "maps", "Could not find YAML section!");
         }
 
         for (String mapID : section.getKeys(false)) {
@@ -214,7 +214,7 @@ public class GameMap {
 
             String gameWorldName = section.getString(mapID + ".world", null);
             if (gameWorldName == null) {
-                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".world", "World not defined!");
+                throw new InvalidConfigException("maps.yml", "maps." + mapID + ".world", "World not defined!");
             }
 
             World world = Bukkit.getWorld(gameWorldName);
@@ -260,10 +260,10 @@ public class GameMap {
                 case "SCHEMATIC":
 
                     if (sourceFileName == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.file", "Source file not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.file", "Source file not defined!");
                     }
                     if (sourceWorldName == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
                     }
 
                     source = new SchematicSource(sourceFileName, pasteLocation);
@@ -272,19 +272,19 @@ public class GameMap {
                 case "WORLD_COPY":
 
                     if (sourceWorldName == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.world", "Source world not defined!");
                     }
 
                     if (copyBoundsPos1 == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos1", "Position 1 not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos1", "Position 1 not defined!");
                     }
 
                     if (copyBoundsPos2 == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
                     }
 
                     if (pasteLocation == null) {
-                        throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
+                        throw new InvalidConfigException("maps.yml", "maps." + mapID + ".source.copy-bounds.pos2", "Position 2 not defined!");
                     }
 
                     source = new WorldCopySource(sourceWorldName, copyBounds, pasteLocation);
@@ -299,15 +299,15 @@ public class GameMap {
             }
 
             if (spawns.isEmpty()) {
-                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
+                throw new InvalidConfigException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
             }
 
             if (boundsPos1 == null) {
-                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");
+                throw new InvalidConfigException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");
             }
 
             if (boundsPos2 == null) {
-                throw new InvalidConfigurationException("maps.yml", "maps." + mapID + ".bounds.pos2", "Position 2 not defined!");
+                throw new InvalidConfigException("maps.yml", "maps." + mapID + ".bounds.pos2", "Position 2 not defined!");
             }
 
             mapBounds = new BoundingBox(boundsPos1.x(), boundsPos1.y(), boundsPos1.z(), boundsPos2.x(), boundsPos2.y(), boundsPos2.z());

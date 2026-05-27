@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
 import com.carrotguy69.ssg.game.loot.LootTable;
@@ -100,7 +101,7 @@ public class Game {
         //  - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
         //  - debloat Game by moving functions to GameUtils ?
         //  - find a way to generate an incrementing id (maybe through an api call)
-        this.gameID = id;
+        this.gameID = id.toLowerCase();
         this.map = map;
 
         map.isInUse = true;
@@ -283,7 +284,7 @@ public class Game {
                 Map.of()
         );
 
-        MessageUtils.sendTitle(
+        BroadcastUtils.sendTitle(
                 List.of(p),
                 MessageGrabber.grab(MID_GAME_JOIN_TITLE),
                 MessageGrabber.grab(MID_GAME_JOIN_SUBTITLE),
@@ -382,7 +383,7 @@ public class Game {
                 };
 
                 List<Player> gamePlayers = players.stream().map(g -> Bukkit.getPlayer(g.getUUID())).toList();
-                MessageUtils.sendTitle(
+                BroadcastUtils.sendTitle(
                         gamePlayers,
                         color + count[0],
                         "",
@@ -399,7 +400,7 @@ public class Game {
             else { // count == 0
                 List<Player> gamePlayers = players.stream().map(g -> Bukkit.getPlayer(g.getUUID())).toList();
 
-                MessageUtils.sendTitle(
+                BroadcastUtils.sendTitle(
                         gamePlayers,
                         "&a&lGO!",
                         "",
@@ -488,7 +489,7 @@ public class Game {
                 else {
                     fillChests(false);
                     announce(MessageGrabber.grab(CHEST_REFILLED_MESSAGE), Map.of(), List.of());
-                    MessageUtils.playSound(getBukkitPlayers(), Sound.BLOCK_CHEST_OPEN, 1.0F, 1.0F);
+                    BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_CHEST_OPEN, 1.0F, 1.0F);
 
                     this.cancel();
                 }
@@ -511,7 +512,7 @@ public class Game {
                     //                                                                                        ^ Note: using the gameEndCountdown for the showdown message here is correct.
                     //                                                                                          The intended behavior is to pass a remaining-seconds placeholder.
 
-                    MessageUtils.sendTitle(
+                    BroadcastUtils.sendTitle(
                             getBukkitPlayers(),
                             f(MessageGrabber.grab(SHOWDOWN_TITLE)),
                             f(MessageGrabber.grab(SHOWDOWN_SUBTITLE)),
@@ -519,7 +520,7 @@ public class Game {
                             20,
                             40
                     );
-                    MessageUtils.playSound(getBukkitPlayers(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
+                    BroadcastUtils.playSound(getBukkitPlayers(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
                     showdown();
                     this.cancel();
                 }
@@ -686,7 +687,7 @@ public class Game {
 
                 commonMap.put("respawn-seconds", respawnSeconds[0]);
 
-                MessageUtils.sendTitle(
+                BroadcastUtils.sendTitle(
                         List.of(player.getBukkitPlayer()),
                         formatPlaceholders(MessageGrabber.grab(DEATH_RESPAWN_TITLE), commonMap),
                         formatPlaceholders(MessageGrabber.grab(DEATH_RESPAWN_SUBTITLE), commonMap),
@@ -700,7 +701,7 @@ public class Game {
         }
 
         else {
-            MessageUtils.sendTitle(
+            BroadcastUtils.sendTitle(
                     List.of(player.getBukkitPlayer()),
                     MessageGrabber.grab(DEATH_NO_RESPAWN_TITLE),
                     MessageGrabber.grab(DEATH_NO_RESPAWN_SUBTITLE),
@@ -769,7 +770,7 @@ public class Game {
 
         spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex));
 
-        MessageUtils.sendTitle(
+        BroadcastUtils.sendTitle(
                 List.of(gp.getBukkitPlayer()),
                 formatPlaceholders(MessageGrabber.grab(RESPAWN_TITLE), commonMap),
                 formatPlaceholders(MessageGrabber.grab(RESPAWN_SUBTITLE), commonMap),
@@ -818,8 +819,8 @@ public class Game {
 
         // Send victory title for winners
         List<Player> winnerBukkitPlayers = winningTeam.getPlayers().stream().map(GamePlayer::getBukkitPlayer).toList();
-        MessageUtils.playSound(winnerBukkitPlayers, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-        MessageUtils.sendTitle(
+        BroadcastUtils.playSound(winnerBukkitPlayers, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        BroadcastUtils.sendTitle(
                 winnerBukkitPlayers,
                 MessageGrabber.grab(WIN_TITLE),
                 MessageGrabber.grab(WIN_SUBTITLE),
@@ -830,7 +831,7 @@ public class Game {
 
         // Send game over title for losers
         List<Player> loserBukkitPlayers = players.stream().filter(gp -> !winningTeam.getPlayers().contains(gp)).map(GamePlayer::getBukkitPlayer).toList();
-        MessageUtils.sendTitle(
+        BroadcastUtils.sendTitle(
                 loserBukkitPlayers,
                 MessageGrabber.grab(LOSE_TITLE),
                 MessageGrabber.grab(LOSE_SUBTITLE),
@@ -900,7 +901,7 @@ public class Game {
                 1
         );
 
-        // Creating a new class would be too much abstraction, and secondly I am too lazy.
+        // Creating a new class for this result would be too much abstraction, and secondly I am too lazy.
         return Pair.of(topKillsFormatter.generatePage(1), topKillsFormatter.getFormatMap());
     }
 
@@ -1251,7 +1252,7 @@ public class Game {
     }
 
     public static Game getByID(String id) {
-        return gameIDMap.get(id);
+        return gameIDMap.get(id.toLowerCase());
     }
 
     public static Game getByPlayer(Player p) {
@@ -1278,6 +1279,10 @@ public class Game {
         return null;
     }
 
+    public GameMap getGameMap() {
+        return this.map;
+    }
+
     public GameState getGameState() {
         return this.gameState;
     }
@@ -1285,7 +1290,7 @@ public class Game {
     public Game transfer() {
         map.isInUse = false;
 
-        Game newGame = new Game("exampleID", gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map), lootTable, amountOfTeams, teamCapacity);
+        Game newGame = new Game(this.gameID, gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map), lootTable, amountOfTeams, teamCapacity);
 
         for (GamePlayer gp : this.getPlayers()) {
             newGame.addPlayer(gp);
@@ -1298,5 +1303,30 @@ public class Game {
         gameIDMap.remove(gameID);
 
         return newGame;
+    }
+
+    public void delete() {
+        // Send players to lobby and cancel tasks
+
+        this.cancelAllTasks();
+
+        List<Player> players = this.getBukkitPlayers();
+
+        int j = players.size();
+        int k = lobbyMap.getSpawns().size();
+
+        int numPlayers = players.size();
+        int numSpawns = lobbyMap.getSpawns().size();
+
+        for (int i = 0; i < numPlayers; i++) {
+            Player p = players.get(j);
+            Location loc = lobbyMap.getSpawns().get(k);
+
+            spawnPlayer(p, loc);
+
+            j = (j + 1) % numPlayers;
+            k = (k + 1) % numSpawns;
+        }
+
     }
 }

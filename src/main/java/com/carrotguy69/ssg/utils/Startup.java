@@ -42,10 +42,10 @@ public class Startup {
         msgYML = YamlConfiguration.loadConfiguration(msgYMLFile);
 
         // for map.yml
-        File mapYMLFile = new File(dataFolder, "map.yml");
+        File mapYMLFile = new File(dataFolder, "maps.yml");
 
         if (!mapYMLFile.exists()) {
-            plugin.saveResource("map.yml", false);
+            plugin.saveResource("maps.yml", false);
         }
 
         mapYML = YamlConfiguration.loadConfiguration(mapYMLFile);

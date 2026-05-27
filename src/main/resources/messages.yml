@@ -182,6 +182,7 @@ game:
 command:
   # gameFormatter
   create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/sg join {game-id})"
+  delete: "&aDeleted game #{game-id}"
   join: "&aYou joined game #{game-id}!"
   leave: "&aYou left game #{game-id}!"
 

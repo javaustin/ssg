@@ -105,7 +105,7 @@ public class MapFormatters {
     public static com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter gamePlayerNumberedListFormatter(List<GamePlayer> players, String format, String delimiter, int maxEntriesPerPage, int pageNumber) {
         com.carrotguy69.cxyz.messages.utils.MapFormatters.ListFormatter formatter = gamePlayerListFormatter(players, format, delimiter, maxEntriesPerPage, pageNumber);
 
-        return new com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter(formatter.getEntries(), formatter.getDelimiter(), formatter.getFormatMap(), maxEntriesPerPage, pageNumber);
+        return new com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter(formatter.getEntries(), formatter.getDelimiter(), formatter.getFormatMap(), maxEntriesPerPage);
     }
 
     public static Map<String, Object> cloneFormaterToNewKey(Map<String, Object> originalMap, String fromKey, String toKey) {

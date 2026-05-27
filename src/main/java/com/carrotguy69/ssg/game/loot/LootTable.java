@@ -1,6 +1,6 @@
 package com.carrotguy69.ssg.game.loot;
 
-import com.carrotguy69.cxyz.exceptions.InvalidConfigurationException;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.configuration.ConfigurationSection;
@@ -33,7 +33,7 @@ public class LootTable {
         ConfigurationSection section = SpeedSG.lootYML.getConfigurationSection("loot-tables");
 
         if (section == null) {
-            throw new InvalidConfigurationException("loot.yml", "loot-tables", "Could not find section!");
+            throw new InvalidConfigException("loot.yml", "loot-tables", "Could not find section!");
         }
 
         List<LootTable> results = new ArrayList<>();
@@ -44,7 +44,7 @@ public class LootTable {
 
             if (lootTableSection == null) {
                 // Since we are getting the section name from the parent section itself, it HAS to exist, or else there are much larger problems.
-                throw new InvalidConfigurationException("loot.yml", "loot-tables." + lootTableName, "Could not find section! Is the YAML malformed?");
+                throw new InvalidConfigException("loot.yml", "loot-tables." + lootTableName, "Could not find section! Is the YAML malformed?");
             }
 
             NumberRange itemsPerChest = NumberRange.fromString(lootTableSection.getString("settings.items-per-chest", "3-7"));

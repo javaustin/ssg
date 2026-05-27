@@ -41,6 +41,10 @@ public class _GameSupercommand implements CommandExecutor {
             case "leave":
                 Leave.executor.onCommand(sender, command, label, args);
                 break;
+
+            case "delete":
+                Delete.executor.onCommand(sender, command, label, args);
+                break;
         }
 
         return false;
