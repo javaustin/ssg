@@ -1,6 +1,5 @@
 package com.carrotguy69.ssg.cmd.game;
 
-import com.carrotguy69.cxyz.messages.MessageKey;
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.Game;
@@ -37,12 +36,12 @@ public class Join implements CommandExecutor {
         String node = "ssg.game.join";
 
         if (!sender.hasPermission(node)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_NO_ACCESS, Map.of("permission", node));
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));
             return true;
         }
 
         if (!(sender instanceof Player p)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_PLAYER_ONLY, Map.of());
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_PLAYER_ONLY), Map.of());
             return true;
         }
 
@@ -60,10 +59,19 @@ public class Join implements CommandExecutor {
 
                 return true;
             }
+
+            if (game == Game.getByPlayer(p)) {
+                MessageUtils.sendParsedMessage(
+                        sender,
+                        MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME_JOIN),
+                        Map.of("input", args[0])
+                );
+
+                return true;
+            }
         }
 
         else {
-
             // Get any game (prioritizing player count)
             try {
                 game = SpeedSG.gameIDMap.values().stream().max(Comparator.comparingInt(g -> g.getPlayers().size())).stream().findFirst().orElseThrow();
@@ -79,8 +87,6 @@ public class Join implements CommandExecutor {
                     return true;
             }
         }
-
-        int defaultLives = configYML.getInt("", 1);
 
         GamePlayer gp = new GamePlayer(p.getUniqueId());
 

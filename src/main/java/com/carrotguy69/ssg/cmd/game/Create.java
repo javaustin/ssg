@@ -1,7 +1,7 @@
 package com.carrotguy69.ssg.cmd.game;
 
-import com.carrotguy69.cxyz.messages.MessageKey;
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
@@ -36,13 +36,13 @@ public class Create implements CommandExecutor {
         String node = "ssg.game.create";
 
         if (!sender.hasPermission(node)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_NO_ACCESS, Map.of("permission", node));
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));
             return true;
         }
 
         String gameId = "SSG-1";
-        GameMap gameMap = gameMaps.get(new Random().nextInt(0, gameMaps.size() - 1));
-        LootTable lootTable = lootTables.get(new Random().nextInt(0, lootTables.size() - 1));
+        GameMap gameMap = gameMaps.size() - 1 > 0 ? gameMaps.get(new Random().nextInt(0, gameMaps.size() - 1)) : gameMaps.getFirst();
+        LootTable lootTable = lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst();
         NumberRange teamCapacity = new NumberRange(1, 1);
 
         if (args.length >= 1) {
@@ -138,6 +138,7 @@ public class Create implements CommandExecutor {
         }
 
         Game game = new Game(gameId, gameMap, lootTable, new NumberRange(1, 16), teamCapacity);
+        SpeedSG.gameIDMap.put(game.getGameID(), game);
 
         MessageUtils.sendParsedMessage(
                 sender,

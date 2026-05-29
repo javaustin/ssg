@@ -4,6 +4,7 @@ com/carrotguy69/ssg/utils/Logger.class
 com/carrotguy69/ssg/game/other/Durations.class
 com/carrotguy69/ssg/cmd/team/Join.class
 com/carrotguy69/ssg/exceptions/MapLoadException.class
+com/carrotguy69/ssg/cmd/game/List.class
 com/carrotguy69/ssg/game/map/sources/StaticSource.class
 com/carrotguy69/ssg/game/Game$6.class
 com/carrotguy69/ssg/tabCompleters/Print.class
@@ -21,6 +22,7 @@ com/carrotguy69/ssg/game/loot/LootManager.class
 com/carrotguy69/ssg/game/Game$9.class
 com/carrotguy69/ssg/utils/Tasks.class
 com/carrotguy69/ssg/game/map/GameMap$WorldBorderConfig.class
+com/carrotguy69/ssg/tabCompleters/Game.class
 com/carrotguy69/ssg/game/other/DamageSource$Reason.class
 com/carrotguy69/ssg/game/Game$5.class
 com/carrotguy69/ssg/utils/objects/LocationUtils.class
@@ -39,8 +41,9 @@ com/carrotguy69/ssg/cmd/team/_TeamSupercommand.class
 com/carrotguy69/ssg/exceptions/TeamFullException.class
 com/carrotguy69/ssg/game/map/sources/MapSource$Type.class
 com/carrotguy69/ssg/cmd/game/Create.class
+com/carrotguy69/ssg/tabCompleters/Team.class
+com/carrotguy69/ssg/cmd/game/Info.class
 com/carrotguy69/ssg/game/loot/LootEnchant.class
-com/carrotguy69/ssg/cmd/Test.class
 com/carrotguy69/ssg/game/loot/LootItem.class
 com/carrotguy69/ssg/game/map/sources/MapSource.class
 com/carrotguy69/ssg/game/GameTeam.class
@@ -49,6 +52,5 @@ com/carrotguy69/ssg/game/Game$4.class
 com/carrotguy69/ssg/SpeedSG.class
 com/carrotguy69/ssg/game/map/sources/SchematicSource.class
 com/carrotguy69/ssg/game/Game$7.class
-com/carrotguy69/ssg/tabCompleters/Test.class
 com/carrotguy69/ssg/game/Game.class
 com/carrotguy69/ssg/utils/objects/NumberRange.class

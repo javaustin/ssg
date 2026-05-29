@@ -20,6 +20,9 @@ lobby:
     join: "You joined {team-color}{team-name}"
     join-announcement: "{player-team-color}{player} joined the team"
 
+    leave: "You left {team-color}{team-name}"
+    leave-announcement: "{player-team-color}{player} left the team"
+
 
   info:
     start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
@@ -181,27 +184,41 @@ game:
 
 command:
   # gameFormatter
-  create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/sg join {game-id})"
-  delete: "&aDeleted game #{game-id}"
-  join: "&aYou joined game #{game-id}!"
-  leave: "&aYou left game #{game-id}!"
+  create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/game join {game-id})"
+  delete: "&aDeleted game {game-id}"
+  join: "&aYou joined game {game-id}!"
+  leave: "&aYou left game {game-id}!"
 
-error:
+errors:
 
-  # placeholders: {input}
+  game:
+    no-games: "&cThere are no SSG games running!"
+    duplicate-game: "&cThis game already exists!"
+    duplicate-game-join: "&cYou are already in this game!"
+    not-in-game: "&cYou are not in a game."
+
+  team:
+    full: "&eThis team is full!"
+    no-switching: "&cYou may not switch teams at this time."
+    not-in-team: "&eYou are not in a team!"
+    already-in-team: "&eYou are already in this team!"
+
+  command:
+    no-access: "[&cYou do not have access to this command!](HOVER:&cYou do not have the required permission: {permission})"
+    player-only: "&cThis command must be used by a player!"
+
+  player:
+    is-offline: "&cThis player is offline!" # Format MF.playerFormatter(target);
+    is-self: "&cYou cannot use this command on yourself!" # no format
+    not-found: "[&cPlayer not found!](HOVER:&7Could not find player with the username of &f{username}&7!)" # Format: username
+
   args:
+    missing:
+      general: "&cThis command is missing the required argument((s)): &f{missing-args}" # format w/ {missing-args}, {syntax}
+
     invalid:
       game: "&cGame not found!"
       map: "&cMap not found!"
       team: "&cTeam not found!"
       loot-table: "&cPlease provide a valid loot table!"
       team-capacity: "&cPlease provide a valid mode (solos, duos, trios, squads)."
-
-
-  game:
-    no-games: "&cThere are no SSG games running!"
-    duplicate-game: "&cThere is already a game with this id!"
-    not-in-game: "&cYou are not in a game."
-
-  team:
-    no-switching: "&cYou may not switch teams at this time."

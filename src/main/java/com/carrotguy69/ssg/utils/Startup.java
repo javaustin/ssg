@@ -1,7 +1,7 @@
 package com.carrotguy69.ssg.utils;
 
+import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.cmd.Print;
-import com.carrotguy69.ssg.cmd.Test;
 import com.carrotguy69.ssg.cmd.game._GameSupercommand;
 import com.carrotguy69.ssg.cmd.team._TeamSupercommand;
 import com.carrotguy69.ssg.game.loot.LootTable;
@@ -11,13 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.util.Objects;
 
-import static com.carrotguy69.ssg.SpeedSG.plugin;
-import static com.carrotguy69.ssg.SpeedSG.configYML;
-import static com.carrotguy69.ssg.SpeedSG.msgYML;
-import static com.carrotguy69.ssg.SpeedSG.mapYML;
-import static com.carrotguy69.ssg.SpeedSG.lootYML;
-import static com.carrotguy69.ssg.SpeedSG.gameMaps;
-import static com.carrotguy69.ssg.SpeedSG.lootTables;
+import static com.carrotguy69.ssg.SpeedSG.*;
 
 
 public class Startup {
@@ -53,7 +47,7 @@ public class Startup {
         // for loot.yml
         File lootYMLFile = new File(dataFolder, "loot.yml");
 
-        if (!mapYMLFile.exists()) {
+        if (!lootYMLFile.exists()) {
             plugin.saveResource("loot.yml", false);
         }
 
@@ -61,15 +55,15 @@ public class Startup {
     }
 
     public static void registerCommands() {
-        Objects.requireNonNull(plugin.getCommand("test")).setExecutor(Test.executor);
-        Objects.requireNonNull(plugin.getCommand("test")).setTabCompleter(new com.carrotguy69.ssg.tabCompleters.Test());
 
         Objects.requireNonNull(plugin.getCommand("print")).setExecutor(Print.executor);
-        Objects.requireNonNull(plugin.getCommand("print")).setTabCompleter(new com.carrotguy69.ssg.tabCompleters.Print());
+        Objects.requireNonNull(plugin.getCommand("print")).setTabCompleter(Print.tabCompleter);
 
         Objects.requireNonNull(plugin.getCommand("game")).setExecutor(_GameSupercommand.executor);
+        Objects.requireNonNull(plugin.getCommand("game")).setTabCompleter(_GameSupercommand.tabCompleter);
 
         Objects.requireNonNull(plugin.getCommand("team")).setExecutor(_TeamSupercommand.executor);
+        Objects.requireNonNull(plugin.getCommand("team")).setTabCompleter(_TeamSupercommand.tabCompleter);
     }
 
     public static void registerEvents() {

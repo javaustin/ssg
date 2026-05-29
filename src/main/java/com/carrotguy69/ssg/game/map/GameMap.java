@@ -6,6 +6,7 @@ import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
 import com.carrotguy69.ssg.game.map.sources.StaticSource;
 import com.carrotguy69.ssg.game.map.sources.WorldCopySource;
+import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.utils.objects.LocationUtils;
 
 import com.sk89q.worldedit.EditSession;
@@ -224,11 +225,8 @@ public class GameMap {
             }
 
             // Get copy bounds
-            List<Map<?, ?>> copyBoundMapList1 = section.getMapList(mapID + ".source.copy-bounds.pos1");
-            Location copyBoundsPos1 = LocationUtils.getLocationFromYML(copyBoundMapList1);
-
-            List<Map<?, ?>> copyBoundMapList2 = section.getMapList(mapID + ".source.copy-bounds.pos2");
-            Location copyBoundsPos2 = LocationUtils.getLocationFromYML(copyBoundMapList2);
+            Location copyBoundsPos1 = LocationUtils.getLocationFromYML(section.getMapList(mapID + ".source.copy-bounds.pos1"));
+            Location copyBoundsPos2 = LocationUtils.getLocationFromYML(section.getMapList(mapID + ".source.copy-bounds.pos2"));
 
             BoundingBox copyBounds = null;
             if (copyBoundsPos1 != null && copyBoundsPos2 != null)
@@ -236,23 +234,16 @@ public class GameMap {
             
 
             // Get paste location
-            List<Map<?, ?>> pasteLocationMapList = section.getMapList(mapID + ".source.paste-location");
-            Location pasteLocation = LocationUtils.getLocationFromYML(pasteLocationMapList);
+            Location pasteLocation = LocationUtils.getLocationFromYML(section.getMapList(mapID + ".source.paste-location"));
 
 
             // Get spawns
-            List<Map<?, ?>> spawnsMapList = section.getMapList(mapID + ".spawns");
-            List<Location> spawns = LocationUtils.getLocationsFromYML(spawnsMapList);
+            List<Location> spawns = LocationUtils.getLocationsFromYML(section.getMapList(mapID + ".spawns"));
 
-            // Get map bounds
-            List<Map<?, ?>> boundsMapList1 = section.getMapList(mapID + ".bounds.pos1");
-            Location boundsPos1 = LocationUtils.getLocationFromYML(boundsMapList1);
-
-            List<Map<?, ?>> boundsMapList2 = section.getMapList(mapID + ".bounds.pos2");
-            Location boundsPos2 = LocationUtils.getLocationFromYML(boundsMapList2);
+            Location boundsPos1 = LocationUtils.getLocationFromYML(section.getMapList(mapID + ".bounds.pos1"));
+            Location boundsPos2 = LocationUtils.getLocationFromYML(section.getMapList(mapID + ".bounds.pos2"));
 
             BoundingBox mapBounds;
-
 
             MapSource source;
 
@@ -347,5 +338,18 @@ public class GameMap {
         return this.getID().equalsIgnoreCase(((GameMap) other).getID());
     }
 
+    @Override
+    public String toString() {
+        return "GameMap{"
+                + "id=" + id + ","
+                + "name=" + name + ","
+                + "source=" + source + ","
+                + "spawns=" + spawns + ","
+                + "bounds=" + bounds + ","
+                + "world=" + world.getName() + ","
+                + "worldBorderSettings=" + worldBorderSettings + ","
+                + "isInUse=" + isInUse +
+                "}";
+    }
 
 }

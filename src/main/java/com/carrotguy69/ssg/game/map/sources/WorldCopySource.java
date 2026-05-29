@@ -30,4 +30,13 @@ public class WorldCopySource implements MapSource {
     public Location getPasteLocation() {
         return pasteLocation;
     }
+
+    @Override
+    public String toString() {
+        return "SchematicSource{"
+                + "worldName=" + worldName + ","
+                + "copyBounds=" + copyBounds + ","
+                + "pasteLocation=" + pasteLocation +
+                "}";
+    }
 }

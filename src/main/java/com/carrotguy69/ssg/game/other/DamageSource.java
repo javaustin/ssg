@@ -1,5 +1,6 @@
 package com.carrotguy69.ssg.game.other;
 
+import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.ssg.game.GamePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,5 +21,13 @@ public record DamageSource(GamePlayer attacker, Reason reason) {
 
     public boolean isAttackerSelf(GamePlayer player) {
         return Objects.equals(attacker, player);
+    }
+
+    @Override
+    public String toString() {
+        return "DamageSource{"
+                + "attacker=" + NetworkPlayer.getPlayerByUUID(attacker.getUUID()).getDisplayName() + ","
+                + "reason=" + reason +
+                "}";
     }
 }

@@ -47,8 +47,8 @@ public class NumberRange {
             throw new RuntimeException(String.format("\"%s\" is not a valid range! Both numbers must be valid.", input));
         }
 
-        Number min = ObjectUtils.parseAs(Number.class, args[0]);
-        Number max = ObjectUtils.parseAs(Number.class, args[1]);
+        Number min = ObjectUtils.parseAs(Double.class, args[0]);
+        Number max = ObjectUtils.parseAs(Double.class, args[1]);
 
         NumberRange range = new NumberRange(min, max);
 
@@ -76,7 +76,6 @@ public class NumberRange {
         }
 
         return Double.compare(max.doubleValue(), min.doubleValue());
-
     }
 
     public Number generateRandom(int precision) {

@@ -104,7 +104,7 @@ public class LootTable {
             NumberRange weight = NumberRange.fromString(weightObj.toString());
 
             String name = nameObj != null ? (String) nameObj : null;
-            String[] lore = loreObj != null ? (String[]) loreObj : null;
+            ArrayList<String> lore = loreObj != null ? (ArrayList<String>) loreObj : null;
             List<Map<?, ?>> enchantsListMap = enchantsObj != null ? (List<Map<?, ?>>) enchantsObj : null;
 
             // Convert enchants list map to List<LootEnchant>

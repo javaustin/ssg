@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import static com.carrotguy69.cxyz.CXYZ.plugin;
+import static com.carrotguy69.ssg.SpeedSG.plugin;
 
 public class Logger {
 

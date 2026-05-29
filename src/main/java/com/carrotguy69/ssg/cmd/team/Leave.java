@@ -1,6 +1,5 @@
 package com.carrotguy69.ssg.cmd.team;
 
-import com.carrotguy69.cxyz.messages.MessageKey;
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -8,17 +7,18 @@ import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.GameTeam;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
+import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 public class Leave implements CommandExecutor {
     public static CommandExecutor executor = new Leave();
-
 
 
     @Override
@@ -31,12 +31,12 @@ public class Leave implements CommandExecutor {
         String node = "ssg.team.leave";
 
         if (!sender.hasPermission(node)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_NO_ACCESS, Map.of("permission", node));
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));
             return true;
         }
 
         if (!(sender instanceof Player p)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_PLAYER_ONLY, Map.of());
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_PLAYER_ONLY), Map.of());
             return true;
         }
 
@@ -46,7 +46,7 @@ public class Leave implements CommandExecutor {
             MessageUtils.sendParsedMessage(
                     sender,
                     MessageGrabber.grab(SSGMessageKey.ERROR_NOT_IN_GAME),
-                    Map.of("input", args[0])
+                    Map.of()
             );
             return true;
         }
@@ -54,26 +54,53 @@ public class Leave implements CommandExecutor {
         if (game.getGameState() != GameState.WAITING) {
             MessageUtils.sendParsedMessage(
                     sender,
-                    MessageGrabber.grab(SSGMessageKey.ERROR_NO_SWITCHING),
+                    MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_NO_SWITCHING),
                     Map.of()
             );
             return true;
         }
 
         GamePlayer gp = game.getPlayer(p);
-        GameTeam team = game.getTeamByName(args[1]);
 
-        if (team == null) {
+        if (gp == null) {
             MessageUtils.sendParsedMessage(
                     sender,
-                    MessageGrabber.grab(SSGMessageKey.INVALID_TEAM),
-                    Map.of("input", args[0])
+                    MessageGrabber.grab(SSGMessageKey.ERROR_NOT_IN_GAME),
+                    Map.of()
             );
 
             return true;
         }
 
+        GameTeam team = gp.getTeam();
+
+        if (team == null) {
+            MessageUtils.sendParsedMessage(
+                    sender,
+                    MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_NOT_IN_TEAM),
+                    Map.of()
+            );
+
+            return true;
+        }
+
+        Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
+        commonMap.putAll(MapFormatters.teamFormatter(gp.getTeam()));
+
         team.removePlayer(gp);
+        gp.setTeam(null);
+
+        MessageUtils.sendParsedMessage(
+                sender,
+                MessageGrabber.grab(SSGMessageKey.TEAM_LEAVE),
+                commonMap
+        );
+
+        team.sendTeamMessage(
+                MessageGrabber.grab(SSGMessageKey.TEAM_LEAVE_ANNOUNCEMENT),
+                commonMap,
+                List.of(gp)
+        );
 
         return true;
     }

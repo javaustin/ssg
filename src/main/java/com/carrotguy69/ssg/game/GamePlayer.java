@@ -85,4 +85,16 @@ public class GamePlayer {
     public Game getGame() {
         return Game.getByPlayer(this.getBukkitPlayer());
     }
+
+    @Override
+    public String toString() {
+        return "GamePlayer{"
+                + "uuid=" + uuid + ","
+                + "name=" + NetworkPlayer.getPlayerByUUID(uuid).getDisplayName() + ","
+                + "team=" + (team != null ? team.getShortName() : null) + ","
+                + "lives=" + lives + ","
+                + "alive=" + alive + ","
+                + "kills=" + kills +
+                "}";
+    }
 }

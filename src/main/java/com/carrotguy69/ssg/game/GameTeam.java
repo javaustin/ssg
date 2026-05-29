@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.ssg.exceptions.TeamFullException;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
@@ -94,7 +95,7 @@ public class GameTeam {
 
     public void addPlayer(GamePlayer gp) {
         if (this.players.size() == capacity) {
-            throw new RuntimeException("Cannot add player to team because the team is full!");
+            throw new TeamFullException("Team %s is at or above its max capacity (%d/%d)!".formatted(this.getName(), this.getPlayers().size(), this.getCapacity()));
         }
 
         this.players.add(gp);
@@ -131,6 +132,18 @@ public class GameTeam {
 
             p.sendMessage(component);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "GameTeam{"
+                + "index=" + index + ","
+                + "name=" + name  + ","
+                + "shortName=" + shortName  + ","
+                + "rgbColor=" + rgbColor + ","
+                + "players=" + players + ","
+                + "capacity=" + capacity +
+                "}";
     }
 
 }

@@ -24,4 +24,12 @@ public class SchematicSource implements MapSource {
     public Location getPasteLocation() {
         return pasteLocation;
     }
+
+    @Override
+    public String toString() {
+        return "SchematicSource{"
+                + "fileName=" + fileName + ","
+                + "pasteLocation=" + pasteLocation +
+                "}";
+    }
 }

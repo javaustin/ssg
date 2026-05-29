@@ -1,22 +1,21 @@
-lobby:
-  # IMPORTANT: do not rename or delete this map
-  # This is the waiting lobby players will be teleported to if a game is not active.
-  source:
-    type: SCHEMATIC
-    file: example.schematic
-
-    paste-location: { world: "lobby", x: 0, y: 0, z: 0 }
-
-  world: "lobby"
-
-  spawns:
-    - { world: "games", x: 0, y: 0, z: 0, yaw: 0, pitch: 0 }
-
-  bounds:
-    pos1: { world: "games", x: 0, y: 0, z: 0 }
-    pos2: { world: "games", x: 0, y: 0, z: 0 }
-
 maps:
+  lobby:
+    # IMPORTANT: do not rename or delete this map
+    # This is the waiting lobby players will be teleported to if a game is not active.
+    source:
+      type: SCHEMATIC
+      file: example.schematic
+
+      paste-location: { world: "lobby", x: 0, y: 0, z: 0 }
+
+    world: "lobby"
+
+    spawns:
+      - { world: "games", x: 0, y: 0, z: 0, yaw: 0, pitch: 0 }
+
+    bounds:
+      pos1: { world: "games", x: 0, y: 0, z: 0 }
+      pos2: { world: "games", x: 0, y: 0, z: 0 }
 
   example1:
     display-name: "A map loaded from a schematic"

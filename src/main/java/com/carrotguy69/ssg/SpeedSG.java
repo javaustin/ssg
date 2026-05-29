@@ -1,6 +1,8 @@
 package com.carrotguy69.ssg;
 
 import com.carrotguy69.cxyz.CXYZ;
+import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
+import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -21,6 +23,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -67,7 +70,13 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
-    - fix my server startup shell script task already
+    - We can use the cxyz MessageUtils send and parser functions (because they return a non plugin dependent object),
+    but not their message grabbers (we can't access their messages.yml so we can't get their MessageKey's).
+    ^ (Keep this note)
+
+    - we need to be the authoritative handlers of chat in game, cxyz thinks it is. so now cxyz is processing all chat messages and so is the game.
+
+    - test create command and fix tab completer and other things
 
     - InvalidConfigException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
       We still probably want to keep this exception, but we can use builtin exceptions like FileNotFoundException more often
@@ -95,6 +104,10 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
 
         lobbyMap = GameMap.getByID("lobby");
+
+        if (lobbyMap == null) {
+            throw new InvalidConfigException("maps.yml", "lobby", "Lobby map not found!");
+        }
     }
 
     @Override
@@ -201,11 +214,13 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     @SuppressWarnings("deprecation")
     public void onChat(AsyncPlayerChatEvent e) {
+
         Player p = e.getPlayer();
         String content = e.getMessage();
+        NetworkPlayer np = NetworkPlayer.getPlayerByUUID(p.getUniqueId());
 
         Game game = Game.getByPlayer(p);
 
@@ -223,13 +238,13 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         switch (game.getGameState()) {
             case WAITING:
             case RESET:
-                game.announce(MessageGrabber.grab(SSGMessageKey.LOBBY_CHAT), commonMap, List.of());
+                game.announce(MessageGrabber.grab(SSGMessageKey.LOBBY_CHAT), commonMap, List.of(), np);
                 break;
 
             case ACTIVE:
             case STARTING:
             case ENDING:
-                game.announce(MessageGrabber.grab(SSGMessageKey.GAME_CHAT), commonMap, List.of());
+                game.announce(MessageGrabber.grab(SSGMessageKey.GAME_CHAT), commonMap, List.of(), np);
                 break;
         }
 
@@ -301,7 +316,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_TELEPORT, 1.0f, 1.0f);
             e.setCancelled(true);
         }
-
     }
 
     @EventHandler
@@ -325,7 +339,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        if ((e.getInventory().getType() != InventoryType.PLAYER || e.getInventory().getType() != InventoryType.CHEST)) {
+        if ((e.getInventory().getType() != InventoryType.PLAYER && e.getInventory().getType() != InventoryType.CHEST)) {
              e.setCancelled(true);
         }
 

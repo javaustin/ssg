@@ -18,7 +18,7 @@ public class LootItem {
     private final double weight;
 
     private String displayName;
-    private String[] lore;
+    private ArrayList<String> lore;
 
     private List<LootEnchant> weightedEnchants = new ArrayList<>();
     private List<LootEnchant> bindingEnchants = new ArrayList<>();
@@ -48,7 +48,7 @@ public class LootItem {
         return displayName;
     }
 
-    public String[] getLore() {
+    public ArrayList<String> getLore() {
         return lore;
     }
 
@@ -64,7 +64,7 @@ public class LootItem {
         this.displayName = displayName;
     }
 
-    public void setLore(String[] lore) {
+    public void setLore(ArrayList<String> lore) {
         this.lore = lore;
     }
 
@@ -111,13 +111,7 @@ public class LootItem {
         }
 
         if (lore != null) {
-            List<String> lines = new ArrayList<>();
-
-            for (String line : lore) {
-                lines.add(f(line));
-            }
-
-            meta.setLore(lines);
+            meta.setLore(lore);
         }
 
         if (weightedEnchants != null) {
@@ -153,7 +147,7 @@ public class LootItem {
                 "amount=" + amount + "," +
                 "weight=" + weight + "," +
                 "displayName=" + displayName + "," +
-                "lore=" + Arrays.toString(lore) + "," +
+                "lore=" + (lore != null ? lore.toString() : null) + "," +
                 "weightedEnchants=" + weightedEnchants + "," +
                 "bindingEnchants=" + bindingEnchants +
                 "}";

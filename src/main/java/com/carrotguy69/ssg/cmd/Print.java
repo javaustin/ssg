@@ -1,14 +1,16 @@
 package com.carrotguy69.ssg.cmd;
 
-import com.carrotguy69.cxyz.messages.MessageKey;
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.Game;
+import com.carrotguy69.ssg.messages.MessageGrabber;
+import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Map;
 public class Print implements CommandExecutor {
 
     public static CommandExecutor executor = new Print();
+    public static TabCompleter tabCompleter = new com.carrotguy69.ssg.tabCompleters.Print();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -23,7 +26,7 @@ public class Print implements CommandExecutor {
         String node = "ssg.print";
 
         if (!sender.hasPermission(node)) {
-            MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_NO_ACCESS, Map.of("permission", node));
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));
             return true;
         }
 

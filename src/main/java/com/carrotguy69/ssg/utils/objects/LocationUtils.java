@@ -12,6 +12,7 @@ import java.util.Map;
 public class LocationUtils {
 
     public static List<Location> getLocationsFromYML(List<Map<?, ?>> ymlList) {
+
         List<Location> results = new ArrayList<>();
 
         for (Map<?, ?> location : ymlList) {
@@ -22,17 +23,20 @@ public class LocationUtils {
             Object yawObj = location.get("yaw") != null ? location.get("yaw") : 0F;
             Object pitchObj = location.get("pitch") != null ? location.get("pitch") : 0F;
 
-            if (List.of(worldObj, xObj, yObj, zObj).contains(null)) {
-                throw new RuntimeException("Incomplete location! (Missing world, x, y, or z.)");
+            for (Object o : List.of(worldObj, xObj, yObj, zObj)) {
+                if (o == null) {
+                    throw new RuntimeException("Incomplete location! (Missing world, x, y, or z.)");
+                }
             }
+
 
             String worldName = (String) worldObj;
             double x = ((Number) xObj).doubleValue();
             double y = ((Number) yObj).doubleValue();
             double z = ((Number) zObj).doubleValue();
 
-            float yaw = ObjectUtils.isValidNumber((String) yawObj) ? (float) ObjectUtils.parseAs(Float.class, (String) yawObj) : 0F;
-            float pitch = ObjectUtils.isValidNumber((String) pitchObj) ? (float) ObjectUtils.parseAs(Float.class, (String) pitchObj) : 0F;
+            float yaw = ObjectUtils.isValidNumber(String.valueOf(yawObj)) ? ObjectUtils.parseAs(Float.class, String.valueOf(yawObj)) : 0F;
+            float pitch = ObjectUtils.isValidNumber(String.valueOf(pitchObj)) ? ObjectUtils.parseAs(Float.class, String.valueOf(pitchObj)) : 0F;
 
             World bukkitWorld = Bukkit.getWorld(worldName);
 

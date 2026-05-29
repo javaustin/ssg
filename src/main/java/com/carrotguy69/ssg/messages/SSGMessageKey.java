@@ -15,6 +15,9 @@ public enum SSGMessageKey {
     TEAM_JOIN("lobby.team.join"),
     TEAM_JOIN_ANNOUNCEMENT("lobby.team.join-announcement"),
 
+    TEAM_LEAVE("lobby.team.leave"),
+    TEAM_LEAVE_ANNOUNCEMENT("lobby.team.leave-announcement"),
+
     GAME_CHAT("game.chat"),
     GAME_JOIN("game.join"),
     GAME_LEAVE("game.leave"),
@@ -102,16 +105,30 @@ public enum SSGMessageKey {
     RECAP_SOLO_WINNER("game.recaps.solo-winner"),
     RECAP_TEAM_WINNER("game.recaps.team-winner"),
 
-    INVALID_GAME("error.args.invalid.game"),
-    INVALID_MAP("error.args.invalid.map"),
-    INVALID_TEAM("error.args.invalid.team"),
-    INVALID_LOOT_TABLE("error.args.invalid.loot-table"),
-    INVALID_TEAM_CAPACITY("error.args.invalid.team-capacity"),
+    INVALID_GAME("errors.args.invalid.game"),
+    INVALID_MAP("errors.args.invalid.map"),
+    INVALID_TEAM("errors.args.invalid.team"),
+    INVALID_LOOT_TABLE("errors.args.invalid.loot-table"),
+    INVALID_TEAM_CAPACITY("errors.args.invalid.team-capacity"),
 
-    ERROR_NO_GAMES("error.game.no-games"),
-    ERROR_DUPLICATE_GAME("error.game.duplicate-game"),
-    ERROR_NOT_IN_GAME("error.game.not-in-game"),
-    ERROR_NO_SWITCHING("error.team.no-switching"),
+    ERROR_NO_GAMES("errors.game.no-games"),
+    ERROR_DUPLICATE_GAME("errors.game.duplicate-game"),
+    ERROR_DUPLICATE_GAME_JOIN("errors.game.duplicate-game-join"),
+    ERROR_NOT_IN_GAME("errors.game.not-in-game"),
+
+    ERROR_TEAM_NO_SWITCHING("errors.team.no-switching"),
+    ERROR_TEAM_FULL("errors.team.full"),
+    ERROR_TEAM_NOT_IN_TEAM("errors.team.not-in-team"),
+    ERROR_TEAM_ALREADY_IN_TEAM("errors.team.already-in-team"),
+
+    COMMAND_NO_ACCESS("errors.command.no-access"),
+    COMMAND_PLAYER_ONLY("errors.command.player-only"),
+
+    ERROR_PLAYER_IS_OFFLINE("errors.player.is-offline"),
+    ERROR_PLAYER_IS_SELF("errors.player.is-self"),
+    ERROR_PLAYER_NOT_FOUND("errors.player.not-found"),
+
+    MISSING_GENERAL("errors.args.missing.general"),
 
     COMMAND_CREATE_GAME("command.create"),
     COMMAND_DELETE_GAME("command.delete"),

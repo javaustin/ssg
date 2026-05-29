@@ -37,3 +37,21 @@ permissions:
 
   ssg.print:
     default: op
+
+  ssg.game:
+    default: true
+  ssg.game.create:
+    default: op
+  ssg.game.delete:
+    default: op
+  ssg.game.join:
+    default: true
+  ssg.game.leave:
+    default: true
+
+  ssg.team:
+    default: true
+  ssg.team.join:
+    default: true
+  ssg.team.leave:
+    default: true

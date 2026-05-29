@@ -5,4 +5,9 @@ public class StaticSource implements MapSource {
     public Type getType() {
         return Type.STATIC;
     }
+
+    @Override
+    public String toString() {
+        return "StaticSource{}";
+    }
 }

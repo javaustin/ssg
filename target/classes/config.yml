@@ -35,8 +35,6 @@ game:
     short-names:
       ["T1", "T2", "T3", "T4"]
 
-    solos-use-player-names: true # In solos mode (any mode where team maxCapacity=1), team prefixes will just be the player names.
-
   timers:
     # Amount of seconds to count down from, before moving the lobby to the game arena
     lobby-countdown: 10

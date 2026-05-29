@@ -1,6 +1,11 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.cxyz.models.config.channel.channelTypes.BaseChannel;
+import com.carrotguy69.cxyz.models.config.channel.coreChannels.PublicChannel;
+import com.carrotguy69.cxyz.models.config.channel.utils.ChannelFunction;
+import com.carrotguy69.cxyz.models.config.channel.utils.ChannelRegistry;
+import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
@@ -122,7 +127,7 @@ public class Game {
 
         this.gameState = GameState.WAITING;
 
-        this.defaultGamemode = GameMode.valueOf(configYML.getString("game.misc.default-gamemode", "adventure"));
+        this.defaultGamemode = GameMode.valueOf(configYML.getString("game.misc.default-gamemode", "adventure").toUpperCase());
 
         initialize();
     }
@@ -134,7 +139,7 @@ public class Game {
         */
 
         try {
-            lobbyMap.paste();
+            lobbyMap.paste(); // Will only paste if specified as a world_copy or schematic
         }
         catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -164,7 +169,7 @@ public class Game {
         Player p = gp.getBukkitPlayer();
 
         if (gameState == GameState.WAITING) {
-            p.teleport(lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size() - 1)));
+            spawnPlayer(p, lobbyMap.getSpawns().size() > 1 ? lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size() - 1)) : lobbyMap.getSpawns().getFirst());
 
             this.announce(
                     MessageGrabber.grab(LOBBY_JOIN),
@@ -177,17 +182,15 @@ public class Game {
             }
         }
 
-        if (gameState == GameState.STARTING) {
+        else if (gameState == GameState.STARTING) {
             boolean allowJoinDuringStart = configYML.getBoolean("game.misc.allow-join-during-start", false);
 
             if (allowJoinDuringStart) {
 
                 p.setGameMode(defaultGamemode);
 
-                assignTeam(gp);
-
                 // Stealing the code from spawnTeams() to teleport the player to a predetermined spawn based on the team index.
-                GameTeam team = gp.getTeam();
+                GameTeam team = assignTeam(gp);
                 int spawnIndex = (int) Math.floor((double) team.getIndex() / teams.size()) * map.getSpawns().size();
 
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
@@ -258,12 +261,29 @@ public class Game {
     }
 
     public void announce(String unparsedContent, Map<String, Object> formatMap, List<GamePlayer> excludingPlayers) {
+        announce(unparsedContent, formatMap, excludingPlayers, null);
+    }
+
+    public void announce(String unparsedContent, Map<String, Object> formatMap, List<GamePlayer> excludingPlayers, @Nullable NetworkPlayer sender) {
         TextComponent component = MessageUtils.createMessage(unparsedContent, formatMap);
 
         for (GamePlayer gp : this.players) {
+            NetworkPlayer np = NetworkPlayer.getPlayerByUUID(gp.getUUID());
+
             if (gp.getBukkitPlayer() == null) {
                 continue;
             }
+
+            if (np != null && sender != null) {
+                if (np.isIgnoring(sender)) {
+                    continue;
+                }
+
+                if (np.isMutingChannel(ChannelRegistry.getChannelByFunction(ChannelFunction.PUBLIC))) {
+                    continue;
+                }
+            }
+
 
             if (excludingPlayers.contains(gp))
                 continue;
@@ -765,7 +785,9 @@ public class Game {
     public void respawn(@NotNull GamePlayer gp) {
         Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
 
-        GameTeam team = gp.getTeam();
+        GameTeam team = gp.getTeam() != null ? gp.getTeam() : assignTeam(gp);
+
+
         int spawnIndex = (int) Math.floor((double) team.getIndex() / teams.size()) * map.getSpawns().size();
 
         spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex));
@@ -962,23 +984,13 @@ public class Game {
     }
 
 
-    public GameTeam assignTeam(GamePlayer gp, @Nullable GameTeam team) {
-        if (team == null) {
-            return assignTeam(gp);
-        }
-
+    public void assignTeam(GamePlayer gp, GameTeam team) {
         if (team.isFull()) {
             throw new TeamFullException("Team %s is at or above its max capacity (%d/%d)!".formatted(team.getName(), team.getPlayers().size(), team.getCapacity()));
         }
 
         team.addPlayer(gp);
-
-        if (!isSolos()) {
-            team.setName(gp.getNetworkPlayer().getDisplayName());
-            team.setShortName("");
-        }
-
-        return team;
+        gp.setTeam(team); // IMPORTANT: update the GamePlayer object so it knows what team it is a part of
     }
 
     public GameTeam assignTeam(GamePlayer gp) {
@@ -1005,6 +1017,7 @@ public class Game {
                 ).orElseThrow(() -> new TeamFullException(String.format("All teams in game #%s are full!", gameID)));
 
         chosenTeam.addPlayer(gp);
+        gp.setTeam(chosenTeam);
 
         return chosenTeam;
     }
@@ -1130,16 +1143,16 @@ public class Game {
     private void createTeams(int n) {
         // Create `n` amount of joinable teams with no initial players (using the config provided naming scheme).
 
-        List<String> teamNames = configYML.getStringList("teams.names");
-        List<String> shortNames = configYML.getStringList("teams.short-names");
+        List<String> teamNames = configYML.getStringList("game.teams.names");
+        List<String> shortNames = configYML.getStringList("game.teams.short-names");
 
-        for (int i = 0; i <= n; i++) {
-            String teamName = teamNames.size() >= i + 1 ? teamNames.get(i) : "&aTeam " + (i + 1);
-            String shortName = shortNames.size() >= i + 1 ? shortNames.get(i) : String.valueOf(i + 1);
+        for (int i = 0; i < n; i++) {
+            String teamName = teamNames.size() >= i + 1 ? teamNames.get(i) : "&aTeam " + (i + 1) + " ";
+            String shortName = shortNames.size() >= i + 1 ? shortNames.get(i) : String.valueOf(i + 1) + " ";
 
             teams.add(
                     new GameTeam(
-                            i,
+                            i + 1,
                             teamName,
                             shortName,
                             ColorUtils.getRGB(teamName),
@@ -1266,12 +1279,20 @@ public class Game {
     }
 
     public GamePlayer getPlayer(Player p) {
-        return this.getPlayers().stream().filter(gamePlayer -> gamePlayer.getUUID() == p .getUniqueId()).findFirst().orElse(null);
+        GamePlayer gp = null;
+
+        for (GamePlayer player : this.getPlayers()) {
+            if (player.getUUID() == p.getUniqueId()) {
+                gp = player;
+            }
+        }
+
+        return gp;
     }
 
     public GameTeam getTeamByName(String name) {
         for (GameTeam team : teams) {
-            if (team.getName().equalsIgnoreCase(name) || team.getShortName().equalsIgnoreCase(name)) {
+            if (team.getName().strip().equalsIgnoreCase(name) || team.getShortName().strip().equalsIgnoreCase(name)) {
                 return team;
             }
         }
@@ -1329,4 +1350,19 @@ public class Game {
         }
 
     }
+
+    @Override
+    public String toString() {
+        return "Game{"
+                + "gameID=" + gameID + ","
+                + "teams=" + teams + ","
+                + "players=" + players + ","
+                + "taskIDs=" + taskIDs + ","
+                + "teamCapacity=" + teamCapacity + ","
+                + "lootTable=" + lootTable + ","
+                + "gameState=" + gameState + ","
+                + "defaultGamemode=" + defaultGamemode.name() +
+                "}";
+    }
+
 }

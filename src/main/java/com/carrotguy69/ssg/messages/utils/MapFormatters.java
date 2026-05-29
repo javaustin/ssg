@@ -6,7 +6,9 @@ import com.carrotguy69.ssg.game.GameTeam;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.utils.objects.ColorUtils;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,11 +16,13 @@ import java.util.Map;
 
 public class MapFormatters {
 
-    public static Map<String, Object> gamePlayerFormatter(GamePlayer gp) {
+    public static Map<String, Object> gamePlayerFormatter(@NotNull GamePlayer gp) {
         Map<String, Object> commonMap = com.carrotguy69.cxyz.messages.utils.MapFormatters.playerFormatter(gp.getNetworkPlayer());
 
         if (gp.getTeam() != null)
-            commonMap.putAll(cloneFormaterToNewKey(MapFormatters.teamFormatter(gp.getTeam()), "team", "player-team"));
+            commonMap.putAll(cloneFormaterToNewKey(teamFormatter(gp.getTeam()), "team", "player-team"));
+        else
+            commonMap.putAll(cloneFormaterToNewKey(teamFormatter(null), "team", "player-team"));
 
         String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
         String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
@@ -42,7 +46,7 @@ public class MapFormatters {
         return commonMap;
     }
 
-    public static Map<String, Object> teamFormatter(GameTeam gt) {
+    public static Map<String, Object> teamFormatter(@Nullable GameTeam gt) {
         // We fill these with ternary operators with default="" because sometimes there is not a team, and we'd rather have the placeholders filled as "" than remaining.
 
         Map<String, Object> commonMap = new HashMap<>();
