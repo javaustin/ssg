@@ -1,6 +1,5 @@
 package com.carrotguy69.ssg.utils;
 
-import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.cmd.Print;
 import com.carrotguy69.ssg.cmd.game._GameSupercommand;
 import com.carrotguy69.ssg.cmd.team._TeamSupercommand;
@@ -66,7 +65,7 @@ public class Startup {
         Objects.requireNonNull(plugin.getCommand("team")).setTabCompleter(_TeamSupercommand.tabCompleter);
     }
 
-    public static void registerEvents() {
+    public static void registerBukkitEvents() {
         plugin.getServer().getPluginManager().registerEvents(plugin, plugin);
     }
 

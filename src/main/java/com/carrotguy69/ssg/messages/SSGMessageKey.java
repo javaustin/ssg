@@ -41,7 +41,7 @@ public enum SSGMessageKey {
     SHOWDOWN_STAY_TICKS("game.info.showdown.title.stay-ticks"),
     SHOWDOWN_FADE_OUT_TICKS("game.info.showdown.title.fade-out-ticks"),
 
-    SHOWDOWN_MESSAGE("game.info.showdown-announcement"),
+    SHOWDOWN_MESSAGE("game.info.showdown.message"),
 
     DEATH_ANNOUNCEMENT_MELEE("game.death.announcement.player.melee"),
     DEATH_ANNOUNCEMENT_PROJECTILE("game.death.announcement.player.projectile"),

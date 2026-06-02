@@ -35,7 +35,6 @@ com/carrotguy69/ssg/cmd/Print.class
 com/carrotguy69/ssg/game/Game$2$1.class
 com/carrotguy69/ssg/game/map/sources/WorldCopySource.class
 com/carrotguy69/ssg/game/other/DamageSource.class
-com/carrotguy69/ssg/SpeedSG$1.class
 com/carrotguy69/ssg/game/GameState.class
 com/carrotguy69/ssg/cmd/team/_TeamSupercommand.class
 com/carrotguy69/ssg/exceptions/TeamFullException.class
@@ -54,3 +53,5 @@ com/carrotguy69/ssg/game/map/sources/SchematicSource.class
 com/carrotguy69/ssg/game/Game$7.class
 com/carrotguy69/ssg/game/Game.class
 com/carrotguy69/ssg/utils/objects/NumberRange.class
+com/carrotguy69/ssg/eventHandler/CoreChatHandler$1.class
+com/carrotguy69/ssg/eventHandler/CoreChatHandler.class

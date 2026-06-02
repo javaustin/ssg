@@ -1,24 +1,23 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
-import com.carrotguy69.cxyz.models.config.channel.channelTypes.BaseChannel;
-import com.carrotguy69.cxyz.models.config.channel.coreChannels.PublicChannel;
 import com.carrotguy69.cxyz.models.config.channel.utils.ChannelFunction;
 import com.carrotguy69.cxyz.models.config.channel.utils.ChannelRegistry;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
+import com.carrotguy69.cxyz.other.Logger;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
 import com.carrotguy69.ssg.game.loot.LootTable;
+import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.other.Durations;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.utils.objects.ColorUtils;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
-import net.md_5.bungee.api.chat.TextComponent;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.bukkit.Bukkit;
@@ -30,42 +29,45 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
-
 import org.bukkit.attribute.Attribute;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
-
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
-
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
 import org.bukkit.scheduler.BukkitRunnable;
-
 import org.bukkit.util.BoundingBox;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
-import static com.carrotguy69.ssg.SpeedSG.*;
+import static com.carrotguy69.ssg.SpeedSG.configYML;
+import static com.carrotguy69.ssg.SpeedSG.f;
+import static com.carrotguy69.ssg.SpeedSG.gameIDMap;
+import static com.carrotguy69.ssg.SpeedSG.gameMaps;
+import static com.carrotguy69.ssg.SpeedSG.lobbyMap;
+import static com.carrotguy69.ssg.SpeedSG.msgYML;
+import static com.carrotguy69.ssg.SpeedSG.plugin;
+
 import static com.carrotguy69.ssg.messages.SSGMessageKey.*;
 
 public class Game {
@@ -106,6 +108,8 @@ public class Game {
         //  - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
         //  - debloat Game by moving functions to GameUtils ?
         //  - find a way to generate an incrementing id (maybe through an api call)
+        //  - fix recap text
+        //  - unsetBarriers is broken
         this.gameID = id.toLowerCase();
         this.map = map;
 
@@ -145,8 +149,16 @@ public class Game {
             throw new RuntimeException(e);
         }
 
-        lobbyMap.getWorld().getWorldBorder().setCenter(lobbyMap.getBounds().getCenterX(), lobbyMap.getBounds().getCenterZ());
-        lobbyMap.getWorld().getWorldBorder().setSize(Math.max(lobbyMap.getBounds().getWidthX(), lobbyMap.getBounds().getWidthZ()));
+        if (lobbyMap.getWorldBorderSettings().isBorderEnabled()) {
+            lobbyMap.getWorld().getWorldBorder().setCenter(Math.round(lobbyMap.getBounds().getCenterX()), Math.round(lobbyMap.getBounds().getCenterZ()));
+            lobbyMap.getWorld().getWorldBorder().setSize(Math.round(Math.max(lobbyMap.getBounds().getWidthX(), lobbyMap.getBounds().getWidthZ())));
+        }
+        else {
+            lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
+        }
+
+
+        lobbyMap.getWorld().setSpawnLocation(lobbyMap.getSpawns().getFirst());
 
         tryLobbyCountdown(durations.lobbyCountdown);
     }
@@ -341,6 +353,7 @@ public class Game {
 
             if (!isPlayable()) {
                 announce(MessageGrabber.grab(LOBBY_START_CANCELLED), Map.of(), List.of());
+                BroadcastUtils.playSound(getBukkitPlayers(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
 
                 this.cancel();
                 counting = false;
@@ -350,6 +363,7 @@ public class Game {
 
             else if (count[0] > 0) {
                 announce(MessageGrabber.grab(LOBBY_COUNTDOWN), Map.of("count", count[0]), List.of());
+                BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_HARP, 0.8f, 1.0f);
                 count[0] -= 1;
             }
 
@@ -453,9 +467,14 @@ public class Game {
            - start the countdown
         */
 
-        teams.removeIf(GameTeam::isEmpty);
 
         setBarriers();
+
+        for (GamePlayer gp : players) {
+            assignTeam(gp);
+        }
+
+        teams.removeIf(GameTeam::isEmpty);
 
         spawnTeams();
 
@@ -467,6 +486,9 @@ public class Game {
         if (map.getWorldBorderSettings().isBorderEnabled()) {
             map.getWorld().getWorldBorder().setCenter(map.getBounds().getCenterX(), map.getBounds().getCenterZ());
             map.getWorld().getWorldBorder().setSize(Math.max(map.getBounds().getWidthX(), map.getBounds().getWidthZ()));
+        }
+        else {
+            lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
         }
 
         tryGameCountdown(durations.gameStartCountdown);
@@ -519,12 +541,13 @@ public class Game {
         // Showdown timer
         taskIDs.add(
             new BukkitRunnable() {public void run() {
-                if (durations.showdownCountdown > 0) {
-                    durations.showdownCountdown -= 1;
-                }
-
                 if (!map.getWorldBorderSettings().isBorderShrink()) {
                     this.cancel();
+                    return;
+                }
+
+                if (durations.showdownCountdown > 0) {
+                    durations.showdownCountdown -= 1;
                 }
 
                 else {
@@ -591,10 +614,17 @@ public class Game {
         // 1. Total kills
         // 2. Total damage
 
-        return teams.stream().max(Comparator
-                .comparingDouble((GameTeam t) -> t.getStat("kills", 0))
-                .thenComparingDouble((GameTeam t) -> t.getStat("damage-dealt", 0))
-        ).get();
+        try {
+            return teams.stream().max(Comparator
+                    .comparingDouble((GameTeam t) -> t.getStat("kills", 0))
+                    .thenComparingDouble((GameTeam t) -> t.getStat("damage-dealt", 0))
+            ).get();
+        }
+
+        // If comparison fails (due to same values), return a random team
+        catch (NoSuchElementException ex) {
+            return teams.get(random.nextInt(0, teams.size() - 1));
+        }
     }
 
     public void forceWin() {
@@ -660,7 +690,7 @@ public class Game {
 
         DamageSource lastDamageSource = playerLastDamageSourceMap.get(player);
 
-        if (lastDamageSource.isAttackerSelf(player)) {
+        if (lastDamageSource == null || lastDamageSource.isAttackerSelf(player)) {
             // A player shouldn't get kill credit if they kill themselves.
             lastDamageSource = new DamageSource(null, DamageSource.Reason.NATURAL);
         }
@@ -674,7 +704,6 @@ public class Game {
         if (attacker != null) {
             commonMap.putAll(MapFormatters.cloneFormaterToNewKey(MapFormatters.gamePlayerFormatter(attacker), "player", "attacker"));
         }
-
 
         // Announce death to game
         announce(
@@ -941,7 +970,10 @@ public class Game {
     }
 
     private void sendTeamsRecap(GameTeam winningTeam) {
-        Map<String, Object> commonMap = MapFormatters.teamFormatter(winningTeam);
+
+        Map<String, Object> commonMap = (MapFormatters.teamFormatter(winningTeam));
+        commonMap = MapFormatters.cloneFormaterToNewKey(commonMap, "team", "winner-team");
+
         commonMap.put("game-id", gameID);
 
 
@@ -953,7 +985,7 @@ public class Game {
         String teamMembersText = pair1.getLeft();
         commonMap.putAll(pair1.getRight());
 
-        unparsed = unparsed.replace("{team-members}", teamMembersText);
+        unparsed = unparsed.replace("{winner-team-members}", teamMembersText);
 
         // Fulfill {top-killers}
         Pair<String, Map<String, Object>> pair2 = getTopKillersText();
@@ -985,7 +1017,7 @@ public class Game {
 
 
     public void assignTeam(GamePlayer gp, GameTeam team) {
-        if (team.isFull()) {
+        if (team.isFull() || (this.getPlayers().size() == 2 * teamCapacity.min().intValue() && !team.getPlayers().isEmpty())) {
             throw new TeamFullException("Team %s is at or above its max capacity (%d/%d)!".formatted(team.getName(), team.getPlayers().size(), team.getCapacity()));
         }
 
@@ -1009,12 +1041,41 @@ public class Game {
         assert !teams.isEmpty();
         assert teams.size() >= 2;
 
-        GameTeam chosenTeam = teams.stream()
-                .filter(t -> !t.isFull())
-                .min(Comparator
-                        .comparingInt((GameTeam t) -> t.getPlayers().size())
-                        .thenComparingDouble((GameTeam t) -> t.matchmakingScore)
-                ).orElseThrow(() -> new TeamFullException(String.format("All teams in game #%s are full!", gameID)));
+        if (gp.getTeam() != null) {
+            return gp.getTeam();
+        }
+        
+        GameTeam chosenTeam = null;
+        for (GameTeam team : teams) {
+            if (team.isFull()) {
+                continue;
+            }    
+            
+            if (getPlayers().size() == team.getPlayers().size() - 1) {
+                continue;
+            }
+            
+            if (chosenTeam == null) {
+                chosenTeam = team;
+                continue;
+            }
+            
+            if (team.getPlayers().size() < chosenTeam.getPlayers().size()) {
+                chosenTeam = team;
+                continue;
+            }
+            
+            if (team.matchmakingScore < chosenTeam.matchmakingScore) {
+                chosenTeam = team;
+                continue;
+            }
+            
+        }
+        
+        if (chosenTeam == null) {
+            throw new TeamFullException(String.format("All teams in game %s are full", gameID));
+        }
+
 
         chosenTeam.addPlayer(gp);
         gp.setTeam(chosenTeam);
@@ -1025,10 +1086,14 @@ public class Game {
     private void spawnTeams() {
         // Teleport all teams to their respective spawn point.
 
-        for (GameTeam team : teams) {
-            int i = team.getIndex();
+        for (int i = 0; i < teams.size(); i++) {
+            GameTeam team = teams.get(i);
 
-            int spawnIndex = (int) Math.floor((double) i / teams.size()) * map.getSpawns().size();
+            int spawnIndex = (int) Math.ceil(((double) i / (double) teams.size()) * map.getSpawns().size());
+
+            Logger.log(String.valueOf(spawnIndex));
+
+            Logger.log("Teleporting team " + team.getName() + " (" + team.getPlayers().stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getDisplayName).toList() + ")" +  "to location " + map.getSpawns().get(spawnIndex) + " (spawnIndex=" + spawnIndex + ").");
 
             for (GamePlayer gp : team.getPlayers()) {
                 Player p = gp.getBukkitPlayer();
@@ -1036,6 +1101,7 @@ public class Game {
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
             }
         }
+
     }
 
     private void spawnPlayer(Player p, Location l) {
@@ -1058,7 +1124,7 @@ public class Game {
     private void fillChests(boolean clearExisting) {
 
         for (Block block : chests) {
-            Chest chest = (Chest) block;
+            Chest chest = (Chest) block.getState();
 
             if (clearExisting) {
                 chest.getInventory().clear();
@@ -1067,9 +1133,17 @@ public class Game {
             int amt = lootTable.getLootManager().getItemsPerChest().generateRandom(0).intValue();
 
             for (int i = 0; i < amt; i++) {
+
+                ItemStack stack = lootTable.getLootManager().selectItem().toItemStack();
+
+                if (stack == null) {
+                    i -= 1;
+                    continue;
+                }
+
                 chest.getInventory().setItem(
                         new Random().nextInt(0, chest.getInventory().getSize() - 1),
-                        lootTable.getLootManager().selectItem().toItemStack()
+                        stack
                 );
             }
         }
@@ -1110,7 +1184,7 @@ public class Game {
 
     private void setBarriers() {
         for (Location loc : map.getSpawns()) {
-            Block center = loc.add(0, 1, 0).getBlock();
+            Block center = loc.getBlock();
 
             Block block1 = center.getRelative(BlockFace.NORTH);
             Block block2 = center.getRelative(BlockFace.EAST);
@@ -1135,8 +1209,7 @@ public class Game {
 
     private void unsetBarriers() {
         for (Block block : barrierBlocks) {
-                block.setType(Material.AIR);
-                barrierBlocks.add(block);
+            block.setType(Material.AIR);
         }
     }
 
@@ -1164,20 +1237,31 @@ public class Game {
     }
 
     public boolean isPlayable() {
-        // Checks if the game can be started by ensuring:
-        // 1. There are at least 2 non-empty teams
-        // 2. Every non-empty team has a player count >= minTeamCapacity
+        // A game is playable unless all players belong to the same team, or unless there are fewer players than twice the minimum team capacity.
+        if (players.size() < 2 * teamCapacity.min().intValue()) {
+            return false;
+        }
 
-        boolean startable = getNonEmptyTeams().size() >= 2;
+        GameTeam firstTeam = null;
 
-        for (GameTeam team : getNonEmptyTeams()) {
-            if (team.getPlayers().size() < teamCapacity.min().intValue()) {
-                startable = false;
-                break;
+        for (GamePlayer gp : players) {
+            GameTeam team = gp.getTeam();
+
+            if (team == null) {
+                return true;
+            }
+
+            if (firstTeam == null) {
+                firstTeam = team;
+                continue;
+            }
+
+            if (!team.getName().equalsIgnoreCase(firstTeam.getName())) {
+                return true;
             }
         }
 
-        return startable;
+        return false;
     }
 
     public List<GameTeam> getNonEmptyTeams() {
@@ -1333,26 +1417,33 @@ public class Game {
 
         List<Player> players = this.getBukkitPlayers();
 
-        int j = players.size();
-        int k = lobbyMap.getSpawns().size();
+        int nSpawns = lobbyMap.getSpawns().size();
+        int nPlayers = players.size();
 
-        int numPlayers = players.size();
-        int numSpawns = lobbyMap.getSpawns().size();
 
-        for (int i = 0; i < numPlayers; i++) {
-            Player p = players.get(j);
-            Location loc = lobbyMap.getSpawns().get(k);
+        // stolen from the initialization script
+        if (lobbyMap.getWorldBorderSettings().isBorderEnabled()) {
+            lobbyMap.getWorld().getWorldBorder().setCenter(Math.round(lobbyMap.getBounds().getCenterX()), Math.round(lobbyMap.getBounds().getCenterZ()));
+            lobbyMap.getWorld().getWorldBorder().setSize(Math.round(Math.max(lobbyMap.getBounds().getWidthX(), lobbyMap.getBounds().getWidthZ())));
+        }
+        else {
+            lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
+        }
 
-            spawnPlayer(p, loc);
+        lobbyMap.getWorld().setSpawnLocation(lobbyMap.getSpawns().getFirst());
 
-            j = (j + 1) % numPlayers;
-            k = (k + 1) % numSpawns;
+
+        for (int i = 0; i < nPlayers; i++) {
+            int j = (i < nSpawns) ? i : (i % nSpawns);
+
+            spawnPlayer(players.get(i), lobbyMap.getSpawns().get(j));
         }
 
     }
 
     @Override
     public String toString() {
+        // todo: clean up the toString so it doesn't look so ass when im trying to debug
         return "Game{"
                 + "gameID=" + gameID + ","
                 + "teams=" + teams + ","

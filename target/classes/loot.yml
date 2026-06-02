@@ -38,6 +38,6 @@ loot-tables:
 
         weight: 0.1
 
-      - id: cooked-beefg
+      - id: cooked-beef
         amount: 2-4 # can be integer or range of integer
         weight: 1

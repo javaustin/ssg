@@ -22,7 +22,7 @@ game:
 
     on-win:
       # placeholder {player}
-      - "gamemode {player} adventure"
+      - "gamemode adventure {player}"
       - "show {player} &6Congratulations on winning!"
 
   teams:
@@ -30,7 +30,7 @@ game:
     # If this list is left empty or too small to cover all teams, the default behavior is: ["&aTeam 1", "&aTeam 2", "&Team 3", ...]
     # Team color is derived from the prefix text.
     names:
-      ["&dTeam 1", "&dTeam 2", "&dTeam 3", "&dTeam 4"]
+      ["&dTeam 1 ", "&dTeam 2 ", "&dTeam 3 ", "&dTeam 4 "]
 
     short-names:
       ["T1", "T2", "T3", "T4"]

@@ -1,17 +1,17 @@
 package com.carrotguy69.ssg;
 
 import com.carrotguy69.cxyz.CXYZ;
+import com.carrotguy69.cxyz.events.custom.PublicChatEvent;
+import com.carrotguy69.cxyz.events.custom.base.Priority;
+import com.carrotguy69.cxyz.events.custom.service.EventService;
 import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
-import com.carrotguy69.cxyz.models.db.NetworkPlayer;
+import com.carrotguy69.ssg.eventHandler.CoreChatHandler;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
-import com.carrotguy69.ssg.messages.MessageGrabber;
-import com.carrotguy69.ssg.messages.SSGMessageKey;
-import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import com.carrotguy69.ssg.utils.Startup;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -23,7 +23,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -34,7 +33,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -100,8 +99,10 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         Startup.loadConfigYMLs();
         Startup.loadConstants();
         Startup.registerCommands();
-        Startup.registerEvents();
+        Startup.registerBukkitEvents();
 
+        // Register event handler with the core plugin's EventService
+        EventService.addEventHandler(PublicChatEvent.class, new CoreChatHandler(), Priority.NORMAL);
 
         lobbyMap = GameMap.getByID("lobby");
 
@@ -113,6 +114,18 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    @EventHandler
+    public void onLeave(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+
+        Game game = Game.getByPlayer(p);
+
+        if (game != null) {
+            GamePlayer gp = game.getPlayer(p);
+            game.removePlayer(gp);
+        }
     }
 
     @EventHandler
@@ -212,42 +225,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         if (hp <= 0) {
             game.eliminate(gp);
         }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    @SuppressWarnings("deprecation")
-    public void onChat(AsyncPlayerChatEvent e) {
-
-        Player p = e.getPlayer();
-        String content = e.getMessage();
-        NetworkPlayer np = NetworkPlayer.getPlayerByUUID(p.getUniqueId());
-
-        Game game = Game.getByPlayer(p);
-
-        if (game == null) {
-            return;
-        }
-
-        // handle lobby chat, game chat
-
-        Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(game.getPlayer(p));
-        commonMap.putAll(MapFormatters.gameFormatter(game));
-        commonMap.put("message", content);
-        commonMap.put("content", content);
-
-        switch (game.getGameState()) {
-            case WAITING:
-            case RESET:
-                game.announce(MessageGrabber.grab(SSGMessageKey.LOBBY_CHAT), commonMap, List.of(), np);
-                break;
-
-            case ACTIVE:
-            case STARTING:
-            case ENDING:
-                game.announce(MessageGrabber.grab(SSGMessageKey.GAME_CHAT), commonMap, List.of(), np);
-                break;
-        }
-
     }
 
     @EventHandler

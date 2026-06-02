@@ -40,7 +40,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
-      final-final-width: 25
+      final-width: 25
       seconds: 60
 
   example2:

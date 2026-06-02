@@ -11,7 +11,7 @@ indicators:
 
 lobby:
   # gamePlayer
-  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player}: &f{content}" # + content
+  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player}: {player-chat-color}{content}" # + content
   join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the lobby."
   leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the lobby."
 
@@ -149,7 +149,7 @@ game:
     # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
     top-killers-numbered-list:
       entry-format: "{player-color}{player}: {player-stat-round-kills} kills"
-      separator: "\n{i}.) "
+      separator: "\n{i}.)) "
       max-entries: 3
 
     # This defines the {team-members} placeholder in the recaps
@@ -221,4 +221,4 @@ errors:
       map: "&cMap not found!"
       team: "&cTeam not found!"
       loot-table: "&cPlease provide a valid loot table!"
-      team-capacity: "&cPlease provide a valid mode (solos, duos, trios, squads)."
+      team-capacity: "&cPlease provide a valid mode ((solos, duos, trios, squads))."

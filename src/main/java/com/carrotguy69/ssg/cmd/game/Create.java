@@ -23,7 +23,6 @@ import static com.carrotguy69.ssg.SpeedSG.lootTables;
 public class Create implements CommandExecutor {
     public static CommandExecutor executor = new Create();
 
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
 
@@ -44,12 +43,13 @@ public class Create implements CommandExecutor {
         GameMap gameMap = gameMaps.size() - 1 > 0 ? gameMaps.get(new Random().nextInt(0, gameMaps.size() - 1)) : gameMaps.getFirst();
         LootTable lootTable = lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst();
         NumberRange teamCapacity = new NumberRange(1, 1);
+        NumberRange amountOfTeams = new NumberRange(2, 16);
 
         if (args.length >= 1) {
             String input = args[0];
 
             Game game = Game.getByID(gameId);
-            if (game != null) {
+            if (game != null && game.getGameID().equalsIgnoreCase(gameId)) {
                 MessageUtils.sendParsedMessage(
                         sender,
                         MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME),
@@ -137,7 +137,23 @@ public class Create implements CommandExecutor {
             }
         }
 
-        Game game = new Game(gameId, gameMap, lootTable, new NumberRange(1, 16), teamCapacity);
+        if (args.length >= 5) {
+            String input = args[4];
+
+            try {
+                amountOfTeams = NumberRange.fromString(input);
+            }
+            catch (RuntimeException e) {
+                MessageUtils.sendParsedMessage(
+                        sender,
+                        MessageGrabber.grab(SSGMessageKey.INVALID_TEAM_CAPACITY),
+                        Map.of("input", input)
+                );
+                return true;
+            }
+        }
+
+        Game game = new Game(gameId, gameMap, lootTable, amountOfTeams, teamCapacity);
         SpeedSG.gameIDMap.put(game.getGameID(), game);
 
         MessageUtils.sendParsedMessage(

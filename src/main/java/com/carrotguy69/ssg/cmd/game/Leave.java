@@ -45,7 +45,7 @@ public class Leave implements CommandExecutor {
             MessageUtils.sendParsedMessage(
                     sender,
                     MessageGrabber.grab(SSGMessageKey.ERROR_NOT_IN_GAME),
-                    Map.of("input", args[0])
+                    Map.of()
             );
 
             return true;
@@ -53,7 +53,6 @@ public class Leave implements CommandExecutor {
 
 
         GamePlayer gp = game.getPlayer(p);
-
 
         game.removePlayer(gp);
 

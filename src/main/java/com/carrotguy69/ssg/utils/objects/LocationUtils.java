@@ -18,7 +18,7 @@ public class LocationUtils {
         for (Map<?, ?> location : ymlList) {
             Object worldObj = location.get("world");
             Object xObj = location.get("x");
-            Object yObj = location.get("x");
+            Object yObj = location.get("y");
             Object zObj = location.get("z");
             Object yawObj = location.get("yaw") != null ? location.get("yaw") : 0F;
             Object pitchObj = location.get("pitch") != null ? location.get("pitch") : 0F;

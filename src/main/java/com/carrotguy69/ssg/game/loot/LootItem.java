@@ -14,7 +14,7 @@ import static com.carrotguy69.ssg.SpeedSG.f;
 
 public class LootItem {
     private final String id;
-    private final NumberRange amount;
+    private NumberRange amount;
     private final double weight;
 
     private String displayName;
@@ -38,6 +38,10 @@ public class LootItem {
 
     public NumberRange getAmount() {
         return amount;
+    }
+
+    public void setAmount(NumberRange amount) {
+        this.amount = amount;
     }
 
     public double getWeight() {
@@ -94,9 +98,15 @@ public class LootItem {
 
 
     public ItemStack toItemStack() {
+        int stackAmount = amount.generateRandom(0).intValue();
+
+        if (stackAmount == 0) {
+            return null;
+        }
+
         ItemStack is = new ItemStack(
                 Material.valueOf(id),
-                amount.generateRandom(0).intValue()
+                stackAmount
         );
 
         ItemMeta meta = is.getItemMeta();

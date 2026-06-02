@@ -20,7 +20,7 @@ public class Print implements TabCompleter {
             return List.of();
         }
 
-        List<String> options = Arrays.asList("loot", "maps");
+        List<String> options = Arrays.asList("loot", "maps", "game");
 
         options.sort(String.CASE_INSENSITIVE_ORDER);
 

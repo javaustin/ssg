@@ -18,8 +18,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import static com.carrotguy69.ssg.SpeedSG.configYML;
-
 public class Join implements CommandExecutor {
     public static CommandExecutor executor = new Join();
 
@@ -60,15 +58,6 @@ public class Join implements CommandExecutor {
                 return true;
             }
 
-            if (game == Game.getByPlayer(p)) {
-                MessageUtils.sendParsedMessage(
-                        sender,
-                        MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME_JOIN),
-                        Map.of("input", args[0])
-                );
-
-                return true;
-            }
         }
 
         else {
@@ -87,6 +76,17 @@ public class Join implements CommandExecutor {
                     return true;
             }
         }
+
+        if (game == Game.getByPlayer(p)) {
+            MessageUtils.sendParsedMessage(
+                    sender,
+                    MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME_JOIN),
+                    Map.of("input", game.getGameID())
+            );
+
+            return true;
+        }
+
 
         GamePlayer gp = new GamePlayer(p.getUniqueId());
 

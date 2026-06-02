@@ -3,6 +3,7 @@ package com.carrotguy69.ssg.game.loot;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -160,10 +161,18 @@ public class LootManager {
 
     private List<Enchantment> getCompatibleEnchants(LootItem item) {
 
-        Map<Enchantment, Integer> enchantmentIntegerMap = item.toItemStack().getEnchantments();
+        item.setAmount(new NumberRange(1, 1));
+
+        ItemStack stack = item.toItemStack();
+
+        if (stack == null) {
+            return null;
+        }
+
+        Map<Enchantment, Integer> enchantmentIntegerMap = stack.getEnchantments();
 
         return Arrays.stream(Enchantment.values())
-                .filter(e -> e.canEnchantItem(item.toItemStack()))
+                .filter(e -> e.canEnchantItem(stack))
                 .filter(e -> enchantmentIntegerMap.keySet().stream()
                         .noneMatch(e::conflictsWith))
                 .collect(Collectors.toList());
