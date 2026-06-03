@@ -9,6 +9,7 @@
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/game/_GameSupercommand.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/team/Join.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/team/Leave.java
+/home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/team/List.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/team/_TeamSupercommand.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/eventHandler/CoreChatHandler.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/exceptions/MapLoadException.java

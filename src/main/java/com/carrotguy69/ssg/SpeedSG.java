@@ -69,27 +69,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
-    - We can use the cxyz MessageUtils send and parser functions (because they return a non plugin dependent object),
-    but not their message grabbers (we can't access their messages.yml so we can't get their MessageKey's).
-    ^ (Keep this note)
-
-    - we need to be the authoritative handlers of chat in game, cxyz thinks it is. so now cxyz is processing all chat messages and so is the game.
-
-    - test create command and fix tab completer and other things
-
-    - InvalidConfigException is ambiguous and does not imply that it throws when files, worlds, or other args are invalid. It only implies the format.
-      We still probably want to keep this exception, but we can use builtin exceptions like FileNotFoundException more often
-
-    - Do not throw exceptions from the CXYZ package
-
     - Create a "ready" system to skip a countdown
 
-
-    What is a game?
-    - Is a game cyclical or does it end after one game. Is it treated as a lobby? a server?
-    - Should this plugin support multiple games at once? Or does that violate the nature of it?
-    - With multiple games how do we ensure maps don't override each other? Technically two games can use the same map right now.
-    - If we support a single game, how should we go about adding players and removing players to/from the game?
     */
 
     @Override
@@ -166,9 +147,13 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
         // Any other death type represents "NATURAL" damage.
 
+        double damageTaken = gp.getTemporaryStat("damage-taken", 0.0);
+        gp.setTemporaryStat("damage-taken", damageTaken + e.getFinalDamage());
+
         double hp = p.getHealth() - e.getFinalDamage();
 
         if (hp <= 0) {
+            e.setCancelled(true);
             game.eliminate(gp);
         }
     }
@@ -217,12 +202,18 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         GamePlayer attackerGP = game.getPlayer(attacker);
 
         DamageSource source = new DamageSource(attackerGP, reason);
-
         game.setLastDamageSource(gp, source);
+
+        double damageTaken = gp.getTemporaryStat("damage-taken", 0.0);
+        gp.setTemporaryStat("damage-taken", damageTaken + e.getFinalDamage());
+
+        double damageDealt = gp.getTemporaryStat("damage-dealt", 0.0);
+        attackerGP.setTemporaryStat("damage-dealt", damageDealt + e.getFinalDamage());
 
         double hp = p.getHealth() - e.getFinalDamage();
 
         if (hp <= 0) {
+            e.setCancelled(true);
             game.eliminate(gp);
         }
     }

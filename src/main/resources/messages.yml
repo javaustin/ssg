@@ -23,6 +23,18 @@ lobby:
     leave: "You left {team-color}{team-name}"
     leave-announcement: "{player-team-color}{player} left the team"
 
+    list:
+      list: |
+        {player-team-name}: 
+        {members}
+
+      team-members-list:
+        entry-format: "{player-rank-color}{player}"
+        separator: ", "
+        max-entries: 9999
+    
+    
+
 
   info:
     start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
@@ -148,24 +160,24 @@ game:
   recaps:
     # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
     top-killers-numbered-list:
-      entry-format: "{player-color}{player}: {player-stat-round-kills} kills"
+      entry-format: "{player-rank-color}{player}: {player-temp-stat-kills} kills"
       separator: "\n{i}.)) "
       max-entries: 3
 
     # This defines the {team-members} placeholder in the recaps
     team-list:
-      entry-format: "{player-color}{player}"
+      entry-format: "{player-rank-color}{player}"
       separator: ", "
       max-entries: 9999
 
     # You can still use the team formatter {team} in the solo-winner recap.
     solo-winner: |
       ---------------------------------------------
-      {winner-player-color}{winner-player} &6&lwon the game!
+      {winner-player-rank-color}{winner-player} &6&lwon the game!
       &4Final health: {winner-player-health}
-      &cRound kills: {winner-player-stat-round-kills}
-      &6Lifetime kills: {winner-player-stat-lifetime-kills}
-      &eLifetime wins: {winner-player-stat-lifetime-wins}
+      &cRound kills: {winner-player-temp-stat-kills}
+      &6Lifetime kills: {winner-player-temp-stat-lifetime-kills}
+      &eLifetime wins: {winner-player-temp-stat-lifetime-wins}
       
       Top killers:
       {top-killers}

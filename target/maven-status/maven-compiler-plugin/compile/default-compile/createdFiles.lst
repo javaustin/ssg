@@ -1,8 +1,8 @@
 com/carrotguy69/ssg/game/loot/LootTable.class
-com/carrotguy69/ssg/game/Game$9$1.class
 com/carrotguy69/ssg/utils/Logger.class
 com/carrotguy69/ssg/game/other/Durations.class
 com/carrotguy69/ssg/cmd/team/Join.class
+com/carrotguy69/ssg/game/Game$10$1.class
 com/carrotguy69/ssg/exceptions/MapLoadException.class
 com/carrotguy69/ssg/cmd/game/List.class
 com/carrotguy69/ssg/game/map/sources/StaticSource.class
@@ -28,9 +28,11 @@ com/carrotguy69/ssg/game/Game$5.class
 com/carrotguy69/ssg/utils/objects/LocationUtils.class
 com/carrotguy69/ssg/cmd/team/Leave.class
 com/carrotguy69/ssg/cmd/game/Join.class
+com/carrotguy69/ssg/game/Game$10.class
 com/carrotguy69/ssg/game/Game$1.class
 com/carrotguy69/ssg/game/Game$8.class
 com/carrotguy69/ssg/messages/SSGMessageKey.class
+com/carrotguy69/ssg/cmd/team/List.class
 com/carrotguy69/ssg/cmd/Print.class
 com/carrotguy69/ssg/game/Game$2$1.class
 com/carrotguy69/ssg/game/map/sources/WorldCopySource.class

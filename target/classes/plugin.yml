@@ -28,7 +28,7 @@ commands:
 
   team:
     description: Join or leave a SpeedSG team
-    usage: /team <join | leave>
+    usage: /team <join | leave | list>
     permission: "ssg.team"
 
 permissions:
@@ -54,4 +54,6 @@ permissions:
   ssg.team.join:
     default: true
   ssg.team.leave:
+    default: true
+  ssg.team.list:
     default: true

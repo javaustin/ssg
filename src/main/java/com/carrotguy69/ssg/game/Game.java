@@ -55,8 +55,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
@@ -98,18 +96,15 @@ public class Game {
     private final Map<GamePlayer, DamageSource> playerLastDamageSourceMap = new HashMap<>();
     private LootTable lootTable;
 
-
-
     public Game(String id, GameMap map, LootTable lootTable, NumberRange amountOfTeams, NumberRange teamCapacity) {
         // todo:
         //  - refactor Game into (GameCycle, GameMap, GameSettings) and centralize a lobby spawn (this should be a static variable loaded directly from config)
         //  - players need to start in a central lobby
         //  - implement lives - so you are able to die and respawn based of the game settings
         //  - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
-        //  - debloat Game by moving functions to GameUtils ?
-        //  - find a way to generate an incrementing id (maybe through an api call)
-        //  - fix recap text
+        //  - fix recap text (maybe fixed)
         //  - unsetBarriers is broken
+
         this.gameID = id.toLowerCase();
         this.map = map;
 
@@ -269,7 +264,9 @@ public class Game {
             }
         }
 
-        players.remove(gp);
+        while (players.contains(gp)) {
+            players.remove(gp);
+        }
     }
 
     public void announce(String unparsedContent, Map<String, Object> formatMap, List<GamePlayer> excludingPlayers) {
@@ -295,7 +292,6 @@ public class Game {
                     continue;
                 }
             }
-
 
             if (excludingPlayers.contains(gp))
                 continue;
@@ -779,6 +775,10 @@ public class Game {
 
         if (attacker != null) {
 
+            double kills = attacker.getTemporaryStat("kills", 0);
+
+            attacker.setTemporaryStat("kills", kills + 1);
+
             MessageUtils.sendParsedMessage(
                     player.getBukkitPlayer(),
                     MessageGrabber.grab(valueOf("KILL_MESSAGE_" + lastDamageSource.reason().name().toUpperCase())),
@@ -914,7 +914,12 @@ public class Game {
             runConfigCommands(configYML.getStringList("game.command-actions.on-win"), commonMap);
         }
 
-        transfer();
+        new BukkitRunnable(){
+            public void run() {
+                cancelAllTasks();
+                transfer();
+            }
+        }.runTaskLater(plugin, 7 * 20L);
     }
 
     private void doFireworks(List<Player> targets, Color color) {
@@ -942,7 +947,7 @@ public class Game {
 
     private Pair<String, Map<String, Object>> getTopKillersText() {
 
-        players.sort(Comparator.comparingDouble(p -> p.getTemporaryStat("round-kills", 0)));
+        players.sort(Comparator.comparingDouble(gp -> gp.getTemporaryStat("round-kills", 0)));
 
         com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter topKillsFormatter = MapFormatters.gamePlayerNumberedListFormatter(
                 players,
@@ -994,6 +999,8 @@ public class Game {
         commonMap.putAll(pair2.getRight());
 
         unparsed = unparsed.replace("{top-killers}", topKillersText);
+
+        Logger.log(commonMap.toString());
 
         announce(unparsed, commonMap, List.of());
     }
@@ -1407,6 +1414,8 @@ public class Game {
 
         gameIDMap.remove(gameID);
 
+        gameIDMap.put(newGame.getGameID(), newGame);
+
         return newGame;
     }
 
@@ -1438,7 +1447,6 @@ public class Game {
 
             spawnPlayer(players.get(i), lobbyMap.getSpawns().get(j));
         }
-
     }
 
     @Override

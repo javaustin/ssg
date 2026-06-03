@@ -37,10 +37,10 @@ public class MapFormatters {
             double val = entry.getValue();
 
             if (String.valueOf(val).contains("."))
-                commonMap.put("player-stat-" + key, String.format("%.1f", val));
+                commonMap.put("player-temp-stat-" + key, String.format("%.1f", val));
 
             else
-                commonMap.put("player-stat-" + key, String.format("%.0f", val));
+                commonMap.put("player-temp-stat-" + key, String.format("%.0f", val));
         }
 
         return commonMap;

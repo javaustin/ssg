@@ -40,6 +40,10 @@ public class _TeamSupercommand implements CommandExecutor {
             case "leave":
                 Leave.executor.onCommand(sender, command, label, ObjectUtils.slice(args, 1));
                 break;
+
+            case "list":
+                List.executor.onCommand(sender, command, label, ObjectUtils.slice(args, 1));
+                break;
         }
 
         return true;

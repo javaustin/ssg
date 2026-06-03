@@ -22,7 +22,7 @@ game:
 
     on-win:
       # placeholder {player}
-      - "gamemode {player} adventure"
+      - "gamemode adventure {player}"
       - "show {player} &6Congratulations on winning!"
 
   teams:

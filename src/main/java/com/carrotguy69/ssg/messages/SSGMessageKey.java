@@ -18,6 +18,13 @@ public enum SSGMessageKey {
     TEAM_LEAVE("lobby.team.leave"),
     TEAM_LEAVE_ANNOUNCEMENT("lobby.team.leave-announcement"),
 
+    TEAM_LIST_PLAYERS("lobby.team.list.list"),
+
+    TEAM_LIST_PLAYERS_ENTRY_FORMAT("lobby.team.list.team-members-list.entry-format"),
+    TEAM_LIST_PLAYERS_DELIMITER("lobby.team.list.team-members-list.separator"),
+    TEAM_LIST_PLAYERS_MAX_ENTRIES("lobby.team.list.team-members-list.max-entries"),
+
+
     GAME_CHAT("game.chat"),
     GAME_JOIN("game.join"),
     GAME_LEAVE("game.leave"),
@@ -102,6 +109,7 @@ public enum SSGMessageKey {
     TEAM_LIST_DELIMITER("game.recaps.team-list.separator"),
     TEAM_LIST_MAX_ENTRIES("game.recaps.team-list.max-entries"),
 
+
     RECAP_SOLO_WINNER("game.recaps.solo-winner"),
     RECAP_TEAM_WINNER("game.recaps.team-winner"),
 
@@ -133,7 +141,7 @@ public enum SSGMessageKey {
     COMMAND_CREATE_GAME("command.create"),
     COMMAND_DELETE_GAME("command.delete"),
     COMMAND_JOIN_GAME("command.join"),
-    COMMAND_LEAVE_GAME("command.leave"),
+    COMMAND_LEAVE_GAME("command.leave")
 
     ;
 
