@@ -58,7 +58,7 @@ public enum SSGMessageKey {
     DEATH_MESSAGE_MELEE("game.death.message.player.melee"),
     DEATH_MESSAGE_PROJECTILE("game.death.message.player.projectile"),
     DEATH_MESSAGE_EXPLOSIVE("game.death.message.player.explosive"),
-    DEATH_MESSAGE_NATURAL("game.death.message.player.natural"),
+    DEATH_MESSAGE_NATURAL("game.death.message.player.default"),
 
     KILL_MESSAGE_MELEE("game.kill.message.player.melee"),
     KILL_MESSAGE_PROJECTILE("game.kill.message.player.projectile"),

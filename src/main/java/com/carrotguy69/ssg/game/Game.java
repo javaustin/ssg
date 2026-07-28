@@ -1,12 +1,13 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
-import com.carrotguy69.cxyz.models.config.channel.utils.ChannelFunction;
-import com.carrotguy69.cxyz.models.config.channel.utils.ChannelRegistry;
+import com.carrotguy69.cxyz.models.config.channel.registry.ChannelFunction;
+import com.carrotguy69.cxyz.models.config.channel.registry.ChannelRegistry;
+import com.carrotguy69.cxyz.models.db.GameStat;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
-import com.carrotguy69.cxyz.other.Logger;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.ssg.SpeedSG;
+import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -107,6 +109,10 @@ public class Game {
 
         this.gameID = id.toLowerCase();
         this.map = map;
+
+        if (map.getID().equalsIgnoreCase("lobby")) {
+            throw new RuntimeException("The lobby cannot be used as a game map.");
+        }
 
         map.isInUse = true;
 
@@ -277,7 +283,7 @@ public class Game {
         TextComponent component = MessageUtils.createMessage(unparsedContent, formatMap);
 
         for (GamePlayer gp : this.players) {
-            NetworkPlayer np = NetworkPlayer.getPlayerByUUID(gp.getUUID());
+            NetworkPlayer np = NetworkPlayer.resolvePlayer(gp.getUUID());
 
             if (gp.getBukkitPlayer() == null) {
                 continue;
@@ -502,6 +508,20 @@ public class Game {
         int initialCount = durations.invulCountdown;
 
         invulEnabled = true;
+
+
+        for (GamePlayer gp : this.getPlayers()) {
+            gp.setTemporaryStat("kills", 0);
+
+            GameStat sgLifetimeKills = GameStat.getStat(gp.getUUID(), "sg-lifetime-kills");
+            GameStat sgLifetimeWins = GameStat.getStat(gp.getUUID(), "sg-lifetime-wins");
+
+            if (sgLifetimeKills == null)
+                GameStat.setStat(gp.getUUID(), "sg-lifetime-kills", "0").sync();
+
+            if (sgLifetimeWins == null)
+                GameStat.setStat(gp.getUUID(), "sg-lifetime-wins", "0").sync();
+        }
 
         taskIDs.add(
             new BukkitRunnable() {public void run() {
@@ -916,8 +936,8 @@ public class Game {
 
         new BukkitRunnable(){
             public void run() {
+                delete();
                 cancelAllTasks();
-                transfer();
             }
         }.runTaskLater(plugin, 7 * 20L);
     }
@@ -950,7 +970,7 @@ public class Game {
         players.sort(Comparator.comparingDouble(gp -> gp.getTemporaryStat("round-kills", 0)));
 
         com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter topKillsFormatter = MapFormatters.gamePlayerNumberedListFormatter(
-                players,
+                players.stream().sorted(Comparator.comparing(GamePlayer::getKills)).toList(),
                 MessageGrabber.grab(TOP_KILLERS_LIST_ENTRY_FORMAT) != null ? MessageGrabber.grab(TOP_KILLERS_LIST_ENTRY_FORMAT) : "{player}",
                 MessageGrabber.grab(TOP_KILLERS_LIST_DELIMITER) != null ? MessageGrabber.grab(TOP_KILLERS_LIST_DELIMITER) : "\n{i}.) ",
                 msgYML.getInt(TOP_KILLERS_LIST_MAX_ENTRIES.getPath(), 9999),
@@ -1000,14 +1020,14 @@ public class Game {
 
         unparsed = unparsed.replace("{top-killers}", topKillersText);
 
-        Logger.log(commonMap.toString());
+        Logger.info(commonMap.toString());
 
         announce(unparsed, commonMap, List.of());
     }
 
     private void sendSoloRecap(GameTeam winningTeam) {
-        Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(winningTeam.getPlayers().getFirst());
-        commonMap.putAll(MapFormatters.teamFormatter(winningTeam));
+        Map<String, Object> commonMap = MapFormatters.cloneFormaterToNewKey(MapFormatters.gamePlayerFormatter(winningTeam.getPlayers().getFirst()), "player", "winner-player"); // For solo's we get the first (and the only) player in the team
+        commonMap.putAll(MapFormatters.cloneFormaterToNewKey(MapFormatters.teamFormatter(winningTeam), "team", "winner-team"));
         commonMap.put("game-id", gameID);
 
         String unparsed = MessageGrabber.grab(RECAP_SOLO_WINNER);
@@ -1093,14 +1113,21 @@ public class Game {
     private void spawnTeams() {
         // Teleport all teams to their respective spawn point.
 
+        Logger.info("There are " + teams.size() + " teams...");
+        Logger.info("There are " + map.getSpawns().size() + " teams...");
+
         for (int i = 0; i < teams.size(); i++) {
             GameTeam team = teams.get(i);
 
+            Logger.info("For team " + i + "...");
+
             int spawnIndex = (int) Math.ceil(((double) i / (double) teams.size()) * map.getSpawns().size());
 
-            Logger.log(String.valueOf(spawnIndex));
+            Logger.info("Equation is: ceil(" + map.getSpawns().size() + "*" + i + "/" + teams.size() + ") = " + spawnIndex);
 
-            Logger.log("Teleporting team " + team.getName() + " (" + team.getPlayers().stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getDisplayName).toList() + ")" +  "to location " + map.getSpawns().get(spawnIndex) + " (spawnIndex=" + spawnIndex + ").");
+            Logger.info("Spawn point index for team " + i + " is: " + spawnIndex);
+
+            Logger.info("Teleporting team #" + i + " " + team.getName() + " (" + team.getPlayers().stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getDisplayName).toList() + ")" +  "to location " + map.getSpawns().get(spawnIndex) + " (spawnIndex=" + spawnIndex + ").");
 
             for (GamePlayer gp : team.getPlayers()) {
                 Player p = gp.getBukkitPlayer();
@@ -1399,25 +1426,28 @@ public class Game {
         return this.gameState;
     }
 
-    public Game transfer() {
-        map.isInUse = false;
-
-        Game newGame = new Game(this.gameID, gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map), lootTable, amountOfTeams, teamCapacity);
-
-        for (GamePlayer gp : this.getPlayers()) {
-            newGame.addPlayer(gp);
-        }
-
-        for (Map.Entry<String, Object> entry : gameSettings.entrySet()) {
-            newGame.setGameSetting(entry.getKey(), entry.getValue());
-        }
-
-        gameIDMap.remove(gameID);
-
-        gameIDMap.put(newGame.getGameID(), newGame);
-
-        return newGame;
-    }
+//    public Game transfer() {
+//        map.isInUse = false;
+//
+//        Game newGame = new Game(this.gameID, gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map), lootTable, amountOfTeams, teamCapacity);
+//
+//        Collection<GamePlayer> players = new ArrayList<>(this.getPlayers());
+//
+//        this.players.clear();
+//
+//        for (GamePlayer gp : players) {
+//            newGame.addPlayer(gp);
+//        }
+//
+//        for (Map.Entry<String, Object> entry : gameSettings.entrySet()) {
+//            newGame.setGameSetting(entry.getKey(), entry.getValue());
+//        }
+//
+//        gameIDMap.remove(gameID);
+//        gameIDMap.put(newGame.getGameID(), newGame);
+//
+//        return newGame;
+//    }
 
     public void delete() {
         // Send players to lobby and cancel tasks
@@ -1436,7 +1466,7 @@ public class Game {
             lobbyMap.getWorld().getWorldBorder().setSize(Math.round(Math.max(lobbyMap.getBounds().getWidthX(), lobbyMap.getBounds().getWidthZ())));
         }
         else {
-            lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
+            lobbyMap.getWorld().getWorldBorder().setSize(lobbyMap.getWorld().getWorldBorder().getMaxSize());
         }
 
         lobbyMap.getWorld().setSpawnLocation(lobbyMap.getSpawns().getFirst());

@@ -176,8 +176,8 @@ game:
       {winner-player-rank-color}{winner-player} &6&lwon the game!
       &4Final health: {winner-player-health}
       &cRound kills: {winner-player-temp-stat-kills}
-      &6Lifetime kills: {winner-player-temp-stat-lifetime-kills}
-      &eLifetime wins: {winner-player-temp-stat-lifetime-wins}
+      &6Lifetime kills: {winner-player-stat-sg-lifetime-kills}
+      &eLifetime wins: {winner-player-stat-sg-lifetime-wins}
       
       Top killers:
       {top-killers}

@@ -1,5 +1,7 @@
 package com.carrotguy69.ssg.utils;
 
+import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
+import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.cmd.Print;
 import com.carrotguy69.ssg.cmd.game._GameSupercommand;
 import com.carrotguy69.ssg.cmd.team._TeamSupercommand;
@@ -75,6 +77,18 @@ public class Startup {
 
     public static void loadConstants() {
         gameMaps = GameMap.loadMaps();
+
+        if (gameMaps.stream().noneMatch(gameMap -> gameMap.getID().equalsIgnoreCase("lobby"))) {
+            throw new InvalidConfigException("maps.yml", "lobby", "Lobby map not found!");
+        }
+        else {
+            // Ensure that lobby map is not being used as game maps.
+            GameMap lobbyMap = GameMap.getByID("lobby");
+            gameMaps.remove(lobbyMap);
+
+            SpeedSG.lobbyMap = lobbyMap;
+        }
+
         lootTables = LootTable.loadLootTables();
     }
 }

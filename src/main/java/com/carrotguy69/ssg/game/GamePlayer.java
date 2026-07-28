@@ -39,7 +39,7 @@ public class GamePlayer {
     }
 
     public NetworkPlayer getNetworkPlayer() {
-        return NetworkPlayer.getPlayerByUUID(this.uuid);
+        return NetworkPlayer.resolvePlayer(this.uuid);
     }
 
     public UUID getUUID() {
@@ -90,7 +90,7 @@ public class GamePlayer {
     public String toString() {
         return "GamePlayer{"
                 + "uuid=" + uuid + ","
-                + "name=" + NetworkPlayer.getPlayerByUUID(uuid).getDisplayName() + ","
+                + "name=" + NetworkPlayer.resolvePlayer(uuid).getDisplayName() + ","
                 + "team=" + (team != null ? team.getShortName() : null) + ","
                 + "lives=" + lives + ","
                 + "alive=" + alive + ","

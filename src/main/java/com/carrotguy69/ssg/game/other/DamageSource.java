@@ -3,6 +3,7 @@ package com.carrotguy69.ssg.game.other;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.ssg.game.GamePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -24,9 +25,9 @@ public record DamageSource(GamePlayer attacker, Reason reason) {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "DamageSource{"
-                + "attacker=" + NetworkPlayer.getPlayerByUUID(attacker.getUUID()).getDisplayName() + ","
+                + "attacker=" + NetworkPlayer.resolvePlayer(attacker.getUUID()).getDisplayName() + ","
                 + "reason=" + reason +
                 "}";
     }

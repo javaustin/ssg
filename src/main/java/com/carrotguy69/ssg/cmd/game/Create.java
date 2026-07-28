@@ -127,7 +127,7 @@ public class Create implements CommandExecutor {
 
             gameMap = GameMap.getByID(input);
 
-            if (gameMap == null) {
+            if (gameMap == null || gameMap.getID().equalsIgnoreCase("lobby")) {
                 MessageUtils.sendParsedMessage(
                         sender,
                         MessageGrabber.grab(SSGMessageKey.INVALID_MAP),

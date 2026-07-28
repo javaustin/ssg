@@ -3,95 +3,97 @@ maps:
     # IMPORTANT: do not rename or delete this map
     # This is the waiting lobby players will be teleported to if a game is not active.
     source:
-      type: SCHEMATIC
-      file: example.schematic
+      type: STATIC
 
-      paste-location: { world: "lobby", x: 0, y: 0, z: 0 }
-
-    world: "lobby"
+    world: "world"
 
     spawns:
-      - { world: "games", x: 0, y: 0, z: 0, yaw: 0, pitch: 0 }
+      - {world: "world", x: -508, y: 85, z: -597, yaw: 90.0, pitch: 0.0}
 
     bounds:
-      pos1: { world: "games", x: 0, y: 0, z: 0 }
-      pos2: { world: "games", x: 0, y: 0, z: 0 }
+      pos1:
+        - {world: "world", x: -480, y: 113, z: -547, yaw: 0.0, pitch: 0.0}
+      pos2:
+        - {world: "world", x: -580, y: 98, z: -647, yaw: 0.0, pitch: 45.0}
+#
+#  example1:
+#    display-name: "A map loaded from a schematic"
+#
+#    source:
+#      type: SCHEMATIC
+#      file: example.schematic
+#
+#      paste-location: {world: "games", x: 0, y: 100, z: 0}
+#
+#    world: "games"
+#
+#    spawns:
+#      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
+#      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
+#      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+#
+#    bounds:
+#      pos1: {world: "games", x: 0, y: 100, z: 0}
+#      pos2: {world: "games", x: 0, y: 100, z: 0}
+#
+#    world-border:
+#      enabled: true
+#      shrink: true
+#      final-width: 25
+#      seconds: 60
+#
+#  example2:
+#    display-name: "A map copied and pasted from an existing world"
+#
+#    source:
+#      type: WORLD_COPY
+#      world: backup
+#
+#      copy-bounds:
+#        pos1: {world: "backup", x: 100, y: 100, z: 100}
+#        pos2: {world: "backup", x: -100, y: -100, z: -100}
+#
+#      paste-location: {world: "games", x: 0, y: 100, z: 0}
+#
+#    world: "games"
+#
+#    spawns:
+#      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
+#      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
+#      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+#
+#    bounds:
+#      pos1: {world: "games", x: 0, y: 100, z: 0}
+#      pos2: {world: "games", x: 0, y: 100, z: 0}
+#
+#    world-border:
+#      enabled: true
+#      shrink: true
+#      final-width: 25
+#      seconds: 60
 
-  example1:
-    display-name: "A map loaded from a schematic"
-
-    source:
-      type: SCHEMATIC
-      file: example.schematic
-
-      paste-location: {world: "games", x: 0, y: 0, z: 0}
-
-    world: "games"
-
-    spawns:
-      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
-      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
-      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
-
-    bounds:
-      pos1: {world: "games", x: 0, y: 0, z: 0}
-      pos2: {world: "games", x: 0, y: 0, z: 0}
-
-    world-border:
-      enabled: true
-      shrink: true
-      final-width: 25
-      seconds: 60
-
-  example2:
-    display-name: "A map copied and pasted from an existing world"
-
-    source:
-      type: WORLD_COPY
-      world: backup
-
-      copy-bounds:
-        pos1: {world: "backup", x: 100, y: 100, z: 100}
-        pos2: {world: "backup", x: -100, y: -100, z: -100}
-
-      paste-location: {world: "games", x: 0, y: 0, z: 0}
-
-    world: "games"
-
-    spawns:
-      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
-      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
-      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
-
-    bounds:
-      pos1: {world: "games", x: 0, y: 0, z: 0}
-      pos2: {world: "games", x: 0, y: 0, z: 0}
-
-    world-border:
-      enabled: true
-      shrink: true
-      final-width: 25
-      seconds: 60
-
-  example3:
+  static:
     display-name: "A map that already exists (no copying/pasting needed)"
 
     source:
       type: STATIC
 
-    world: "games"
+    world: "world"
 
     spawns:
-      - {world: "games", x: 0, y: 100, z: 0, yaw: 0, pitch: 0}
-      - {world: "games", x: 10, y: 100, z: 10, yaw: 0, pitch: 0}
-      - {world: "games", x: -10, y: 100, z: -10, yaw: 0, pitch: 0}
+      - {world: "world", x: -530, y: 80, z: -589, yaw: 180.0, pitch: 0.0}
+      - {world: "world", x: -522, y: 80, z: -597, yaw: 90.0, pitch: 0.0}
+      - {world: "world", x: -530, y: 80, z: -605, yaw: 0.0, pitch: 0.0}
+      - {world: "world", x: -538, y: 80, z: -597, yaw: 0.0, pitch: 0.0}
 
     bounds:
-      pos1: {world: "games", x: 0, y: 0, z: 0}
-      pos2: {world: "games", x: 0, y: 0, z: 0}
+      pos1:
+        - {world: "world", x: -480, y: 113, z: -547, yaw: 0.0, pitch: 0.0}
+      pos2:
+        - {world: "world", x: -580, y: 98, z: -647, yaw: 0.0, pitch: 45.0}
 
     world-border:
       enabled: true
       shrink: true
-      final-width: 25
+      final-width: 1
       seconds: 60

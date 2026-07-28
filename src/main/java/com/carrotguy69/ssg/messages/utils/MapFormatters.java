@@ -9,6 +9,7 @@ import com.carrotguy69.ssg.utils.objects.ColorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MapFormatters {
             String key = entry.getKey();
             double val = entry.getValue();
 
-            if (String.valueOf(val).contains("."))
+            if ((BigDecimal.valueOf(val)).stripTrailingZeros().scale() > 0)
                 commonMap.put("player-temp-stat-" + key, String.format("%.1f", val));
 
             else

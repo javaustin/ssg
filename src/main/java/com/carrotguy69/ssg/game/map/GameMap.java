@@ -6,7 +6,6 @@ import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
 import com.carrotguy69.ssg.game.map.sources.StaticSource;
 import com.carrotguy69.ssg.game.map.sources.WorldCopySource;
-import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.utils.objects.LocationUtils;
 
 import com.sk89q.worldedit.EditSession;
@@ -36,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.carrotguy69.ssg.SpeedSG.mapYML;
 
@@ -292,6 +290,10 @@ public class GameMap {
             if (spawns.isEmpty()) {
                 throw new InvalidConfigException("maps.yml", "maps." + mapID + ".spawns", "Spawns not defined!");
             }
+
+            if (spawns.size() < 2 && !mapID.equalsIgnoreCase("lobby"))
+                throw new InvalidConfigException("maps.yml", "maps." + mapID + ".spawns", "There must be at least two spawns!");
+
 
             if (boundsPos1 == null) {
                 throw new InvalidConfigException("maps.yml", "maps." + mapID + ".bounds.pos1", "Position 1 not defined!");

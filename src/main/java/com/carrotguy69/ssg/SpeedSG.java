@@ -21,6 +21,7 @@ import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -70,7 +71,15 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
     TODO:
     - Create a "ready" system to skip a countdown
-
+    - Consider wording of "GameMap" when differentiating "game maps" and "lobby maps", maybe rename?
+    - Chests don't fill
+    - Invulnerability isnt real, also the timer that waits for invulnerability to expire also isnt real.
+    - AntonyMelchiorri kills cerrot but cerrot wins the game (the game selects the player who just died to win the game)
+    - Top killers leaderboard is backwards
+    - Game doesn't delete itself on end
+    - players chat twice if registered within the game (once outside of the game, once inside the game)
+    - barriers suck
+    - the core plugin is very very solid, unfortunately ssg has not gotten that love quite yet
     */
 
     @Override
@@ -83,13 +92,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         Startup.registerBukkitEvents();
 
         // Register event handler with the core plugin's EventService
-        EventService.addEventHandler(PublicChatEvent.class, new CoreChatHandler(), Priority.NORMAL);
-
-        lobbyMap = GameMap.getByID("lobby");
-
-        if (lobbyMap == null) {
-            throw new InvalidConfigException("maps.yml", "lobby", "Lobby map not found!");
-        }
+        EventService.registerHandler(PublicChatEvent.class, new CoreChatHandler(), Priority.NORMAL);
     }
 
     @Override
@@ -164,7 +167,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        Entity attackerEntity = e.getEntity();
+        Entity attackerEntity = e.getDamager();
         Player attacker = null;
         DamageSource.Reason reason = null;
 
@@ -175,12 +178,12 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
 
         // I suppose we'll cover both arrow cases
-        else if (attackerEntity.getType() == EntityType.ARROW || attackerEntity.getType() == EntityType.SPECTRAL_ARROW) {
+        else if (attackerEntity instanceof Projectile) {
             assert attackerEntity instanceof Arrow;
-            Arrow arrow = (Arrow) attackerEntity;
+            Projectile projectile = (Projectile) attackerEntity;
 
-            if (arrow.getShooter() instanceof Player) {
-                attacker = (Player) arrow.getShooter();
+            if (projectile.getShooter() instanceof Player) {
+                attacker = (Player) projectile.getShooter();
                 reason = DamageSource.Reason.PROJECTILE;
             }
         }
