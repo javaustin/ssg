@@ -77,7 +77,7 @@ public class Join implements CommandExecutor {
             }
         }
 
-        if (game == Game.getByPlayer(p)) {
+        if (game.equals(Game.getByPlayer(p))) {
             MessageUtils.sendParsedMessage(
                     sender,
                     MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME_JOIN),
@@ -87,15 +87,17 @@ public class Join implements CommandExecutor {
             return true;
         }
 
-
-        GamePlayer gp = new GamePlayer(p.getUniqueId());
-
-        Game originalGame = Game.getByPlayer(p);
-
-        if (originalGame != null) {
-            originalGame.removePlayer(gp);
+        if (Game.getByPlayer(p) != null) {
+            MessageUtils.sendParsedMessage(
+                    sender,
+                    MessageGrabber.grab(SSGMessageKey.ERROR_GAME_ALREADY_IN_GAME),
+                    Map.of("input", game.getGameID())
+            );
+            return true;
         }
 
+
+        GamePlayer gp = new GamePlayer(p.getUniqueId());
         game.addPlayer(gp);
 
 

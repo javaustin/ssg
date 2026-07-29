@@ -14,16 +14,15 @@ game:
 
     on-death:
       # placeholders: {player}
-      - "coins remove 5 {player}"
+
 
     on-kill:
       # placeholders: {attacker}, {player}
-      - "show {player} You were killed by {attacker}"
+      -
 
     on-win:
       # placeholder {player}
-      - "gamemode adventure {player}"
-      - "show {player} &6Congratulations on winning!"
+      -
 
   teams:
     # The plugin will iterate through this list to find its team prefixes.
@@ -53,3 +52,39 @@ game:
 
     # Amount of seconds to count down from the game start, before the game forcibly declares a winner and ends
     game-end: 360
+
+
+scoreboards:
+  # Scoreboards do not use the CXYZ message parser, but you can still use placeholders
+
+  lobby:
+    - "&6&lSpeed&a&lSG"
+    - "&7{date-short}"
+    - "&7{time-short}"
+    - "&0"
+    - "&eRank: {player-rank-prefix-display}"
+    - "&1"
+    - "&eKills: &f{player-stat-sg-lifetime-kills} &7(#{player-stat-sg-lifetime-kills-ranking})"
+    - "&eWins: &f{player-stat-sg-lifetime-wins} &7(#{player-stat-sg-lifetime-wins-ranking})"
+    - "&2"
+    - "&3"
+    - "&b&l/discord"
+    - "&6cerrot.xyz"
+
+  game:
+    - "&6&lSpeed&a&lSG"
+    - "&7{date-short}"
+    - "&7{time-short}"
+    - "&1"
+    - "&eYou are on {player-team-prefix}"
+    - "&2"
+    - "&eKills: &f{player-temp-stat-kills}"
+    - "&eLives: &f{player-lives}"
+    - "&eRemaining: &f{game-alive-players-size}/{game-original-players-size}"
+    - "&3"
+    - "&e{game-next-event}: &f{game-next-event-time}"
+    - "&4"
+    - "&eMap: &f{game-map}"
+    - "&5"
+    - "&b&l/discord"
+    - "&6cerrot.xyz"

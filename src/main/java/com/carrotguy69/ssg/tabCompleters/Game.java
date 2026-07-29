@@ -24,7 +24,7 @@ public class Game implements TabCompleter {
             return List.of();
         }
 
-        List<String> options = Arrays.asList("create", "delete", "join", "leave");
+        List<String> options = Arrays.asList("create", "delete", "join", "leave", "list");
         List<String> results = new ArrayList<>();
 
         if (args.length == 0) {
@@ -39,6 +39,7 @@ public class Game implements TabCompleter {
             switch (subcommand.toLowerCase()) {
                 case "create":
                 case "leave":
+                case "list":
                     options = List.of();
                     break;
 
@@ -48,6 +49,10 @@ public class Game implements TabCompleter {
                     break;
             }
         }
+
+//        if (!sender.hasPermission(node + "." + subcommand)) {
+//            return List.of();
+//        }
 
         if (args.length == 3) {
             if (subcommand.equalsIgnoreCase("create"))

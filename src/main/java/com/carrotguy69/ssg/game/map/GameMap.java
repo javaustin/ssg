@@ -307,7 +307,7 @@ public class GameMap {
 
             boolean enabled = section.getBoolean(mapID + ".world-border.enabled", false);
             boolean shrink = section.getBoolean(mapID + ".world-border.shrink", false);
-            double finalWidth = section.getDouble(mapID + ".world-border.shrink.final-width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
+            double finalWidth = section.getDouble(mapID + ".world-border.final-width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
             int seconds = section.getInt(mapID + ".world-border.seconds", 60);
 
             WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, finalWidth, seconds);

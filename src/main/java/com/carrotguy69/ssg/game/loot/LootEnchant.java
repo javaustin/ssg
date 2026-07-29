@@ -14,7 +14,9 @@ public class LootEnchant {
         this.weight = weight;
 
         // determine if the enchantment actually exists
-        Enchantment.getByName(id);
+        if (Enchantment.getByName(id) == null) {
+            throw new RuntimeException("Enchantment by name of '" + id + "' does not exist!");
+        }
     }
 
     public String getID() {

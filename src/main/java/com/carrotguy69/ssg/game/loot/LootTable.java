@@ -2,6 +2,7 @@ package com.carrotguy69.ssg.game.loot;
 
 import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.SpeedSG;
+import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -160,7 +161,12 @@ public class LootTable {
             NumberRange level = NumberRange.fromString(levelObj.toString());
             NumberRange weight = NumberRange.fromString(weightObj.toString());
 
-            results.add(new LootEnchant(id.toUpperCase(), level, weight.generateRandom(2).doubleValue()));
+            try {
+                results.add(new LootEnchant(id.toUpperCase(), level, weight.generateRandom(2).doubleValue()));
+            }
+            catch (RuntimeException e) {
+                Logger.warning("Ignoring exception caused by an invalid enchantment name: " + e);
+            }
         }
 
         return results;

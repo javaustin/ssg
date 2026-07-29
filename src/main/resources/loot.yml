@@ -29,7 +29,7 @@ loot-tables:
         name: "&4God Sword"
         lore:
           - "&eFancy lore"
-          - "&fa the second line"
+          - "&3and the second line"
 
         enchants: # Always applied
           - id: SHARPNESS

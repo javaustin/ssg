@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.carrotguy69.ssg.SpeedSG.f;
@@ -121,7 +120,13 @@ public class LootItem {
         }
 
         if (lore != null) {
-            meta.setLore(lore);
+            List<String> coloredLore = new ArrayList<>();
+
+            for (String line : lore) {
+                coloredLore.add(f(line));
+            }
+
+            meta.setLore(coloredLore);
         }
 
         if (weightedEnchants != null) {

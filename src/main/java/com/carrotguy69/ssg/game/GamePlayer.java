@@ -14,7 +14,6 @@ public class GamePlayer {
     private final UUID uuid;
     private boolean alive;
     private int lives;
-    private int kills;
     private GameTeam team;
     private final Map<String, Double> stats = new HashMap<>();
 
@@ -23,7 +22,6 @@ public class GamePlayer {
         this.team = null;
         this.lives = configYML.getInt("game.respawns.default-lives");
         this.alive = true;
-        this.kills = 0;
     }
 
     public int getLives() {
@@ -46,20 +44,12 @@ public class GamePlayer {
         return this.uuid;
     }
 
-    public int getKills() {
-        return this.kills;
-    }
-
     public boolean isAlive() {
         return this.alive;
     }
 
     public GameTeam getTeam() {
         return this.team;
-    }
-
-    public void setKills(int kills) {
-        this.kills = kills;
     }
 
     public void setAlive(boolean alive) {
@@ -94,7 +84,7 @@ public class GamePlayer {
                 + "team=" + (team != null ? team.getShortName() : null) + ","
                 + "lives=" + lives + ","
                 + "alive=" + alive + ","
-                + "kills=" + kills +
+                +
                 "}";
     }
 }

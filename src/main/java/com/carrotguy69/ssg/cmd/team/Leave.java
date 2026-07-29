@@ -102,6 +102,8 @@ public class Leave implements CommandExecutor {
                 List.of(gp)
         );
 
+        game.updateScoreboard();
+
         return true;
     }
 }

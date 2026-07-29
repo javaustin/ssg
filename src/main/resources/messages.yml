@@ -52,8 +52,9 @@ game:
         &f-------------------- &6&lSpeed&e&lSG &f--------------------
         &eblurb something something something
         -----------------------------------------------------
-    start-cancel: "&eStart cancelled! There are not enough player to start a game." # N/A
+    start-cancel: "&eStart cancelled! There are not enough players to start a game." # N/A
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
+    invul-over: "&4Invulnerability has worn off!"
     refill-announcement: "&6Chests refilled!" # N/A
 
     mid-game-join:
@@ -92,13 +93,13 @@ game:
 
     message:
       team:
-        default: "&4Your team has been eliminated."
+        default: ""
 
       player:
-        melee: "&cYou were killed by {attacker}."
-        projectile: "&cYou were shot by {attacker}."
-        explosive: "&cYou were blown up by {attacker}."
-        default: "&cYou died."
+        melee: ""
+        projectile: ""
+        explosive: ""
+        default: ""
 
     title-with-respawn:
       title: "&c&lYOU DIED!"
@@ -119,13 +120,13 @@ game:
   kill:
     message:
       team:
-        default: "&4You eliminated {team}!"
+        default: ""
 
       player:
-        melee: "&cYou killed {player}!"
-        projectile: "&cYou shot {player}!"
-        explosive: "&cYou blew up {player}!"
-        default: "&cYou eliminated {player}!"
+        melee: ""
+        projectile: ""
+        explosive: ""
+        default: ""
 
 
   # N/A
@@ -160,8 +161,8 @@ game:
   recaps:
     # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
     top-killers-numbered-list:
-      entry-format: "{player-rank-color}{player}: {player-temp-stat-kills} kills"
-      separator: "\n{i}.)) "
+      entry-format: "{player-rank-color}{player}: &7{player-temp-stat-kills} kills"
+      separator: "\n&f{i}.)) "
       max-entries: 3
 
     # This defines the {team-members} placeholder in the recaps
@@ -179,8 +180,7 @@ game:
       &6Lifetime kills: {winner-player-stat-sg-lifetime-kills}
       &eLifetime wins: {winner-player-stat-sg-lifetime-wins}
       
-      Top killers:
-      {top-killers}
+      Top killers:{top-killers}
       ---------------------------------------------
 
     team-winner: |
@@ -188,8 +188,7 @@ game:
       {winner-team-color}{winner-team} &6&lwon the game!
       Members: {winner-team-members}
       
-      Top killers:
-      {top-killers}
+      Top killers:{top-killers}
       ---------------------------------------------
 
 
@@ -201,12 +200,23 @@ command:
   join: "&aYou joined game {game-id}!"
   leave: "&aYou left game {game-id}!"
 
+  list:
+    message: |
+      &f---------- &6&lSSG Available Games &r&f----------
+      {games}
+      [&f< Previous](RUN_COMMAND:/game list {previous-page})   &7Page {page}/{max-pages}   [&fNext >](RUN_COMMAND:/game list {next-page})
+    blank: "&cThere are no SSG games running!"
+    entry-format: "&f* [&a{game-id} (({game-team-capacity})) on {game-map} (({game-size} players))](HOVER:&eClick to join {game-id})(RUN_COMMAND:/game join {game-id})"
+    separator: "\n"
+    max-entries-per-page: 5
+
 errors:
 
   game:
     no-games: "&cThere are no SSG games running!"
     duplicate-game: "&cThis game already exists!"
     duplicate-game-join: "&cYou are already in this game!"
+    already-in-game: "&cYou are already in a game!"
     not-in-game: "&cYou are not in a game."
 
   team:

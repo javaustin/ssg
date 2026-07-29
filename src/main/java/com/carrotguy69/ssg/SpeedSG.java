@@ -4,7 +4,6 @@ import com.carrotguy69.cxyz.CXYZ;
 import com.carrotguy69.cxyz.events.custom.PublicChatEvent;
 import com.carrotguy69.cxyz.events.custom.base.Priority;
 import com.carrotguy69.cxyz.events.custom.service.EventService;
-import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.eventHandler.CoreChatHandler;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.Game;
@@ -17,12 +16,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -30,14 +27,12 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,22 +59,30 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static List<GameMap> gameMaps = new ArrayList<>();
     public static List<LootTable> lootTables = new ArrayList<>();
 
+    public static List<String> lobbyScoreboardLines = new ArrayList<>();
+    public static List<String> gameScoreboardLines = new ArrayList<>();
+
     public static SpeedSG plugin;
     public static CXYZ cxyz;
 
     /*
 
     TODO:
-    - Create a "ready" system to skip a countdown
-    - Consider wording of "GameMap" when differentiating "game maps" and "lobby maps", maybe rename?
-    - Chests don't fill
-    - Invulnerability isnt real, also the timer that waits for invulnerability to expire also isnt real.
-    - AntonyMelchiorri kills cerrot but cerrot wins the game (the game selects the player who just died to win the game)
-    - Top killers leaderboard is backwards
-    - Game doesn't delete itself on end
-    - players chat twice if registered within the game (once outside of the game, once inside the game)
-    - barriers suck
-    - the core plugin is very very solid, unfortunately ssg has not gotten that love quite yet
+        - Create a "ready" system to skip a countdown
+        - Consider wording of "GameMap" when differentiating "game maps" and "lobby maps", maybe rename?
+        - the core plugin is very very solid, unfortunately ssg has not gotten that love quite yet
+        - /team list is sloppy in solo mode
+        - rename game commands to /ssg
+        - refactor LootEnchant to use namespacedkeys
+        - implement matchmaking score
+        - ensure world border works
+        - make a scoreboard either in here or with another plugin w/ placeholderAPI
+        - refactor Game into (GameCycle, GameMap, GameSettings) and centralize a lobby spawn (this should be a static variable loaded directly from config)
+        - players need to start in a central lobby
+        - implement lives - so you are able to die and respawn based of the game settings
+        - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
+        - fulfill /game list and /game info
+        - i am still concerned about performance regarding getting leaderboard ranking
     */
 
     @Override
@@ -139,16 +142,9 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        // Ignore damages beyond the scope of this handler (anything that could possibly involve a player) (do NOT cancel)
-        if (
-                cause == EntityDamageEvent.DamageCause.PROJECTILE ||
-                cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK ||
-                cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
-        ) {
+        if (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK || cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
             return;
         }
-
-        // Any other death type represents "NATURAL" damage.
 
         double damageTaken = gp.getTemporaryStat("damage-taken", 0.0);
         gp.setTemporaryStat("damage-taken", damageTaken + e.getFinalDamage());
@@ -177,10 +173,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             reason = DamageSource.Reason.MELEE;
         }
 
-        // I suppose we'll cover both arrow cases
-        else if (attackerEntity instanceof Projectile) {
+        else if (attackerEntity instanceof Projectile projectile) {
             assert attackerEntity instanceof Arrow;
-            Projectile projectile = (Projectile) attackerEntity;
 
             if (projectile.getShooter() instanceof Player) {
                 attacker = (Player) projectile.getShooter();
@@ -193,7 +187,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
 
         // todo: When an explosion occurs, players will immediately be killed before we can cancel damage through here. To prevent this immediate killing, we will need to
-        // (eventually) cancel all explosions and replace them with an explosion particle effect and sound.
+        //  (eventually) cancel all explosions and replace them with an explosion particle effect and sound.
 
         Game game = Game.getByPlayer(p);
 
@@ -201,8 +195,16 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        GamePlayer gp = game.getPlayer(p);
+        if (game.invulEnabled)
+            return;
+
+        GamePlayer gp = game.getPlayer(p); // The above check ensures that the game player is not null (because the player is sourced from a game)
         GamePlayer attackerGP = game.getPlayer(attacker);
+
+        if (attackerGP == null) { // attacker was outside the game
+            e.setCancelled(true);
+            return;
+        }
 
         DamageSource source = new DamageSource(attackerGP, reason);
         game.setLastDamageSource(gp, source);
@@ -235,35 +237,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         if (game.getGameState() != GameState.ACTIVE) {
             e.setFoodLevel(20);
         }
-    }
-
-    @EventHandler
-    public void onSnowball(ProjectileHitEvent e) {
-        // Reinstate projectile (snowball, egg, ...) knockback similar to 1.8.
-        if (!(e.getHitEntity() instanceof Player p)) {
-            return;
-        }
-
-        Game game = Game.getByPlayer(p);
-
-        if (game == null) {
-            return;
-        }
-
-        if (game.getGameState() != GameState.ACTIVE) {
-            return;
-        }
-
-        if (!(e.getEntity() instanceof Snowball || e.getEntity() instanceof Egg)) {
-            return;
-        }
-
-        Vector kbVector = e.getEntity().getVelocity().normalize().multiply(0.35).setY(0.25);
-
-        // Player::damage() effectively shakes the screen like normal damage/kb.
-        p.damage(0);
-
-        p.setVelocity(p.getVelocity().add(kbVector));
     }
 
     @EventHandler
@@ -315,4 +288,5 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
 
     }
+
 }

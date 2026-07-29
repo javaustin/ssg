@@ -90,5 +90,8 @@ public class Startup {
         }
 
         lootTables = LootTable.loadLootTables();
+
+        lobbyScoreboardLines = configYML.getStringList("scoreboards.lobby");
+        gameScoreboardLines = configYML.getStringList("scoreboards.game");
     }
 }

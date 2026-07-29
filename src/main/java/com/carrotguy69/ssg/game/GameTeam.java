@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.cxyz.models.db.GameStat;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -19,8 +20,8 @@ public class GameTeam {
     private final List<GamePlayer> players;
     private final int capacity;
 
-    // Matchmaking scores (if the score is lower than the team is underbalanced and needs more players)
-    public final double matchmakingScore = 0;
+    // Matchmaking scores (if the score is lower, then the team is underbalanced and needs more players)
+    public double matchmakingScore = 0;
 
     private final Map<String, Double> stats = new HashMap<>();
 
@@ -77,6 +78,16 @@ public class GameTeam {
         return this.capacity;
     }
 
+    public double getCombinedHealth() {
+        double hp = 0;
+
+        for (GamePlayer gp : getAliveMembers()) {
+            hp += gp.getBukkitPlayer().getHealth();
+        }
+
+        return hp;
+    }
+
     public List<GamePlayer> getAliveMembers() {
         List<GamePlayer> results = new ArrayList<>();
 
@@ -98,10 +109,37 @@ public class GameTeam {
             throw new TeamFullException("Team %s is at or above its max capacity (%d/%d)!".formatted(this.getName(), this.getPlayers().size(), this.getCapacity()));
         }
 
+        GameStat playerLifetimeKills = GameStat.getStat(gp.getUUID(), "sg-lifetime-kills");
+
+        if (playerLifetimeKills != null) {
+            this.matchmakingScore += Integer.parseInt(playerLifetimeKills.getValue());
+        }
+
+        GameStat playerLifetimeWins = GameStat.getStat(gp.getUUID(), "sg-lifetime-wins");
+
+        if (playerLifetimeKills != null) {
+            // Scale by x0.5 (wins are a less significant skill indicator than kills)
+            this.matchmakingScore += ((double) Integer.parseInt(playerLifetimeWins.getValue()) / 2);
+        }
+
         this.players.add(gp);
     }
 
     public void removePlayer(GamePlayer gp) {
+
+        GameStat playerLifetimeKills = GameStat.getStat(gp.getUUID(), "sg-lifetime-kills");
+
+        if (playerLifetimeKills != null) {
+            this.matchmakingScore -= Integer.parseInt(playerLifetimeKills.getValue());
+        }
+
+        GameStat playerLifetimeWins = GameStat.getStat(gp.getUUID(), "sg-lifetime-wins");
+
+        if (playerLifetimeKills != null) {
+            // Scale by x0.5 (wins are a less significant skill indicator than kills)
+            this.matchmakingScore -= ((double) Integer.parseInt(playerLifetimeWins.getValue()) / 2);
+        }
+
         this.players.remove(gp);
     }
 

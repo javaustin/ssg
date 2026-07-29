@@ -32,6 +32,7 @@ public enum SSGMessageKey {
     INFO_BLURB("game.info.blurb"),
     INFO_GAME_START_CANCEL("game.info.start-cancel"),
     INVUL_COUNTDOWN_MESSAGE("game.info.invul-countdown"),
+    INVUL_OVER_MESSAGE("game.info.invul-over"),
     CHEST_REFILLED_MESSAGE("game.info.refill-announcement"),
 
     MID_GAME_JOIN_TITLE("game.info.mid-game-join.title.title"),
@@ -82,19 +83,19 @@ public enum SSGMessageKey {
     LOSE_FADE_OUT_TICKS("game.win.lose-title.fade-out-ticks"),
 
     DEATH_RESPAWN_TITLE("game.death.title-with-respawn.title"),
-    DEATH_RESPAWN_SUBTITLE("game.death.title-with-respawn.substitle"),
+    DEATH_RESPAWN_SUBTITLE("game.death.title-with-respawn.subtitle"),
     DEATH_RESPAWN_FADE_IN_TICKS("game.death.title-with-respawn.fade-in-ticks"),
     DEATH_RESPAWN_STAY_TICKS("game.death.title-with-respawn.stay-ticks"),
     DEATH_RESPAWN_FADE_OUT_TICKS("game.death.title-with-respawn.fade-out-ticks"),
 
     DEATH_NO_RESPAWN_TITLE("game.death-title-with-no-respawn.title"),
-    DEATH_NO_RESPAWN_SUBTITLE("game.death-title-with-no-respawn.substitle"),
+    DEATH_NO_RESPAWN_SUBTITLE("game.death-title-with-no-respawn.subtitle"),
     DEATH_NO_RESPAWN_FADE_IN_TICKS("game.death-title-with-no-respawn.fade-in-ticks"),
     DEATH_NO_RESPAWN_STAY_TICKS("game.death-title-with-no-respawn.stay-ticks"),
     DEATH_NO_RESPAWN_FADE_OUT_TICKS("game.death-title-with-no-respawn.fade-out-ticks"),
 
     RESPAWN_TITLE("game.respawn.title.title"),
-    RESPAWN_SUBTITLE("game.respawn.title.substitle"),
+    RESPAWN_SUBTITLE("game.respawn.title.subtitle"),
     RESPAWN_FADE_IN_TICKS("game.respawn.title.fade-in-ticks"),
     RESPAWN_STAY_TICKS("game.respawn.title.stay-ticks"),
     RESPAWN_FADE_OUT_TICKS("game.respawn.title.fade-out-ticks"),
@@ -122,6 +123,7 @@ public enum SSGMessageKey {
     ERROR_NO_GAMES("errors.game.no-games"),
     ERROR_DUPLICATE_GAME("errors.game.duplicate-game"),
     ERROR_DUPLICATE_GAME_JOIN("errors.game.duplicate-game-join"),
+    ERROR_GAME_ALREADY_IN_GAME("errors.game.already-in-game"),
     ERROR_NOT_IN_GAME("errors.game.not-in-game"),
 
     ERROR_TEAM_NO_SWITCHING("errors.team.no-switching"),
@@ -141,7 +143,13 @@ public enum SSGMessageKey {
     COMMAND_CREATE_GAME("command.create"),
     COMMAND_DELETE_GAME("command.delete"),
     COMMAND_JOIN_GAME("command.join"),
-    COMMAND_LEAVE_GAME("command.leave")
+    COMMAND_LEAVE_GAME("command.leave"),
+
+    COMMAND_LIST_GAMES("command.list.message"),
+    COMMAND_LIST_GAMES_BLANK("command.list.blank"),
+    COMMAND_LIST_GAMES_FORMAT("command.list.entry-format"),
+    COMMAND_LIST_GAMES_DELIMITER("command.list.separator"),
+    COMMAND_LIST_GAMES_MAX_ENTRIES("command.list.max-entries-per-page"),
 
     ;
 

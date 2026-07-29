@@ -90,6 +90,8 @@ public class Join implements CommandExecutor {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.TEAM_JOIN), commonMap);
 
             team.sendTeamMessage(MessageGrabber.grab(SSGMessageKey.TEAM_JOIN_ANNOUNCEMENT), commonMap, List.of(gp));
+
+            game.updateScoreboard();
         }
         catch (TeamFullException e) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_FULL), commonMap);

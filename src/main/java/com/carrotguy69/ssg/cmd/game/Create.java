@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import static com.carrotguy69.ssg.SpeedSG.gameMaps;
 import static com.carrotguy69.ssg.SpeedSG.lootTables;
@@ -28,8 +29,8 @@ public class Create implements CommandExecutor {
 
         /*
         SYNTAX:
-            /sg create [id] [team-capacity-range] [loot-table] [map]
-            /sg create SG-2 solos OP cavern
+            /sg create [id] [team-capacity-range] [loot-table] [map] [amountOfTeams] [maxLives]
+            /sg create SG-2 solos OP cavern 4 3
         */
 
         String node = "ssg.game.create";
@@ -39,26 +40,15 @@ public class Create implements CommandExecutor {
             return true;
         }
 
-        String gameId = "SSG-1";
+        String gameId = generateValidGameID();
         GameMap gameMap = gameMaps.size() - 1 > 0 ? gameMaps.get(new Random().nextInt(0, gameMaps.size() - 1)) : gameMaps.getFirst();
         LootTable lootTable = lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst();
         NumberRange teamCapacity = new NumberRange(1, 1);
         NumberRange amountOfTeams = new NumberRange(2, 16);
+        int maxLives = 1;
 
         if (args.length >= 1) {
-            String input = args[0];
-
-            Game game = Game.getByID(gameId);
-            if (game != null && game.getGameID().equalsIgnoreCase(gameId)) {
-                MessageUtils.sendParsedMessage(
-                        sender,
-                        MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME),
-                        Map.of("input", input)
-                );
-                return true;
-            }
-
-            gameId = input;
+            gameId = args[0];
         }
 
         if (args.length >= 2) {
@@ -137,7 +127,7 @@ public class Create implements CommandExecutor {
             }
         }
 
-        if (args.length >= 5) {
+        if (args.length == 5) {
             String input = args[4];
 
             try {
@@ -153,8 +143,28 @@ public class Create implements CommandExecutor {
             }
         }
 
-        Game game = new Game(gameId, gameMap, lootTable, amountOfTeams, teamCapacity);
-        SpeedSG.gameIDMap.put(game.getGameID(), game);
+        if (args.length >= 6) {
+            String input = args[5];
+
+            try {
+                maxLives = Integer.parseInt(input);
+            }
+            catch (NumberFormatException ignored) {}
+
+        }
+
+        Game game = Game.getByID(gameId);
+        if (game != null) {
+            MessageUtils.sendParsedMessage(
+                    sender,
+                    MessageGrabber.grab(SSGMessageKey.ERROR_DUPLICATE_GAME),
+                    Map.of("input", gameId)
+            );
+            return true;
+        }
+
+        game = new Game(gameId, gameMap, lootTable, amountOfTeams, teamCapacity, maxLives);
+        SpeedSG.gameIDMap.put(game.getGameID().toLowerCase(), game);
 
         MessageUtils.sendParsedMessage(
                 sender,
@@ -163,5 +173,18 @@ public class Create implements CommandExecutor {
         );
 
         return true;
+    }
+
+    private String generateValidGameID() {
+        for (int i = 1; i < 100; i++) {
+            Game game = Game.getByID("ssg-" + i);
+
+            if (game == null) {
+                return "ssg-" + i;
+            }
+        }
+
+        // If there are literally 100 games that already exist we are going to return a random uuid.
+        return UUID.randomUUID().toString();
     }
 }

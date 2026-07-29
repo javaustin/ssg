@@ -1,5 +1,6 @@
 package com.carrotguy69.ssg.messages.utils;
 
+import com.carrotguy69.cxyz.utils.TimeUtils;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameTeam;
@@ -32,6 +33,8 @@ public class MapFormatters {
 
         commonMap.put("player-health", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
         commonMap.put("player-hp", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
+
+        commonMap.put("player-lives", gp.getLives());
 
         for (Map.Entry<String, Double> entry : gp.getTemporaryStat().entrySet()) {
             String key = entry.getKey();
@@ -113,6 +116,37 @@ public class MapFormatters {
         return new com.carrotguy69.cxyz.messages.utils.MapFormatters.NumberedListFormatter(formatter.getEntries(), formatter.getDelimiter(), formatter.getFormatMap(), maxEntriesPerPage);
     }
 
+    public static com.carrotguy69.cxyz.messages.utils.MapFormatters.ListFormatter gameListFormatter(List<Game> games, String format, String delimiter, int maxEntriesPerPage, int pageNumber) {
+        if (maxEntriesPerPage < 1) {
+            maxEntriesPerPage = 9999;
+        }
+
+        int size = games.size();
+
+        int startIndex = Math.max((pageNumber - 1) * maxEntriesPerPage, 0);
+        int endIndex = Math.max(Math.min((pageNumber * maxEntriesPerPage) - 1, size - 1), 0);
+
+
+        List<String> strings = new ArrayList<>(); // Each string contains the specified format with keys replaced with enumerated ones: "{player-color}{player}" -> "{player-color-0}{rank-0}"
+
+        Map<String, Object> commonMap = new HashMap<>(); // Will represent all the placeholder keys and values we will fulfill at parse time.
+
+        for (int i = startIndex; i <= endIndex; i++) {
+
+            String string = format; // Individual GamePlayer string
+            Game game = games.get(i);
+
+            for (Map.Entry<String, Object> entry : gameFormatter(game).entrySet()) { // Add all keys and values from the single rank map formatter
+                string = string.replace("{" + entry.getKey() + "}", "{" + entry.getKey() + "-" + i + "}"); // Enumerate placeholders in format string
+                commonMap.put(entry.getKey() + "-" + i, entry.getValue()); // Add enumerated placeholders to commonMap.
+            }
+
+            strings.add(string);
+        }
+
+        return new com.carrotguy69.cxyz.messages.utils.MapFormatters.ListFormatter(strings, delimiter, commonMap, maxEntriesPerPage, pageNumber);
+    }
+
     public static Map<String, Object> cloneFormaterToNewKey(Map<String, Object> originalMap, String fromKey, String toKey) {
         // Returns a new map with identical values but with keys renamed by replacing a given prefix/identifier (fromKey) with a new one (toKey).
         // e.g.: clonePlayerFormatter(playerFormatter(np), "player", "mod") -> {player} will be {mod}, {player-prefix} will be {mod-prefix}
@@ -133,7 +167,26 @@ public class MapFormatters {
         Map<String, Object> commonMap = new HashMap<>();
 
         commonMap.put("game-id", game.getGameID());
+        commonMap.put("game-map", game.getGameMap().getName());
+        commonMap.put("game-team-capacity", teamCapacityNiceNumber(game.teamCapacity.max().intValue()));
+        commonMap.put("game-size", game.getPlayers().size());
+        commonMap.put("game-original-players-size", game.originalPlayersSize);
+        commonMap.put("game-original-teams-size", game.originalTeamsSize);
+        commonMap.put("game-alive-players-size", game.getAlivePlayers().size());
+        commonMap.put("game-alive-teams-size", game.getAliveTeams().size());
+        commonMap.put("game-next-event", game.getNextEventName());
+        commonMap.put("game-next-event-time", TimeUtils.countdownShort(game.getNextEventTimeSeconds()));
+        commonMap.put("game-time-elapsed", TimeUtils.unixCountdown(game.elapsedSeconds));
 
         return commonMap;
+    }
+
+    private static String teamCapacityNiceNumber(int max) {
+        if (max > 4)
+            return max + "p";
+
+        List<String> list = new ArrayList<>(List.of("solos", "duos", "trios", "squads"));
+
+        return list.get(max - 1);
     }
 }
