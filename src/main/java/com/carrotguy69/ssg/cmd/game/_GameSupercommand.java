@@ -52,6 +52,13 @@ public class _GameSupercommand implements CommandExecutor {
             case "list":
                 List.executor.onCommand(sender, command, label, ObjectUtils.slice(args, 1));
                 break;
+
+            case "setting":
+                Setting.executor.onCommand(sender, command, label, ObjectUtils.slice(args, 1));
+                break;
+
+            default:
+                Info.executor.onCommand(sender, command, label, ObjectUtils.slice(args, 1));
         }
 
         return true;

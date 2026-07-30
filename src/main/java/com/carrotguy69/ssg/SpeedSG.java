@@ -75,6 +75,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         - rename game commands to /ssg
         - refactor LootEnchant to use namespacedkeys
         - implement matchmaking score
+        - game respawn command
         - ensure world border works
         - make a scoreboard either in here or with another plugin w/ placeholderAPI
         - refactor Game into (GameCycle, GameMap, GameSettings) and centralize a lobby spawn (this should be a static variable loaded directly from config)
@@ -83,6 +84,11 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
         - fulfill /game list and /game info
         - i am still concerned about performance regarding getting leaderboard ranking
+        - restrict tab completer suggestions
+        - /sg player set|get kills/lives
+        - allow admin to pause a lobby or game countdown
+        - consider gameMap.getID() and gameMap.getName() are used interchangeably unintentionally (just ctrl+f)
+        - for /game setting -> if you are in the lobby, you can just transfer the game and keep the teams, and the new settings will be auto applied
     */
 
     @Override

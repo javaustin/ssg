@@ -132,11 +132,15 @@ public class Create implements CommandExecutor {
 
             try {
                 amountOfTeams = NumberRange.fromString(input);
+
+                if (amountOfTeams.min().intValue() < 2) {
+                    throw new RuntimeException("Range cannot include any values < 2. (There need to be at least two teams to run a game.)");
+                }
             }
             catch (RuntimeException e) {
                 MessageUtils.sendParsedMessage(
                         sender,
-                        MessageGrabber.grab(SSGMessageKey.INVALID_TEAM_CAPACITY),
+                        MessageGrabber.grab(SSGMessageKey.INVALID_AMOUNT_OF_TEAMS),
                         Map.of("input", input)
                 );
                 return true;

@@ -55,13 +55,26 @@ public class MapFormatters {
 
         Map<String, Object> commonMap = new HashMap<>();
 
-        commonMap.put("team", gt != null ? gt.getName() : "");
-        commonMap.put("team-prefix", gt != null ? gt.getName() : "");
-        commonMap.put("team-name", gt != null ? gt.getName() : "");
+        String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
+        String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
+
+        String name = gt != null ? gt.getName() : "";
+
+        commonMap.put("team", name);
+        commonMap.put("team-prefix", name);
+        commonMap.put("team-name", name);
+
+        commonMap.put("team-stripped", name.strip());
+        commonMap.put("team-prefix-stripped", name.strip());
+        commonMap.put("team-name-stripped", name.strip());
+
+        commonMap.put("team-short-name-stripped", gt != null ? gt.getShortName().strip() : "");
 
         commonMap.put("team-short-name", gt != null ? gt.getShortName() : "");
         commonMap.put("team-color", gt != null ? ColorUtils.getColorCode(gt.getRGBColor()) : "");
         commonMap.put("team-capacity", gt != null ? gt.getCapacity() : "");
+
+        commonMap.put("team-dead", gt != null ?(!gt.isAlive() ? deadIndicator : aliveIndicator): "");
 
         if (gt != null)
             for (Map.Entry<String, Double> entry : gt.getStats().entrySet()) {
@@ -92,6 +105,10 @@ public class MapFormatters {
         List<String> strings = new ArrayList<>(); // Each string contains the specified format with keys replaced with enumerated ones: "{player-color}{player}" -> "{player-color-0}{rank-0}"
 
         Map<String, Object> commonMap = new HashMap<>(); // Will represent all the placeholder keys and values we will fulfill at parse time.
+
+        if (players.isEmpty()) {
+            return new com.carrotguy69.cxyz.messages.utils.MapFormatters.ListFormatter(List.of(), delimiter, commonMap, maxEntriesPerPage, pageNumber);
+        }
 
         for (int i = startIndex; i <= endIndex; i++) {
 
@@ -170,13 +187,14 @@ public class MapFormatters {
         commonMap.put("game-map", game.getGameMap().getName());
         commonMap.put("game-team-capacity", teamCapacityNiceNumber(game.teamCapacity.max().intValue()));
         commonMap.put("game-size", game.getPlayers().size());
+        commonMap.put("game-max-lives", game.maxLives);
         commonMap.put("game-original-players-size", game.originalPlayersSize);
         commonMap.put("game-original-teams-size", game.originalTeamsSize);
         commonMap.put("game-alive-players-size", game.getAlivePlayers().size());
         commonMap.put("game-alive-teams-size", game.getAliveTeams().size());
         commonMap.put("game-next-event", game.getNextEventName());
         commonMap.put("game-next-event-time", TimeUtils.countdownShort(game.getNextEventTimeSeconds()));
-        commonMap.put("game-time-elapsed", TimeUtils.unixCountdown(game.elapsedSeconds));
+        commonMap.put("game-time-elapsed", TimeUtils.countdownShort(game.elapsedSeconds).equalsIgnoreCase("permanent") ? "0s" : TimeUtils.countdown(game.elapsedSeconds));
 
         return commonMap;
     }

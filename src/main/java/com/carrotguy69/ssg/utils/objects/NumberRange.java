@@ -105,6 +105,10 @@ public class NumberRange {
         return bd.doubleValue();
     }
 
+    public String toPrettyString() {
+        return min + "-" + max;
+    }
+
     @Override
     public String toString() {
         return String.format("NumberRange{%s-%s}", min, max);

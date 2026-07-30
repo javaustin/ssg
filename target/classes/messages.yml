@@ -25,20 +25,17 @@ lobby:
 
     list:
       list: |
-        {player-team-name}: 
-        {members}
+        {player-team-stripped}: {members}
 
       team-members-list:
         entry-format: "{player-rank-color}{player}"
         separator: ", "
         max-entries: 9999
-    
-    
 
 
   info:
     start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
-    start-cancel: "&eStart cancelled! There are not enough players to start a game. You will be teleported to the lobby..." # N/A
+    start-cancel: "&eStart cancelled! There are not enough players to start a game." # N/A
 
 game:
   # gamePlayer
@@ -49,10 +46,10 @@ game:
 
   info:
     blurb: |
-        &f-------------------- &6&lSpeed&e&lSG &f--------------------
+        &f-------------------- &6&lSpeed&a&lSG &f--------------------
         &eblurb something something something
-        -----------------------------------------------------
-    start-cancel: "&eStart cancelled! There are not enough players to start a game." # N/A
+        &f--------------------------------------------------
+    start-cancel: "&eStart cancelled! There are not enough players to start a game. You will be teleported to the lobby..." # N/A
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
     invul-over: "&4Invulnerability has worn off!"
     refill-announcement: "&6Chests refilled!" # N/A
@@ -210,6 +207,27 @@ command:
     separator: "\n"
     max-entries-per-page: 5
 
+  setting:
+    get: "{key} for game &f{game} &ais &f{value}."
+    set: "&aSet {key} for &f{game} &ato &f{value}."
+
+  info:
+    message: |
+      &f------- &6&lGame Info &r&f-------
+      &aGame ID: &f{game-id} &7(({game-size} players))
+      &aType: &f{game-team-capacity}
+      &aMap: &f{game-map}
+      &aTime Elapsed: &f{game-time-elapsed}
+      &aAlive: &f{game-alive-players-size}/{game-original-players-size}
+      &aNext Event: &f{game-next-event} &7(({game-next-event-time}))
+      &aPlayers: &f{players}
+      &f----------------------------------
+
+    blank: "&cYou are not in a SSG game."
+    entry-format: "&f{player-rank-color}{player-dead}{player-display-name}"
+    separator: ", "
+    max-entries: 16
+
 errors:
 
   game:
@@ -241,6 +259,10 @@ errors:
     invalid:
       game: "&cGame not found!"
       map: "&cMap not found!"
+      lobby-map: "&cSorry! The lobby map cannot be used for SSG games."
       team: "&cTeam not found!"
       loot-table: "&cPlease provide a valid loot table!"
       team-capacity: "&cPlease provide a valid mode ((solos, duos, trios, squads))."
+      amount-of-teams: "&cPlease provide a number of teams at or above 2."
+      max-lives: "&cPlease provide a valid integer > 0."
+      setting: "&cPlease provide a valid setting key. &7((map, loottable, amountofteams, teamcapacity, maxlives))"

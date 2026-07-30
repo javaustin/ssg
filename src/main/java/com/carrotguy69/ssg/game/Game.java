@@ -54,7 +54,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -81,8 +80,7 @@ import static com.carrotguy69.ssg.messages.SSGMessageKey.*;
 
 public class Game {
 
-    private final GameMap map;
-    public Map<String, Object> gameSettings = new HashMap<>();
+    private GameMap map;
 
     private final String gameID;
     private GameState gameState;
@@ -107,12 +105,18 @@ public class Game {
     private final Map<GamePlayer, DamageSource> playerLastDamageSourceMap = new Hashtable<>();
     private LootTable lootTable;
 
-    private int maxLives;
-
+    public int maxLives;
     public int originalPlayersSize = 0;
     public int originalTeamsSize = 0;
     public int elapsedSeconds = 0;
 
+
+    // Updated settings (settings that can't be changed in the middle of the script, but will be applied during our transfer method)
+    public GameMap nextMap;
+    public LootTable nextLootTable;
+    public NumberRange nextAmountOfTeams;
+    public NumberRange nextTeamCapacity;
+    public int nextMaxLives;
 
     public Game(String id, GameMap map, LootTable lootTable, NumberRange amountOfTeams, NumberRange teamCapacity, int maxLives) {
 
@@ -144,6 +148,12 @@ public class Game {
         this.gameState = GameState.WAITING;
 
         this.defaultGamemode = GameMode.valueOf(configYML.getString("game.misc.default-gamemode", "adventure").toUpperCase());
+
+        nextMap = map;
+        nextLootTable = lootTable;
+        nextAmountOfTeams = amountOfTeams;
+        nextTeamCapacity = teamCapacity;
+        nextMaxLives = maxLives;
 
         initialize();
     }
@@ -219,7 +229,7 @@ public class Game {
 
                 // Stealing the code from spawnTeams() to teleport the player to a predetermined spawn based on the team index.
                 GameTeam team = assignTeam(gp);
-                int spawnIndex = (int) Math.floor((double) team.getIndex() / teams.size()) * map.getSpawns().size();
+                int spawnIndex = (int) Math.ceil((double) team.getIndex() / teams.size()) * map.getSpawns().size();
 
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
 
@@ -292,12 +302,15 @@ public class Game {
             }
         }
 
+        closeScoreboard(gp.getBukkitPlayer());
+
         while (players.contains(gp)) {
             players.remove(gp);
         }
 
         originalPlayersSize = this.getPlayers().size();
         originalTeamsSize = this.getTeams().size();
+
 
         updateScoreboard();
     }
@@ -540,6 +553,8 @@ public class Game {
         }
 
         teams.removeIf(GameTeam::isEmpty);
+        recalcTeamIndexes();
+
 
         spawnTeams();
 
@@ -560,6 +575,13 @@ public class Game {
 
 
         tryGameCountdown();
+    }
+
+    private void recalcTeamIndexes() {
+        for (int i = 0; i < teams.size(); i++) {
+            GameTeam team = teams.get(i);
+            team.setIndex(i);
+        }
     }
 
     private void start() {
@@ -696,6 +718,12 @@ public class Game {
         long seconds = map.getWorldBorderSettings().getShrinkTimeSeconds();
 
         map.getWorld().getWorldBorder().changeSize(width, seconds * 20L);
+
+        for (GamePlayer gp : getAlivePlayers()) {
+            if (gp.getLives() > 1) {
+                gp.setLives(1);
+            }
+        }
     }
 
     private GameTeam determinePrematureWinner() {
@@ -836,7 +864,7 @@ public class Game {
                     return;
                 }
 
-                commonMap.put("respawn-seconds", respawnSeconds[0]);
+                commonMap.put("count", respawnSeconds[0]);
 
                 BroadcastUtils.sendTitle(
                         List.of(player.getBukkitPlayer()),
@@ -852,7 +880,7 @@ public class Game {
         }
 
         else {
-            player.getBukkitPlayer().getWorld().strikeLightning(player.getBukkitPlayer().getLocation());
+            strikeLightning(player.getBukkitPlayer().getLocation());
 
             BroadcastUtils.sendTitle(
                     List.of(player.getBukkitPlayer()),
@@ -931,11 +959,9 @@ public class Game {
 
         GameTeam team = gp.getTeam() != null ? gp.getTeam() : assignTeam(gp);
 
+        int spawnIndex = (int) Math.ceil((double) team.getIndex() / getNonEmptyTeams().size()) * (map.getSpawns().size() - 1);
 
-
-        int spawnIndex = (int) Math.ceil((double) team.getIndex() / getNonEmptyTeams().size()) * map.getSpawns().size();
-
-        spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex - 1));
+        spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex));
 
         BroadcastUtils.sendTitle(
                 List.of(gp.getBukkitPlayer()),
@@ -1219,7 +1245,6 @@ public class Game {
     private void spawnTeams() {
         // Teleport all teams to their respective spawn point.
 
-
         for (int i = 0; i < teams.size(); i++) {
             GameTeam team = teams.get(i);
 
@@ -1482,8 +1507,8 @@ public class Game {
         return this.gameID;
     }
 
-    public void setGameSetting(String key, Object value) {
-        this.gameSettings.put(key, value);
+    public LootTable getLootTable() {
+        return this.lootTable;
     }
 
     public void setLootTable(LootTable table) {
@@ -1530,9 +1555,14 @@ public class Game {
         return this.map;
     }
 
+    public void setGameMap(GameMap map) {
+        this.map = map;
+    }
+
     public GameState getGameState() {
         return this.gameState;
     }
+
 
     public String getNextEventName() {
         if (durations.lobbyCountdown >= 0) {
@@ -1638,15 +1668,23 @@ public class Game {
         }
     }
 
+    public void closeScoreboard(Player p) {
+        Scoreboard scoreboard = p.getScoreboard();
+        Objective obj = scoreboard.getObjective("sidebar");
+        if (obj != null) {
+            obj.unregister();
+        }
+    }
+
     public Game transfer() {
         map.isInUse = false;
 
         String newGameID = this.gameID;
-        GameMap newMap = gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map);
-        LootTable newLootTable = lootTable;
-        NumberRange newAmountOfTeams = amountOfTeams;
-        NumberRange newTeamCapacity = teamCapacity;
-        int newMaxLives = maxLives;
+        GameMap newMap = nextMap.equals(map) ? gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map) : nextMap;
+        LootTable newLootTable = nextLootTable;
+        NumberRange newAmountOfTeams = nextAmountOfTeams;
+        NumberRange newTeamCapacity = nextTeamCapacity;
+        int newMaxLives = nextMaxLives;
 
         List<Player> keepPlayers = this.getBukkitPlayers();
 
@@ -1659,9 +1697,6 @@ public class Game {
             }
         }}.runTaskLater(CXYZ.plugin, 2L);
 
-        for (Map.Entry<String, Object> entry : gameSettings.entrySet()) {
-            newGame.setGameSetting(entry.getKey(), entry.getValue());
-        }
 
         return newGame;
     }

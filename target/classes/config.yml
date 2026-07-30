@@ -82,7 +82,7 @@ scoreboards:
     - "&eLives: &f{player-lives}"
     - "&eRemaining: &f{game-alive-players-size}/{game-original-players-size}"
     - "&3"
-    - "&e{game-next-event}: &f{game-next-event-time}"
+    - "&a{game-next-event}: &f{game-next-event-time}"
     - "&4"
     - "&eMap: &f{game-map}"
     - "&5"

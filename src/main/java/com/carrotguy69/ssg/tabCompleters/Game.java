@@ -1,5 +1,6 @@
 package com.carrotguy69.ssg.tabCompleters;
 
+import com.carrotguy69.cxyz.other.Logger;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Game implements TabCompleter {
@@ -20,12 +20,18 @@ public class Game implements TabCompleter {
 
         String node = "ssg.game";
 
-        if (!sender.hasPermission(node)) {
-            return List.of();
+        List<String> options = new ArrayList<>(List.of("create", "delete", "join", "leave", "list", "info"));
+        List<String> results = new ArrayList<>();
+
+        List<String> temp = new ArrayList<>();
+        for (String option : options) {
+            if (sender.hasPermission(node + "." + option)) {
+                temp.add(option);
+            }
         }
 
-        List<String> options = Arrays.asList("create", "delete", "join", "leave", "list");
-        List<String> results = new ArrayList<>();
+        options.clear();
+        options.addAll(temp);
 
         if (args.length == 0) {
             return options;
@@ -45,20 +51,45 @@ public class Game implements TabCompleter {
 
                 case "delete":
                 case "join":
+                case "info":
                     options = SpeedSG.gameIDMap.values().stream().map(com.carrotguy69.ssg.game.Game::getGameID).toList();
                     break;
+
+                case "setting":
+                    options = new ArrayList<>(List.of("map", "lootTable", "amountOfTeams", "teamCapacity", "maxLives"));
             }
         }
 
-//        if (!sender.hasPermission(node + "." + subcommand)) {
-//            return List.of();
-//        }
+        if (!sender.hasPermission(node + "." + subcommand)) {
+            options = List.of();
+        }
 
         if (args.length == 3) {
-            if (subcommand.equalsIgnoreCase("create"))
+            if (subcommand.equalsIgnoreCase("create")) {
                 options = List.of("solos", "duos", "trios", "squads");
-            else
+            }
+
+            if (subcommand.equalsIgnoreCase("setting")) {
+                switch (args[1].toLowerCase()) {
+                    case "map":
+                        options = SpeedSG.gameMaps.stream().map(GameMap::getID).toList();
+                        break;
+                    case "loottable":
+                        options = SpeedSG.lootTables.stream().map(LootTable::getName).toList();
+                        break;
+                    case "amountofteams":
+                    case "maxlives":
+                        options = List.of();
+                        break;
+                    case "teamcapacity":
+                        options = List.of("solos", "duos", "trios", "squads");
+                        break;
+                }
+            }
+
+            else {
                 options = List.of();
+            }
         }
 
         if (args.length == 4) {
@@ -78,7 +109,6 @@ public class Game implements TabCompleter {
         if (args.length >= 6) {
             return List.of();
         }
-
 
         for (String s : options) {
             if (s.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {

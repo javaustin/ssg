@@ -40,7 +40,7 @@ public class Team implements TabCompleter {
         }
 
         List<String> results = new ArrayList<>();
-        List<String> options = List.of("join", "leave");
+        List<String> options = List.of("join", "leave", "list");
 
         if (args.length == 0) {
             return options;
@@ -54,7 +54,7 @@ public class Team implements TabCompleter {
         // (skip to bottom if args.length == 1)
 
         if (args.length == 2) {
-            if (subcommand.equalsIgnoreCase("join")) {
+            if (subcommand.equalsIgnoreCase("join") || subcommand.equalsIgnoreCase("list")) {
                 options = new ArrayList<>(game.getTeams().stream().map(GameTeam::getShortName).toList());
             }
         }

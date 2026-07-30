@@ -48,6 +48,12 @@ permissions:
     default: true
   ssg.game.leave:
     default: true
+  ssg.game.list:
+    default: true
+  ssg.game.info:
+    default: true
+  ssg.game.setting:
+    default: op
 
   ssg.team:
     default: true

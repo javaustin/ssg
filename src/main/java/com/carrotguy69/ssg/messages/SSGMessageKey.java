@@ -24,7 +24,6 @@ public enum SSGMessageKey {
     TEAM_LIST_PLAYERS_DELIMITER("lobby.team.list.team-members-list.separator"),
     TEAM_LIST_PLAYERS_MAX_ENTRIES("lobby.team.list.team-members-list.max-entries"),
 
-
     GAME_CHAT("game.chat"),
     GAME_JOIN("game.join"),
     GAME_LEAVE("game.leave"),
@@ -119,6 +118,11 @@ public enum SSGMessageKey {
     INVALID_TEAM("errors.args.invalid.team"),
     INVALID_LOOT_TABLE("errors.args.invalid.loot-table"),
     INVALID_TEAM_CAPACITY("errors.args.invalid.team-capacity"),
+    INVALID_AMOUNT_OF_TEAMS("errors.args.invalid.amount-of-teams"),
+    INVALID_MAX_LIVES("errors.args.invalid.max-lives"),
+    INVALID_GAME_SETTING("errors.args.invalid.setting"),
+
+    LOBBY_INVALID_MAP("errors.args.invalid.lobby-map"),
 
     ERROR_NO_GAMES("errors.game.no-games"),
     ERROR_DUPLICATE_GAME("errors.game.duplicate-game"),
@@ -151,6 +155,14 @@ public enum SSGMessageKey {
     COMMAND_LIST_GAMES_DELIMITER("command.list.separator"),
     COMMAND_LIST_GAMES_MAX_ENTRIES("command.list.max-entries-per-page"),
 
+    COMMAND_GAME_INFO("command.info.message"),
+    COMMAND_GAME_INFO_BLANK("command.info.blank"),
+    COMMAND_GAME_INFO_FORMAT("command.info.entry-format"),
+    COMMAND_GAME_INFO_DELIMITER("command.info.separator"),
+    COMMAND_GAME_INFO_MAX_ENTRIES("command.info.max-entries"),
+
+    COMMAND_GAME_SETTING_GET("command.setting.get"),
+    COMMAND_GAME_SETTING_SET("command.setting.set"),
     ;
 
     private final String path;

@@ -25,9 +25,9 @@ public class GameTeam {
 
     private final Map<String, Double> stats = new HashMap<>();
 
-    public GameTeam(int index, String prefix, String shortName, int rgbColor, List<GamePlayer> players, int capacity) {
+    public GameTeam(int index, String name, String shortName, int rgbColor, List<GamePlayer> players, int capacity) {
         this.index = index;
-        this.name = prefix;
+        this.name = name;
         this.shortName = shortName;
         this.rgbColor = rgbColor;
         this.players = players;
