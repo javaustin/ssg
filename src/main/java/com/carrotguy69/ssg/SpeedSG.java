@@ -11,6 +11,7 @@ import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
+import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.utils.Startup;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -62,33 +63,15 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static List<String> lobbyScoreboardLines = new ArrayList<>();
     public static List<String> gameScoreboardLines = new ArrayList<>();
 
+    public static boolean scoreboardsEnabled = true;
+
     public static SpeedSG plugin;
     public static CXYZ cxyz;
 
     /*
 
     TODO:
-        - Create a "ready" system to skip a countdown
-        - Consider wording of "GameMap" when differentiating "game maps" and "lobby maps", maybe rename?
-        - the core plugin is very very solid, unfortunately ssg has not gotten that love quite yet
-        - /team list is sloppy in solo mode
-        - rename game commands to /ssg
-        - refactor LootEnchant to use namespacedkeys
-        - implement matchmaking score
-        - game respawn command
-        - ensure world border works
-        - make a scoreboard either in here or with another plugin w/ placeholderAPI
-        - refactor Game into (GameCycle, GameMap, GameSettings) and centralize a lobby spawn (this should be a static variable loaded directly from config)
-        - players need to start in a central lobby
-        - implement lives - so you are able to die and respawn based of the game settings
-        - add respawns function (and specify time) to supplement lives, maybe add keep-inventory setting
-        - fulfill /game list and /game info
-        - i am still concerned about performance regarding getting leaderboard ranking
-        - restrict tab completer suggestions
-        - /sg player set|get kills/lives
-        - allow admin to pause a lobby or game countdown
-        - consider gameMap.getID() and gameMap.getName() are used interchangeably unintentionally (just ctrl+f)
-        - for /game setting -> if you are in the lobby, you can just transfer the game and keep the teams, and the new settings will be auto applied
+        - all good here! :D
     */
 
     @Override
@@ -107,6 +90,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
+        Logger.info("See you later!");
     }
 
     @EventHandler

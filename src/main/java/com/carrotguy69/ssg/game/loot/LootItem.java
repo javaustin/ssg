@@ -1,7 +1,11 @@
 package com.carrotguy69.ssg.game.loot;
 
 import com.carrotguy69.ssg.utils.objects.NumberRange;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -131,7 +135,10 @@ public class LootItem {
 
         if (weightedEnchants != null) {
             for (LootEnchant enchant : weightedEnchants) {
-                Enchantment mcEnchantment = Enchantment.getByName(enchant.getID());
+
+                Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+
+                Enchantment mcEnchantment = registry.get(NamespacedKey.minecraft(enchant.getID()));
 
                 if (mcEnchantment == null) {
                     continue;

@@ -21,7 +21,7 @@ public class Info implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        String node = "ssg.game.info";
+        String node = "ssg.info";
 
         if (!sender.hasPermission(node)) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));

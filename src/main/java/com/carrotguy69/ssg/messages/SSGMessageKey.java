@@ -2,15 +2,22 @@ package com.carrotguy69.ssg.messages;
 
 public enum SSGMessageKey {
 
-    ALIVE_INDICATOR("indicators.alive-indicator"),
-    DEAD_INDICATOR("indicators.dead-indicator"),
+    ALIVE_INDICATOR("indicators.alive"),
+    DEAD_INDICATOR("indicators.dead"),
+    FINAL_KILL_INDICATOR("indicators.final-kill"),
+    READY_INDICATOR("indicators.ready"),
+    NOT_READY_INDICATOR("indicators.not-ready"),
 
     LOBBY_CHAT("lobby.chat"),
     LOBBY_JOIN("lobby.join"),
     LOBBY_LEAVE("lobby.leave"),
 
+    LOBBY_TEAMS_RESET_ANNOUNCEMENT("lobby.teams-reset-announcement"),
+
     LOBBY_COUNTDOWN("lobby.info.start-countdown"),
-    LOBBY_START_CANCELLED("lobby.info.start-cancel"),
+    START_CANCELLED("lobby.info.start-cancel"),
+
+    LOBBY_ALL_READY("lobby.info.all-ready"),
 
     TEAM_JOIN("lobby.team.join"),
     TEAM_JOIN_ANNOUNCEMENT("lobby.team.join-announcement"),
@@ -28,8 +35,9 @@ public enum SSGMessageKey {
     GAME_JOIN("game.join"),
     GAME_LEAVE("game.leave"),
 
+    GAME_TIMER_RESET_ANNOUNCEMENT("game.timer-reset-announcement"),
+
     INFO_BLURB("game.info.blurb"),
-    INFO_GAME_START_CANCEL("game.info.start-cancel"),
     INVUL_COUNTDOWN_MESSAGE("game.info.invul-countdown"),
     INVUL_OVER_MESSAGE("game.info.invul-over"),
     CHEST_REFILLED_MESSAGE("game.info.refill-announcement"),
@@ -99,7 +107,8 @@ public enum SSGMessageKey {
     RESPAWN_STAY_TICKS("game.respawn.title.stay-ticks"),
     RESPAWN_FADE_OUT_TICKS("game.respawn.title.fade-out-ticks"),
 
-    RESPAWN_MESSAGE("game.respawn-message"),
+    RESPAWN_MESSAGE("game.respawn.message"),
+    RESPAWN_BY_ADMIN_MESSAGE("game.respawn.respawned-by-admin-announcement"),
 
     TOP_KILLERS_LIST_ENTRY_FORMAT("game.recaps.top-killers-numbered-list.entry-format"),
     TOP_KILLERS_LIST_DELIMITER("game.recaps.top-killers-numbered-list.separator"),
@@ -119,7 +128,7 @@ public enum SSGMessageKey {
     INVALID_LOOT_TABLE("errors.args.invalid.loot-table"),
     INVALID_TEAM_CAPACITY("errors.args.invalid.team-capacity"),
     INVALID_AMOUNT_OF_TEAMS("errors.args.invalid.amount-of-teams"),
-    INVALID_MAX_LIVES("errors.args.invalid.max-lives"),
+    INVALID_INTEGER("errors.args.invalid.integer"),
     INVALID_GAME_SETTING("errors.args.invalid.setting"),
 
     LOBBY_INVALID_MAP("errors.args.invalid.lobby-map"),
@@ -163,6 +172,17 @@ public enum SSGMessageKey {
 
     COMMAND_GAME_SETTING_GET("command.setting.get"),
     COMMAND_GAME_SETTING_SET("command.setting.set"),
+    COMMAND_GAME_SETTING_FAIL("command.setting.fail"),
+
+    GAME_FREEZE_ANNOUNCEMENT("command.freeze"),
+    GAME_UNFREEZE_ANNOUNCEMENT("command.unfreeze"),
+
+    GAME_TOGGLE_READY("command.toggle-ready"),
+    GAME_TOGGLE_NOT_READY("command.toggle-not-ready"),
+    GAME_TOGGLE_READY_FAIL("command.toggle-ready-fail"),
+
+    SET_PLAYER_LIVES("command.set-player-lives"),
+    GET_PLAYER_LIVES("command.get-player-lives"),
     ;
 
     private final String path;

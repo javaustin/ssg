@@ -31,6 +31,13 @@ public class CoreChatHandler implements EventHandler<PublicChatEvent> {
         // handle lobby chat, game chat
 
         Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(game.getPlayer(p));
+
+        if (game.getTeamCapacity().max().intValue() == 1) {
+            commonMap.put("player-team", "");
+            commonMap.put("player-team-prefix", "");
+            commonMap.put("player-team-name", "");
+        }
+
         commonMap.putAll(MapFormatters.gameFormatter(game));
         commonMap.put("message", content);
         commonMap.put("content", content);

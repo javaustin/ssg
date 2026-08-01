@@ -162,7 +162,7 @@ public class LootTable {
             NumberRange weight = NumberRange.fromString(weightObj.toString());
 
             try {
-                results.add(new LootEnchant(id.toUpperCase(), level, weight.generateRandom(2).doubleValue()));
+                results.add(new LootEnchant(id.toLowerCase(), level, weight.generateRandom(2).doubleValue()));
             }
             catch (RuntimeException e) {
                 Logger.warning("Ignoring exception caused by an invalid enchantment name: " + e);

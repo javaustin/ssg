@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.cmd.team;
+package com.carrotguy69.ssg.cmd.game.team;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.ssg.exceptions.TeamFullException;
@@ -51,7 +51,7 @@ public class Join implements CommandExecutor {
         Game game = Game.getByPlayer(p);
 
         if (game == null) {
-            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_NOT_IN_GAME), Map.of("input", args[0]));
+            MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_NOT_IN_GAME), Map.of());
             return true;
         }
 

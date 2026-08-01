@@ -73,7 +73,7 @@ maps:
 #      seconds: 60
 
   static:
-    display-name: "A map that already exists (no copying/pasting needed)"
+    display-name: "STATIC"
 
     source:
       type: STATIC
@@ -95,5 +95,5 @@ maps:
     world-border:
       enabled: true
       shrink: true
-      final-width: 1
+      final-width: 10
       seconds: 60

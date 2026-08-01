@@ -6,14 +6,19 @@
 
 indicators:
   # Indicators that display on a gamePlayer
-  alive-indicator: ""
-  dead-indicator: "&7&lDEAD "
+  alive: ""
+  dead: "&7&lDEAD "
+  final-kill: "&b&lFINAL KILL!"
+  ready: "&aReady"
+  not-ready: "&7Not ready"
 
 lobby:
   # gamePlayer
   chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player}: {player-chat-color}{content}" # + content
   join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the lobby."
   leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the lobby."
+
+  teams-reset-announcement: "&cTeams have been reset by an admin!"
 
   # teamFormatter, gamePlayer
   team:
@@ -32,8 +37,8 @@ lobby:
         separator: ", "
         max-entries: 9999
 
-
   info:
+    all-ready: "&eAll players have readied up! Skiping countdown."
     start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
     start-cancel: "&eStart cancelled! There are not enough players to start a game." # N/A
 
@@ -43,13 +48,13 @@ game:
   join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the game."
   leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the game."
 
+  timer-reset-announcement: "&a{timer} timer was reset by an admin!"
 
   info:
     blurb: |
         &f-------------------- &6&lSpeed&a&lSG &f--------------------
-        &eblurb something something something
+        &eFight to the death!! Loot chests from around the map to gather the best possible gear, then use it to fight off your opponents. &cLast man standing wins!
         &f--------------------------------------------------
-    start-cancel: "&eStart cancelled! There are not enough players to start a game. You will be teleported to the lobby..." # N/A
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
     invul-over: "&4Invulnerability has worn off!"
     refill-announcement: "&6Chests refilled!" # N/A
@@ -83,10 +88,10 @@ game:
         default: "&4{team}&4has been eliminated!"
 
       player:
-        melee: "&c{player} was killed by {attacker}!"
-        projectile: "&c{player} was shot by {attacker}!"
-        explosive: "&c{player} was blown up by {attacker}!"
-        default: "&c{player} died!"
+        melee: "&c{player} was killed by {attacker}! {final-kill-indicator}"
+        projectile: "&c{player} was shot by {attacker}!  {final-kill-indicator}"
+        explosive: "&c{player} was blown up by {attacker}!  {final-kill-indicator}"
+        default: "&c{player} died! {final-kill-indicator}"
 
     message:
       team:
@@ -136,6 +141,7 @@ game:
       fade-out-ticks: 20
 
     message: "&aYou have been respawned!"
+    respawned-by-admin-announcement: "&e{player} was respawned by an admin!"
 
 
   # gamePlayerFormatter ({winner-player}, {player}), teamFormatter ({winner-team}, {team})
@@ -170,29 +176,27 @@ game:
 
     # You can still use the team formatter {team} in the solo-winner recap.
     solo-winner: |
-      ---------------------------------------------
-      {winner-player-rank-color}{winner-player} &6&lwon the game!
+      &f---------- {winner-player-rank-color}{winner-player} &6&lwon the game! &f----------
       &4Final health: {winner-player-health}
       &cRound kills: {winner-player-temp-stat-kills}
-      &6Lifetime kills: {winner-player-stat-sg-lifetime-kills}
-      &eLifetime wins: {winner-player-stat-sg-lifetime-wins}
+      &6Lifetime kills: {winner-player-stat-sg-lifetime-kills} &7((#{winner-player-stat-sg-lifetime-kills-ranking}))
+      &eLifetime wins: {winner-player-stat-sg-lifetime-wins} &7((#{winner-player-stat-sg-lifetime-wins-ranking}))
       
       Top killers:{top-killers}
       ---------------------------------------------
 
     team-winner: |
-      ---------------------------------------------
-      {winner-team-color}{winner-team} &6&lwon the game!
+      &f---------- {winner-team-color}{winner-team-stripped} &6&lwon the game! &f----------
       Members: {winner-team-members}
       
       Top killers:{top-killers}
-      ---------------------------------------------
+      &f-----------------------------------------------
 
 
 
 command:
   # gameFormatter
-  create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/game join {game-id})"
+  create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/ssg join {game-id})"
   delete: "&aDeleted game {game-id}"
   join: "&aYou joined game {game-id}!"
   leave: "&aYou left game {game-id}!"
@@ -201,15 +205,26 @@ command:
     message: |
       &f---------- &6&lSSG Available Games &r&f----------
       {games}
-      [&f< Previous](RUN_COMMAND:/game list {previous-page})   &7Page {page}/{max-pages}   [&fNext >](RUN_COMMAND:/game list {next-page})
+      [&f< Previous](RUN_COMMAND:/ssg list {previous-page})   &7Page {page}/{max-pages}   [&fNext >](RUN_COMMAND:/ssg list {next-page})
     blank: "&cThere are no SSG games running!"
-    entry-format: "&f* [&a{game-id} (({game-team-capacity})) on {game-map} (({game-size} players))](HOVER:&eClick to join {game-id})(RUN_COMMAND:/game join {game-id})"
+    entry-format: "&f* [&a{game-id} (({game-team-capacity})) on {game-map} (({game-size} players))](HOVER:&eClick to join {game-id})(RUN_COMMAND:/ssg join {game-id})"
     separator: "\n"
     max-entries-per-page: 5
 
   setting:
     get: "{key} for game &f{game} &ais &f{value}."
     set: "&aSet {key} for &f{game} &ato &f{value}."
+    fail: "&eThis setting cannot be updated during this time."
+
+  freeze: "&7[[&4!&7]] {player-rank-prefix}{player-rank-color}{player-display-name} &efroze the game!"
+  unfreeze: "&7[[&4!&7]] {player-rank-prefix}{player-rank-color}{player-display-name} &eunfroze the game!"
+
+  toggle-ready: "&aYou are ready!"
+  toggle-not-ready: "&aYou are not ready!"
+  toggle-ready-fail: "&eThis command is only available in the lobby."
+
+  set-player-lives: "&aSet {player}'s lives to {player-lives}."
+  get-player-lives: "&a{player} has {player-lives} lives."
 
   info:
     message: |
@@ -264,5 +279,5 @@ errors:
       loot-table: "&cPlease provide a valid loot table!"
       team-capacity: "&cPlease provide a valid mode ((solos, duos, trios, squads))."
       amount-of-teams: "&cPlease provide a number of teams at or above 2."
-      max-lives: "&cPlease provide a valid integer > 0."
+      integer: "&cPlease provide a valid integer > 0."
       setting: "&cPlease provide a valid setting key. &7((map, loottable, amountofteams, teamcapacity, maxlives))"

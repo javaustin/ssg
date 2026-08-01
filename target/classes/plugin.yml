@@ -11,25 +11,11 @@ softdepend:
   - PlaceholderAPI
 
 commands:
-  test:
-    description: Test this command
-    usage: /test <content>
-    permission: "ssg.test"
+  ssg:
+    description: Manage a SpeedSG game instance
+    usage: /ssg <create | delete | freeze | info| join | leave | list | ready | respawn | setlives | setting> [...]
+    permission: "ssg"
 
-  print:
-    description: Print
-    usage: /test <content>
-    permission: "ssg.test"
-
-  game:
-    description: Create, join, or leave a SpeedSG game
-    usage: /game <create | delete | join | leave>
-    permission: "ssg.game"
-
-  team:
-    description: Join or leave a SpeedSG team
-    usage: /team <join | leave | list>
-    permission: "ssg.team"
 
 permissions:
   ssg.test:
@@ -38,22 +24,30 @@ permissions:
   ssg.print:
     default: op
 
-  ssg.game:
+  ssg:
     default: true
-  ssg.game.create:
+  ssg.create:
     default: op
-  ssg.game.delete:
+  ssg.delete:
     default: op
-  ssg.game.join:
+  ssg.join:
     default: true
-  ssg.game.leave:
+  ssg.leave:
     default: true
-  ssg.game.list:
+  ssg.list:
     default: true
-  ssg.game.info:
+  ssg.info:
     default: true
-  ssg.game.setting:
+  ssg.setting:
     default: op
+  ssg.freeze:
+    default: op
+  ssg.respawn:
+    default: op
+  ssg.setlives:
+    default: op
+  ssg.ready:
+    default: true
 
   ssg.team:
     default: true

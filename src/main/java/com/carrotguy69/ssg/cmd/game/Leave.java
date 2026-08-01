@@ -27,7 +27,7 @@ public class Leave implements CommandExecutor {
             /sg leave
         */
 
-        String node = "ssg.game.leave";
+        String node = "ssg.leave";
 
         if (!sender.hasPermission(node)) {
             MessageUtils.sendParsedMessage(sender, MessageKey.COMMAND_NO_ACCESS, Map.of("permission", node));

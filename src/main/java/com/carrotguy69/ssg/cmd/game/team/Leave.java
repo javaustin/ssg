@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.cmd.team;
+package com.carrotguy69.ssg.cmd.game.team;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.ssg.game.Game;

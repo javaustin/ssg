@@ -23,7 +23,7 @@ public class List implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        String node = "ssg.game.list";
+        String node = "ssg.list";
 
         if (!sender.hasPermission(node)) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("missing-permission", node));

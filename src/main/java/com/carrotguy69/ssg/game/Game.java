@@ -15,8 +15,8 @@ import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.other.Durations;
 import com.carrotguy69.ssg.messages.MessageGrabber;
+import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.utils.Logger;
 import com.carrotguy69.ssg.utils.objects.ColorUtils;
 import com.carrotguy69.ssg.utils.objects.NumberRange;
 
@@ -66,16 +66,8 @@ import java.util.Random;
 import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
 import static com.carrotguy69.cxyz.utils.TimeUtils.unixTimeNow;
-import static com.carrotguy69.ssg.SpeedSG.configYML;
-import static com.carrotguy69.ssg.SpeedSG.f;
-import static com.carrotguy69.ssg.SpeedSG.gameIDMap;
-import static com.carrotguy69.ssg.SpeedSG.gameMaps;
-import static com.carrotguy69.ssg.SpeedSG.gameScoreboardLines;
-import static com.carrotguy69.ssg.SpeedSG.lobbyMap;
-import static com.carrotguy69.ssg.SpeedSG.lobbyScoreboardLines;
-import static com.carrotguy69.ssg.SpeedSG.msgYML;
-import static com.carrotguy69.ssg.SpeedSG.plugin;
 
+import static com.carrotguy69.ssg.SpeedSG.*;
 import static com.carrotguy69.ssg.messages.SSGMessageKey.*;
 
 public class Game {
@@ -89,8 +81,8 @@ public class Game {
     private final List<GamePlayer> players;
     private final List<Integer> taskIDs;
 
-    public NumberRange amountOfTeams;
-    public NumberRange teamCapacity;
+    private NumberRange amountOfTeams;
+    private NumberRange teamCapacity;
 
     public Durations durations;
 
@@ -109,6 +101,8 @@ public class Game {
     public int originalPlayersSize = 0;
     public int originalTeamsSize = 0;
     public int elapsedSeconds = 0;
+
+    boolean frozen = false;
 
 
     // Updated settings (settings that can't be changed in the middle of the script, but will be applied during our transfer method)
@@ -419,31 +413,43 @@ public class Game {
 
 
         int id = new BukkitRunnable() {public void run() {
+            updateScoreboard();
+
+            if (frozen) {
+                return;
+            }
+
             counting = true;
 
-            updateScoreboard();
 
             if (!isPlayable()) {
 
-                announce(MessageGrabber.grab(LOBBY_START_CANCELLED), Map.of(), List.of());
+                announce(MessageGrabber.grab(START_CANCELLED), Map.of(), List.of());
                 BroadcastUtils.playSound(getBukkitPlayers(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
 
                 counting = false;
 
+                restartCurrentCountdown();
+                updateScoreboard();
+
                 this.cancel();
 
-
-                // Cancel the countdown and do nothing; wait for another player join.
             }
 
-
-            else if (durations.lobbyCountdown > 0) {
-                announce(MessageGrabber.grab(LOBBY_COUNTDOWN), Map.of("count", durations.lobbyCountdown), List.of());
-                BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_HARP, 0.8f, 1.0f);
+            else if (durations.lobbyCountdown > 0 && !players.stream().allMatch(GamePlayer::isReady)) {
+                if (durations.lobbyCountdown <= 5 || durations.lobbyCountdown == getNextEventTimeMaxSeconds()) {
+                    announce(MessageGrabber.grab(LOBBY_COUNTDOWN), Map.of("count", durations.lobbyCountdown), List.of());
+                    BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_HARP, 0.8f, 1.0f);
+                }
                 durations.lobbyCountdown -= 1;
             }
 
-            else { // count == 0
+            else {
+                if (players.stream().allMatch(GamePlayer::isReady)) {
+                    // announce what happened
+                    announce(MessageGrabber.grab(LOBBY_ALL_READY), Map.of(), List.of());
+                }
+
                 this.cancel();
                 counting = false;
                 durations.lobbyCountdown = -1;
@@ -470,9 +476,13 @@ public class Game {
 
             updateScoreboard();
 
+            if (frozen) {
+                return;
+            }
+
             if (!isPlayable()) {
                 announce(
-                        MessageGrabber.grab(INFO_GAME_START_CANCEL),
+                        MessageGrabber.grab(START_CANCELLED),
                         Map.of(),
                         List.of()
                 );
@@ -511,7 +521,7 @@ public class Game {
 
                 BroadcastUtils.sendTitle(
                         gamePlayers,
-                        "&a&lGO!",
+                        "&a&lGO",
                         "",
                         0,
                         20,
@@ -566,8 +576,8 @@ public class Game {
         removeGroundItems();
 
         if (map.getWorldBorderSettings().isBorderEnabled()) {
-            map.getWorld().getWorldBorder().setCenter(map.getBounds().getCenterX(), map.getBounds().getCenterZ());
-            map.getWorld().getWorldBorder().setSize(Math.max(map.getBounds().getWidthX(), map.getBounds().getWidthZ()));
+            map.getWorld().getWorldBorder().setCenter(map.getBounds().getCenterX() + 0.5, map.getBounds().getCenterZ() + 0.5);
+            map.getWorld().getWorldBorder().setSize(Math.max(map.getBounds().getWidthX() + 0.5, map.getBounds().getWidthZ()) + 0.5);
         }
         else {
             lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
@@ -615,16 +625,23 @@ public class Game {
         // Anything in this task runs every second
         taskIDs.add(
                 new BukkitRunnable() {public void run() {
-                    elapsedSeconds += 1;
+                    if (!frozen) {
+                        elapsedSeconds += 1;
+                    }
+
                     updateScoreboard();
                 }}.runTaskTimer(plugin, 20, 20).getTaskId()
         );
 
         taskIDs.add(
             new BukkitRunnable() {public void run() {
-                if (durations.invulCountdown == initialCount) {
-                    announce(MessageGrabber.grab(INVUL_COUNTDOWN_MESSAGE), Map.of("count", durations.invulCountdown), List.of());
+                if (frozen) {
+                    return;
                 }
+
+//                if (durations.invulCountdown == initialCount) {
+//                    announce(MessageGrabber.grab(INVUL_COUNTDOWN_MESSAGE), Map.of("count", durations.invulCountdown), List.of());
+//                }
 
                 else if ((durations.invulCountdown > 0 && durations.invulCountdown <= 5)) {
                     announce(MessageGrabber.grab(INVUL_COUNTDOWN_MESSAGE), Map.of("count", durations.invulCountdown), List.of());
@@ -646,6 +663,11 @@ public class Game {
         // Chest refill timer
         taskIDs.add(
             new BukkitRunnable() {public void run() {
+
+                if (frozen) {
+                    return;
+                }
+
                 if (durations.chestRefillCountdown > 0) {
                     durations.chestRefillCountdown -= 1;
                 }
@@ -665,6 +687,10 @@ public class Game {
         // Showdown timer
         taskIDs.add(
             new BukkitRunnable() {public void run() {
+                if (frozen) {
+                    return;
+                }
+
                 if (durations.showdownCountdown > 0)
                     durations.showdownCountdown -= 1;
 
@@ -697,6 +723,10 @@ public class Game {
         // Game end timer
         taskIDs.add(
             new BukkitRunnable() {public void run() {
+                if (frozen) {
+                    return;
+                }
+
                 if (durations.gameEndCountdown > 0) {
                     durations.gameEndCountdown -= 1;
                 }
@@ -828,7 +858,7 @@ public class Game {
         GamePlayer attacker = lastDamageSource.attacker();
 
         Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(player);
-
+        commonMap.put("final-kill-indicator", player.getLives() == 0 && maxLives > 1 ? MessageGrabber.grab(FINAL_KILL_INDICATOR) : "");
 
         // If an attacker exists, update the common map and send kill messages to the attacker first.
         if (attacker != null) {
@@ -858,7 +888,7 @@ public class Game {
             new BukkitRunnable() {public void run() {
 
                 if (respawnSeconds[0] <= 0) {
-                    respawn(player);
+                    respawn(player, false);
 
                     this.cancel();
                     return;
@@ -954,7 +984,18 @@ public class Game {
             win(getAliveTeams().getFirst());
     }
 
-    public void respawn(@NotNull GamePlayer gp) {
+    public void respawn(@NotNull GamePlayer gp, boolean byAdmin) {
+        if (gp.getLives() < 1) {
+            gp.setLives(1);
+        }
+        else {
+            return;
+        }
+
+        if (gameState != GameState.ACTIVE) {
+            return;
+        }
+
         Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
 
         GameTeam team = gp.getTeam() != null ? gp.getTeam() : assignTeam(gp);
@@ -971,14 +1012,19 @@ public class Game {
                 msgYML.getInt(RESPAWN_STAY_TICKS.getPath(), 40),
                 msgYML.getInt(RESPAWN_FADE_OUT_TICKS.getPath(), 20)
         );
-
-        MessageUtils.sendParsedMessage(
-                gp.getBukkitPlayer(),
-                MessageGrabber.grab(RESPAWN_MESSAGE),
-                commonMap
-        );
-
         gp.getBukkitPlayer().playSound(gp.getBukkitPlayer().getLocation(), Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.7f, 2.0f);
+
+        if (byAdmin) {
+            announce(MessageGrabber.grab(RESPAWN_BY_ADMIN_MESSAGE), commonMap, List.of());
+        }
+
+        else {
+            MessageUtils.sendParsedMessage(
+                    gp.getBukkitPlayer(),
+                    MessageGrabber.grab(RESPAWN_MESSAGE),
+                    commonMap
+            );
+        }
     }
 
     private static void runConfigCommands(List<String> commandLines, Map<String, Object> commonMap) {
@@ -1006,6 +1052,8 @@ public class Game {
     }
 
     public void win(GameTeam winningTeam) {
+
+        gameState = GameState.ENDING;
         cancelAllTasks();
 
         invulEnabled = true;
@@ -1067,6 +1115,7 @@ public class Game {
         new BukkitRunnable(){
             public void run() {
                 cancelAllTasks();
+                gameState = GameState.RESET;
                 Game newGame = transfer();
                 gameIDMap.put(newGame.getGameID(), newGame);
             }
@@ -1260,12 +1309,10 @@ public class Game {
     }
 
     private void spawnPlayer(Player p, Location l) {
-
-
         p.closeInventory();
         p.getInventory().clear();
         p.setFireTicks(0);
-        p.setGameMode(GameMode.ADVENTURE);
+        p.setGameMode(defaultGamemode);
         p.setFlying(false);
         Objects.requireNonNull(p.getAttribute(Attribute.MAX_HEALTH)).setBaseValue(20.0); // The "official" (non-depreceated) way to set max health?
         p.setHealth(20.0);
@@ -1374,6 +1421,8 @@ public class Game {
         }
     }
 
+
+
     private void unsetBarriers() {
         for (Block block : barrierBlocks) {
             block.setType(Material.AIR);
@@ -1392,6 +1441,7 @@ public class Game {
 
             teams.add(
                     new GameTeam(
+                            this,
                             i + 1,
                             teamName,
                             shortName,
@@ -1541,6 +1591,22 @@ public class Game {
         return gp;
     }
 
+    public GamePlayer getPlayerByName(String name) {
+        NetworkPlayer np = NetworkPlayer.getPlayerByUsername(name);
+
+        if (np == null) {
+            return null;
+        }
+
+        for (GamePlayer gp : this.getPlayers()) {
+            if (gp.getUUID().equals(np.getUUID())) {
+                return gp;
+            }
+        }
+
+        return null;
+    }
+
     public GameTeam getTeamByName(String name) {
         for (GameTeam team : teams) {
             if (team.getName().strip().equalsIgnoreCase(name) || team.getShortName().strip().equalsIgnoreCase(name)) {
@@ -1563,6 +1629,80 @@ public class Game {
         return this.gameState;
     }
 
+    public NumberRange getAmountOfTeams() {
+        return amountOfTeams;
+    }
+
+    public NumberRange getTeamCapacity() {
+        return teamCapacity;
+    }
+
+    public void setAmountOfTeams(NumberRange range) {
+        if (range.min().intValue() < 2) {
+            return;
+        }
+
+        if (gameState != GameState.WAITING) {
+            return;
+        }
+
+        this.amountOfTeams = range;
+
+
+        for (GameTeam team : teams) {
+            for (GamePlayer gp : team.getPlayers()) {
+                gp.setTeam(null);
+            }
+        }
+
+        teams.clear();
+
+        createTeams(amountOfTeams.max().intValue());
+
+        this.announce(MessageGrabber.grab(LOBBY_TEAMS_RESET_ANNOUNCEMENT), Map.of(), List.of());
+        BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1.5f, 0.5f);
+
+        restartCurrentCountdown();
+        updateScoreboard();
+    }
+
+    public void setTeamCapacity(NumberRange range) {
+        if (range.min().intValue() < 1) {
+            return;
+        }
+
+        if (gameState != GameState.WAITING) {
+            return;
+        }
+
+        this.teamCapacity = range;
+
+        for (GameTeam team : teams) {
+            for (GamePlayer gp : team.getPlayers()) {
+                gp.setTeam(null);
+            }
+        }
+
+        teams.clear();
+
+        createTeams(amountOfTeams.max().intValue());
+
+        this.announce(MessageGrabber.grab(LOBBY_TEAMS_RESET_ANNOUNCEMENT), Map.of(), List.of());
+        BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1.5f, 0.5f);
+
+        restartCurrentCountdown();
+        updateScoreboard();
+    }
+
+    public void setMaxLives(int max) {
+        this.maxLives = max;
+
+        for (GamePlayer gp : getAlivePlayers()) {
+            if (gp.getLives() > max) {
+                gp.setLives(max);
+            }
+        }
+    }
 
     public String getNextEventName() {
         if (durations.lobbyCountdown >= 0) {
@@ -1614,11 +1754,41 @@ public class Game {
         return durations.gameEndCountdown;
     }
 
+    public int getNextEventTimeMaxSeconds() {
+
+        if (durations.lobbyCountdown >= 0) {
+            // This signifies the teleport from the lobby to the arena
+            return configYML.getInt("timers.lobby-countdown", 10);
+        }
+
+        if (durations.gameStartCountdown >= 0) {
+            return configYML.getInt("timers.game-countdown", 10);
+        }
+
+        if (durations.invulCountdown >= 0) {
+            return configYML.getInt("timers.invul-countdown", 15);
+        }
+
+        if (durations.chestRefillCountdown >= 0) {
+            return configYML.getInt("timers.chest-refill", 150);
+        }
+
+        if (durations.showdownCountdown >= 0 && isShowdownAllowed()) {
+            return configYML.getInt("timers.showdown", 300);
+        }
+
+        return configYML.getInt("timers.game-end", 360);
+    }
+
     public boolean isShowdownAllowed() {
         return map.getWorldBorderSettings().isBorderEnabled() && map.getWorldBorderSettings().isBorderShrink();
     }
 
     public void updateScoreboard() {
+
+        if (!scoreboardsEnabled) {
+            return;
+        }
 
         Map<String, Object> ogCommonMap = MapFormatters.gameFormatter(this);
 
@@ -1659,6 +1829,10 @@ public class Game {
     }
 
     public void closeScoreboard() {
+        if (!scoreboardsEnabled) {
+            return;
+        }
+
         for (Player p : getBukkitPlayers()) {
             Scoreboard scoreboard = p.getScoreboard();
             Objective obj = scoreboard.getObjective("sidebar");
@@ -1676,6 +1850,53 @@ public class Game {
         }
     }
 
+    public void freeze(GamePlayer admin) {
+        this.frozen = !this.frozen;
+
+        announce(MessageGrabber.grab(SSGMessageKey.valueOf("GAME_" + (this.frozen ? "FREEZE" : "UNFREEZE") + "_ANNOUNCEMENT")), MapFormatters.gamePlayerFormatter(admin), List.of());
+    }
+
+    public void restartCurrentCountdown() {
+        String cur = getNextEventName();
+
+        switch (cur) {
+            case "Game start":
+                durations.lobbyCountdown = configYML.getInt("timers.lobby-countdown", 10);
+                break;
+            case "Cage release":
+                durations.gameStartCountdown = configYML.getInt("timers.game-countdown", 10);
+                durations.invulCountdown = configYML.getInt("timers.invul-countdown", 15);
+                durations.chestRefillCountdown = configYML.getInt("timers.chest-refill", 150);
+                durations.showdownCountdown = configYML.getInt("timers.showdown", 300);
+                durations.gameEndCountdown = configYML.getInt("timers.game-end", 360);
+                break;
+            case "PvP enable":
+                durations.invulCountdown = configYML.getInt("timers.invul-countdown", 15);
+                durations.chestRefillCountdown = configYML.getInt("timers.chest-refill", 150);
+                durations.showdownCountdown = configYML.getInt("timers.showdown", 300);
+                durations.gameEndCountdown = configYML.getInt("timers.game-end", 360);
+                break;
+            case "Chest refill":
+                durations.chestRefillCountdown = configYML.getInt("timers.chest-refill", 150);
+                durations.showdownCountdown = configYML.getInt("timers.showdown", 300);
+                durations.gameEndCountdown = configYML.getInt("timers.game-end", 360);
+                break;
+            case "Showdown":
+                durations.showdownCountdown = configYML.getInt("timers.showdown", 300);
+                durations.gameEndCountdown = configYML.getInt("timers.game-end", 360);
+                break;
+            case "Game end":
+                durations.gameEndCountdown = configYML.getInt("timers.game-end", 360);
+                break;
+            default:
+                return;
+        }
+//
+//        this.announce(MessageGrabber.grab(GAME_TIMER_RESET_ANNOUNCEMENT), Map.of("timer", cur), List.of());
+//        BroadcastUtils.playSound(getBukkitPlayers(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1.5f, 0.5f);
+
+    }
+
     public Game transfer() {
         map.isInUse = false;
 
@@ -1690,12 +1911,14 @@ public class Game {
 
         this.delete();
         Game newGame = new Game(newGameID, newMap, newLootTable, newAmountOfTeams, newTeamCapacity, newMaxLives);
+        newGame.frozen = this.frozen;
 
         new BukkitRunnable() {public void run() {
             for (Player p : keepPlayers) {
                 newGame.addPlayer(new GamePlayer(p.getUniqueId()));
             }
         }}.runTaskLater(CXYZ.plugin, 2L);
+
 
 
         return newGame;
@@ -1733,6 +1956,44 @@ public class Game {
         closeScoreboard();
 
         SpeedSG.gameIDMap.remove(this.gameID, this);
+    }
+
+    public static NumberRange parseTeamCapacity(String input) {
+        NumberRange teamCapacity = new NumberRange(1, 1);
+
+        switch (input.toUpperCase()) {
+            case "SOLO":
+            case "SOLOS":
+                break;
+
+            case "DUOS":
+            case "DUO":
+                teamCapacity = new NumberRange(1, 2);
+                break;
+
+            case "TRIOS":
+            case "TRIO":
+                teamCapacity = new NumberRange(1, 3);
+                break;
+
+            case "SQUADS":
+            case "SQUAD":
+                teamCapacity = new NumberRange(1, 4);
+                break;
+
+            default:
+                // If the user is stubborn and wants to define a specific minimum and maximum team size, they indicate that by using the hyphen. This can convert easily to a NumberRange.
+                if (input.contains("-")) {
+                    teamCapacity = NumberRange.fromString(input);
+                }
+                // Usually the user is not stubborn, and they might put a single number for the maxTeamCapacity. We can fulfill that while keeping minTeamCapacity = 0;
+                else {
+                    teamCapacity = new NumberRange(0, Integer.valueOf(input));
+                }
+
+        }
+
+        return teamCapacity;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.carrotguy69.ssg.tabCompleters;
 
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameTeam;
+import com.carrotguy69.ssg.utils.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -10,12 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Team implements TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-
         String node = "ssg.team";
         // I'll make the executive decision not to permission gate for each subcommand, unless there is an obvious privacy concern with viewing online players. (In which this is not the case)
 
@@ -23,11 +24,17 @@ public class Team implements TabCompleter {
             return List.of();
         }
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player p)) {
             return List.of();
         }
 
-        Player p = (Player) sender;
+        List<String> results = new ArrayList<>();
+        List<String> options = List.of("join", "leave", "list");
+
+        if (args.length == 0) {
+            return options;
+        }
+
         com.carrotguy69.ssg.game.Game game = com.carrotguy69.ssg.game.Game.getByPlayer(p);
 
         if (game == null) {
@@ -39,13 +46,6 @@ public class Team implements TabCompleter {
             return List.of();
         }
 
-        List<String> results = new ArrayList<>();
-        List<String> options = List.of("join", "leave", "list");
-
-        if (args.length == 0) {
-            return options;
-        }
-
         String subcommand = args[0];
         if (subcommand.equalsIgnoreCase("leave")) {
             return List.of();
@@ -53,13 +53,14 @@ public class Team implements TabCompleter {
 
         // (skip to bottom if args.length == 1)
 
-        if (args.length == 2) {
+        if (args.length > 1) {
+
             if (subcommand.equalsIgnoreCase("join") || subcommand.equalsIgnoreCase("list")) {
                 options = new ArrayList<>(game.getTeams().stream().map(GameTeam::getShortName).toList());
             }
         }
 
-        if (args.length >= 3) {
+        if (args.length > 2) {
             return List.of();
         }
 

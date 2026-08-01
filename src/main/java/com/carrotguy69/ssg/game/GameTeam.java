@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class GameTeam {
 
+    private final Game game;
     private int index;
     private String name;
     private String shortName;
@@ -25,13 +26,18 @@ public class GameTeam {
 
     private final Map<String, Double> stats = new HashMap<>();
 
-    public GameTeam(int index, String name, String shortName, int rgbColor, List<GamePlayer> players, int capacity) {
+    public GameTeam(Game game, int index, String name, String shortName, int rgbColor, List<GamePlayer> players, int capacity) {
+        this.game = game;
         this.index = index;
         this.name = name;
         this.shortName = shortName;
         this.rgbColor = rgbColor;
         this.players = players;
         this.capacity = capacity;
+    }
+
+    public Game getGame() {
+        return this.game;
     }
 
     public int getIndex() {

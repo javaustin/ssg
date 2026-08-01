@@ -7,6 +7,7 @@ game:
   misc:
     # Should the game allow players to participate when players are already in their cages and the timer is counting?
     allow-join-during-start: true
+    # What should the default gamemode be for any time the player is in a game (excluding spectating)?
     default-gamemode: adventure
 
   command-actions:
@@ -55,19 +56,23 @@ game:
 
 
 scoreboards:
+  enabled: true
   # Scoreboards do not use the CXYZ message parser, but you can still use placeholders
 
   lobby:
-    - "&6&lSpeed&a&lSG"
+    - "&6&lSpeed&a&lSG" # The first entry of the scoreboard will become the title (centered)
     - "&7{date-short}"
     - "&7{time-short}"
     - "&0"
-    - "&eRank: {player-rank-prefix-display}"
+    - "&eYou are on {player-team-prefix}"
     - "&1"
+    - "&eRank: {player-rank-prefix-display}"
+    - "&2"
     - "&eKills: &f{player-stat-sg-lifetime-kills} &7(#{player-stat-sg-lifetime-kills-ranking})"
     - "&eWins: &f{player-stat-sg-lifetime-wins} &7(#{player-stat-sg-lifetime-wins-ranking})"
-    - "&2"
     - "&3"
+    - "&e{game-next-event}: &f{game-next-event-time}"
+    - "&4"
     - "&b&l/discord"
     - "&6cerrot.xyz"
 
@@ -82,7 +87,7 @@ scoreboards:
     - "&eLives: &f{player-lives}"
     - "&eRemaining: &f{game-alive-players-size}/{game-original-players-size}"
     - "&3"
-    - "&a{game-next-event}: &f{game-next-event-time}"
+    - "&e{game-next-event}: &f{game-next-event-time}"
     - "&4"
     - "&eMap: &f{game-map}"
     - "&5"

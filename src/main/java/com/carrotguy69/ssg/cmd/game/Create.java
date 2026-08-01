@@ -33,7 +33,7 @@ public class Create implements CommandExecutor {
             /sg create SG-2 solos OP cavern 4 3
         */
 
-        String node = "ssg.game.create";
+        String node = "ssg.create";
 
         if (!sender.hasPermission(node)) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));
@@ -54,47 +54,20 @@ public class Create implements CommandExecutor {
         if (args.length >= 2) {
             String input = args[1];
 
-            switch (input.toUpperCase()) {
-                case "SOLO":
-                case "SOLOS":
-                    break;
-
-                case "DUOS":
-                case "DUO":
-                    teamCapacity = new NumberRange(1, 2);
-                    break;
-
-                case "TRIOS":
-                case "TRIO":
-                    teamCapacity = new NumberRange(1, 3);
-                    break;
-
-                case "SQUADS":
-                case "SQUAD":
-                    teamCapacity = new NumberRange(1, 4);
-                    break;
-
-                default:
-                    try {
-                        // If the user is stubborn and wants to define a specific minimum and maximum team size, they indicate that by using the hyphen. This can convert easily to a NumberRange.
-                        if (input.contains("-")) {
-                            teamCapacity = NumberRange.fromString(input);
-                        }
-                        // Usually the user is not stubborn, and they might put a single number for the maxTeamCapacity. We can fulfill that while keeping minTeamCapacity = 0;
-                        else {
-                            teamCapacity = new NumberRange(0, Integer.valueOf(input));
-                        }
-                    }
-                    catch (RuntimeException e) {
-                        MessageUtils.sendParsedMessage(
-                                sender,
-                                MessageGrabber.grab(SSGMessageKey.INVALID_TEAM_CAPACITY),
-                                Map.of("input", input)
-                        );
-                        return true;
-                    }
-
+            try {
+                teamCapacity = Game.parseTeamCapacity(input);
             }
+            catch (RuntimeException e) {
+                MessageUtils.sendParsedMessage(
+                        sender,
+                        MessageGrabber.grab(SSGMessageKey.INVALID_AMOUNT_OF_TEAMS),
+                        Map.of("input", input)
+                );
+                return true;
+            }
+
+
+
         }
 
         if (args.length >= 3) {

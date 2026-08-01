@@ -31,7 +31,7 @@ public class Join implements CommandExecutor {
             /sg join 32
         */
 
-        String node = "ssg.game.join";
+        String node = "ssg.join";
 
         if (!sender.hasPermission(node)) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_NO_ACCESS), Map.of("permission", node));

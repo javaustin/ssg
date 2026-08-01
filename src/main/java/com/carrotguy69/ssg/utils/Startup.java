@@ -2,9 +2,7 @@ package com.carrotguy69.ssg.utils;
 
 import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.SpeedSG;
-import com.carrotguy69.ssg.cmd.Print;
 import com.carrotguy69.ssg.cmd.game._GameSupercommand;
-import com.carrotguy69.ssg.cmd.team._TeamSupercommand;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -56,15 +54,8 @@ public class Startup {
     }
 
     public static void registerCommands() {
-
-        Objects.requireNonNull(plugin.getCommand("print")).setExecutor(Print.executor);
-        Objects.requireNonNull(plugin.getCommand("print")).setTabCompleter(Print.tabCompleter);
-
-        Objects.requireNonNull(plugin.getCommand("game")).setExecutor(_GameSupercommand.executor);
-        Objects.requireNonNull(plugin.getCommand("game")).setTabCompleter(_GameSupercommand.tabCompleter);
-
-        Objects.requireNonNull(plugin.getCommand("team")).setExecutor(_TeamSupercommand.executor);
-        Objects.requireNonNull(plugin.getCommand("team")).setTabCompleter(_TeamSupercommand.tabCompleter);
+        Objects.requireNonNull(plugin.getCommand("ssg")).setExecutor(_GameSupercommand.executor);
+        Objects.requireNonNull(plugin.getCommand("ssg")).setTabCompleter(_GameSupercommand.tabCompleter);
     }
 
     public static void registerBukkitEvents() {
@@ -90,6 +81,8 @@ public class Startup {
         }
 
         lootTables = LootTable.loadLootTables();
+
+        scoreboardsEnabled = configYML.getBoolean("scoreboards.enabled");
 
         lobbyScoreboardLines = configYML.getStringList("scoreboards.lobby");
         gameScoreboardLines = configYML.getStringList("scoreboards.game");

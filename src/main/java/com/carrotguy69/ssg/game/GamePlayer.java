@@ -16,12 +16,21 @@ public class GamePlayer {
     private int lives;
     private GameTeam team;
     private final Map<String, Double> stats = new HashMap<>();
+    private boolean ready = false;
 
     public GamePlayer(UUID uuid) {
         this.uuid = uuid;
         this.team = null;
         this.lives = configYML.getInt("game.respawns.default-lives");
         this.alive = true;
+    }
+
+    public boolean isReady() {
+        return this.ready;
+    }
+
+    public void setReady(boolean value) {
+        this.ready = value;
     }
 
     public int getLives() {

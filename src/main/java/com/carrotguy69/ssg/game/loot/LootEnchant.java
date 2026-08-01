@@ -1,6 +1,10 @@
 package com.carrotguy69.ssg.game.loot;
 
 import com.carrotguy69.ssg.utils.objects.NumberRange;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 
 public class LootEnchant {
@@ -14,7 +18,12 @@ public class LootEnchant {
         this.weight = weight;
 
         // determine if the enchantment actually exists
-        if (Enchantment.getByName(id) == null) {
+
+        Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+
+        Enchantment enchant = registry.get(NamespacedKey.minecraft(id));
+
+        if (enchant == null) {
             throw new RuntimeException("Enchantment by name of '" + id + "' does not exist!");
         }
     }

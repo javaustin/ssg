@@ -1,16 +1,17 @@
 package com.carrotguy69.ssg.game.loot;
 
 import com.carrotguy69.ssg.utils.objects.NumberRange;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 
 public class LootManager {
@@ -213,16 +214,40 @@ public class LootManager {
         ItemStack stack = item.toItemStack();
 
         if (stack == null) {
-            return null;
+            return List.of();
         }
 
         Map<Enchantment, Integer> enchantmentIntegerMap = stack.getEnchantments();
 
-        return Arrays.stream(Enchantment.values())
-                .filter(e -> e.canEnchantItem(stack))
-                .filter(e -> enchantmentIntegerMap.keySet().stream()
-                        .noneMatch(e::conflictsWith))
-                .collect(Collectors.toList());
+        Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+
+        List<Enchantment> results = new ArrayList<>();
+
+        for (Enchantment enchantment : registry) {
+            boolean conflict = false;
+
+            if (!enchantment.canEnchantItem(stack)) {
+                continue;
+            }
+
+            if (enchantmentIntegerMap.isEmpty()) {
+                results.add(enchantment);
+                continue;
+            }
+
+            for (Enchantment stackEnchantment : enchantmentIntegerMap.keySet()) {
+                if (enchantment.conflictsWith(stackEnchantment)) {
+                    conflict = true;
+                    break;
+                }
+            }
+
+            if (!conflict) {
+                results.add(enchantment);
+            }
+        }
+
+        return results;
     }
 
     /**

@@ -3,6 +3,7 @@ package com.carrotguy69.ssg.messages.utils;
 import com.carrotguy69.cxyz.utils.TimeUtils;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
+import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.GameTeam;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
@@ -28,8 +29,12 @@ public class MapFormatters {
 
         String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
         String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
+        String readyIndicator = MessageGrabber.grab(SSGMessageKey.READY_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.READY_INDICATOR) : "";
+        String notReadyIndicator = MessageGrabber.grab(SSGMessageKey.NOT_READY_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.NOT_READY_INDICATOR) : "";
 
         commonMap.put("player-dead", !gp.isAlive() ? deadIndicator : aliveIndicator);
+
+        commonMap.put("player-ready", gp.isReady() ? readyIndicator : notReadyIndicator);
 
         commonMap.put("player-health", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
         commonMap.put("player-hp", String.format("%.1f", gp.getBukkitPlayer().getHealth()));
@@ -58,7 +63,7 @@ public class MapFormatters {
         String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
         String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
 
-        String name = gt != null ? gt.getName() : "";
+        String name = gt != null ? gt.getName() : "&fN/A";
 
         commonMap.put("team", name);
         commonMap.put("team-prefix", name);
@@ -76,16 +81,19 @@ public class MapFormatters {
 
         commonMap.put("team-dead", gt != null ?(!gt.isAlive() ? deadIndicator : aliveIndicator): "");
 
-        if (gt != null)
+        if (gt != null) {
             for (Map.Entry<String, Double> entry : gt.getStats().entrySet()) {
                 String key = entry.getKey();
                 double val = entry.getValue();
 
-                if (String.valueOf(val).contains("."))
+                if (String.valueOf(val).contains(".")) {
                     commonMap.put("team-stat-" + key, String.format("%.1f", val));
-                else
+                }
+                else {
                     commonMap.put("team-stat-" + key, String.format("%.0f", val));
+                }
             }
+        }
 
         return commonMap;
     }
@@ -183,9 +191,10 @@ public class MapFormatters {
     public static Map<String, Object> gameFormatter(Game game) {
         Map<String, Object> commonMap = new HashMap<>();
 
+        commonMap.put("game", game.getGameID());
         commonMap.put("game-id", game.getGameID());
         commonMap.put("game-map", game.getGameMap().getName());
-        commonMap.put("game-team-capacity", teamCapacityNiceNumber(game.teamCapacity.max().intValue()));
+        commonMap.put("game-team-capacity", teamCapacityNiceNumber(game.getTeamCapacity().max().intValue()));
         commonMap.put("game-size", game.getPlayers().size());
         commonMap.put("game-max-lives", game.maxLives);
         commonMap.put("game-original-players-size", game.originalPlayersSize);
@@ -193,13 +202,13 @@ public class MapFormatters {
         commonMap.put("game-alive-players-size", game.getAlivePlayers().size());
         commonMap.put("game-alive-teams-size", game.getAliveTeams().size());
         commonMap.put("game-next-event", game.getNextEventName());
-        commonMap.put("game-next-event-time", TimeUtils.countdownShort(game.getNextEventTimeSeconds()));
+        commonMap.put("game-next-event-time", game.getGameState() == GameState.WAITING && game.getNextEventTimeSeconds() == game.getNextEventTimeMaxSeconds() || game.getNextEventTimeMaxSeconds() < 0 ? "Waiting..." : TimeUtils.countdownShort(game.getNextEventTimeSeconds()));
         commonMap.put("game-time-elapsed", TimeUtils.countdownShort(game.elapsedSeconds).equalsIgnoreCase("permanent") ? "0s" : TimeUtils.countdown(game.elapsedSeconds));
 
         return commonMap;
     }
 
-    private static String teamCapacityNiceNumber(int max) {
+    public static String teamCapacityNiceNumber(int max) {
         if (max > 4)
             return max + "p";
 
