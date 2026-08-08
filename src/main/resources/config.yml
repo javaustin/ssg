@@ -1,66 +1,107 @@
 game:
 
   respawns:
+    # Number of lives each player starts with. A player's life is removed if they are eliminated.
     default-lives: 1
+
+    # Time (in seconds) a player must wait before respawning. This only applies if they still have remaining lives.
     respawn-seconds: 5
 
   misc:
-    # Should the game allow players to participate when players are already in their cages and the timer is counting?
+    # Should players be allowed to join an ongoing countdown after everyone has already been placed into their starting cages?
     allow-join-during-start: true
-    # What should the default gamemode be for any time the player is in a game (excluding spectating)?
+
+    # Default gamemode used for active players (spectators excluded).
     default-gamemode: adventure
 
   command-actions:
-    # Execute console commands upon common game events
+    # Execute console commands upon common game events.
+    # Leaving a list empty will execute no commands.
+    # Commands should NOT begin with "/"
+
+    on-lobby:
+      # Available placeholders: {player}, {game}
+      # NOT A LOOP! Runs for individual players in the lobby if they newly join.
+      -
+
+    on-prep:
+      # Available placeholders: {game}
+      # NOT A LOOP! Runs ONLY one time while the arena is prepped and players are spawned.
+      -
+
+    on-start:
+      # Available placeholders: {player}, {game}
+      # Runs once for every player after game completely starts. Runs again for individual players if they newly join.
+      -
 
     on-death:
-      # placeholders: {player}
-
+      # Available placeholders: {player}, {game}
+      # Runs once for a single players' death
+      -
 
     on-kill:
-      # placeholders: {attacker}, {player}
+      # Available placeholders: {attacker}, {player}
+
+      # Runs once for a players' death and involves the attacker.
+      # [!] Beware of duplicate commands. The command actions in on-death will also run during a kill.
       -
 
     on-win:
-      # placeholder {player}
+      # Available placeholders {player}, {game}
+
+      # Runs once for every player on the winning team.
       -
 
+    on-lose:
+      # Available placeholders {player}, {game}
+
+      # Runs once for every player on any losing team.
+      -
+
+
   teams:
-    # The plugin will iterate through this list to find its team prefixes.
-    # If this list is left empty or too small to cover all teams, the default behavior is: ["&aTeam 1", "&aTeam 2", "&Team 3", ...]
-    # Team color is derived from the prefix text.
+    # Team display prefixes.
+    #
+    # The plugin assigns teams using this list in order. Team color is automatically derived from the color codes used in each prefix.
+    #
+    # If this list is shorter than the number of required teams,
+    # remaining teams will automatically be named: ["&aTeam 1", "&aTeam 2", "&aTeam 3"]
     names:
       ["&dTeam 1 ", "&dTeam 2 ", "&dTeam 3 ", "&dTeam 4 "]
 
+    # Short team names used where space is limited. Should contain the same number of entries as "names".
     short-names:
       ["T1", "T2", "T3", "T4"]
 
   timers:
-    # Amount of seconds to count down from, before moving the lobby to the game arena
+    # Seconds players wait in the lobby before being moved into the arena.
     lobby-countdown: 10
 
-    # Amount of seconds to count down from, before starting the game (when players are already in the arena)
+    # Seconds players wait inside their starting cages before the game officially begins.
     game-countdown: 10
 
-    # Amount of seconds to count down from the game start, before removing global invulnerability
+    # Seconds after the game starts before global PvP invulnerability is removed.
     invul-countdown: 15
 
-    # Amount of seconds to count down from the game start, before refilling chests
+    # Seconds after the game starts before all refillable chests are refreshed.
     chest-refill: 150
 
-    # Amount of seconds to count down from the game start, until the SHOWDOWN event (players are highlighted)
+    # Seconds after the game starts before SHOWDOWN (world border event & name highlighting) begins.
     showdown: 300
 
-    # Amount of seconds to count down from the game start, before the game forcibly declares a winner and ends
+    # Maximum game duration in seconds from the start until the end.
     game-end: 360
 
 
 scoreboards:
+  # Enables or disables scoreboards entirely
   enabled: true
-  # Scoreboards do not use the CXYZ message parser, but you can still use placeholders
+
+  # Scoreboards do not use the CXYZ message parser, but placeholders values are still supported.
+  # Minecraft scoreboards cannot contain duplicate values. You can use color codes (i.e.: "&a", "&6") for unique blank separators.
 
   lobby:
-    - "&6&lSpeed&a&lSG" # The first entry of the scoreboard will become the title (centered)
+    - "&6&lSpeed&a&lSG" # The first entry of this list will become the scoreboard title
     - "&7{date-short}"
     - "&7{time-short}"
     - "&0"

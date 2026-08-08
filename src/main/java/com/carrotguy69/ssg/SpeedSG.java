@@ -2,9 +2,11 @@ package com.carrotguy69.ssg;
 
 import com.carrotguy69.cxyz.CXYZ;
 import com.carrotguy69.cxyz.events.custom.PublicChatEvent;
+import com.carrotguy69.cxyz.events.custom.VanishToggleEvent;
 import com.carrotguy69.cxyz.events.custom.base.Priority;
 import com.carrotguy69.cxyz.events.custom.service.EventService;
 import com.carrotguy69.ssg.eventHandler.CoreChatHandler;
+import com.carrotguy69.ssg.eventHandler.VanishHandler;
 import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -71,7 +73,10 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
-        - all good here! :D
+        - better config files (good descriptions of keys and examples)
+        - fulfill config files with all applicable examples
+        - better README.md (description, features, hyperlinks to config)
+        - retest assignTeam(p, team) with two and three players
     */
 
     @Override
@@ -85,13 +90,14 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
         // Register event handler with the core plugin's EventService
         EventService.registerHandler(PublicChatEvent.class, new CoreChatHandler(), Priority.NORMAL);
+        EventService.registerHandler(VanishToggleEvent.class, new VanishHandler(), Priority.NORMAL);
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
 
-        Logger.info("See you later!");
+        Logger.info("See ya later!");
     }
 
     @EventHandler

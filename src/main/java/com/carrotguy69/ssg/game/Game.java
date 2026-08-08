@@ -9,7 +9,6 @@ import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.cxyz.utils.TimeUtils;
 import com.carrotguy69.ssg.SpeedSG;
-import com.carrotguy69.ssg.exceptions.TeamFullException;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.game.other.DamageSource;
@@ -207,6 +206,12 @@ public class Game {
                     MapFormatters.gamePlayerFormatter(gp),
                     List.of()
             );
+
+
+            Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
+            commonMap.putAll(MapFormatters.gamePlayerFormatter(gp));
+            runConfigCommands(configYML.getStringList("game.command-actions.on-lobby"), commonMap);
+
 
             if (isPlayable()) {
                 tryLobbyCountdown();
@@ -583,6 +588,9 @@ public class Game {
             lobbyMap.getWorld().getWorldBorder().setSize(1_000_000);
         }
 
+        Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
+        runConfigCommands(configYML.getStringList("game.command-actions.on-prep"), commonMap);
+
 
         tryGameCountdown();
     }
@@ -598,15 +606,18 @@ public class Game {
 
         gameState = GameState.ACTIVE;
 
+        Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
+
         unsetBarriers();
 
         // Send info blurb on game start
-        announce(MessageGrabber.grab(INFO_BLURB), Map.of(), List.of());
+        announce(MessageGrabber.grab(INFO_BLURB), commonMap, List.of());
 
         // Invulnerability timer
         int initialCount = durations.invulCountdown;
 
         invulEnabled = true;
+
 
         for (GamePlayer gp : this.getPlayers()) {
             gp.setTemporaryStat("kills", 0);
@@ -620,7 +631,15 @@ public class Game {
 
             if (sgLifetimeWins == null)
                 GameStat.setStat(gp.getUUID(), "sg-lifetime-wins", "0").sync();
+
+            // command actions for on-start
+            Map<String, Object> newCommonMap = new HashMap<>();
+            newCommonMap.putAll(commonMap);
+            newCommonMap.putAll(MapFormatters.gamePlayerFormatter(gp));
+            runConfigCommands(configYML.getStringList("game.command-actions.on-start"), newCommonMap);
         }
+
+
 
         // Anything in this task runs every second
         taskIDs.add(
@@ -1012,7 +1031,7 @@ public class Game {
                 msgYML.getInt(RESPAWN_STAY_TICKS.getPath(), 40),
                 msgYML.getInt(RESPAWN_FADE_OUT_TICKS.getPath(), 20)
         );
-        gp.getBukkitPlayer().playSound(gp.getBukkitPlayer().getLocation(), Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.7f, 2.0f);
+        gp.getBukkitPlayer().playSound(gp.getBukkitPlayer().getLocation(), Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.6f, 2.0f);
 
         if (byAdmin) {
             announce(MessageGrabber.grab(RESPAWN_BY_ADMIN_MESSAGE), commonMap, List.of());
@@ -1078,8 +1097,10 @@ public class Game {
                 msgYML.getInt(WIN_FADE_OUT_TICKS.getPath(), 20)
         );
 
+        List<GamePlayer> loserPlayers = players.stream().filter(gp -> winningTeam.getPlayers().contains(gp)).toList();
+        List<Player> loserBukkitPlayers = loserPlayers.stream().map(GamePlayer::getBukkitPlayer).toList();
+
         // Send game over title for losers
-        List<Player> loserBukkitPlayers = players.stream().filter(gp -> !winningTeam.getPlayers().contains(gp)).map(GamePlayer::getBukkitPlayer).toList();
         BroadcastUtils.sendTitle(
                 loserBukkitPlayers,
                 MessageGrabber.grab(LOSE_TITLE),
@@ -1098,8 +1119,15 @@ public class Game {
         }
 
         Player destination = winningTeam.getPlayers().getFirst().getBukkitPlayer();
-        for (Player p : loserBukkitPlayers) {
-            p.teleport(destination);
+
+        Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
+
+        for (GamePlayer gp : loserPlayers) {
+            gp.getBukkitPlayer().teleport(destination);
+
+            Map<String, Object> newCommonMap = MapFormatters.gamePlayerFormatter(gp);
+            newCommonMap.putAll(commonMap);
+            runConfigCommands(configYML.getStringList("game.command-actions.on-lose"), newCommonMap);
         }
 
         int rgb = winningTeam.getRGBColor();
@@ -1108,7 +1136,8 @@ public class Game {
 
         // Covers both solo winner and team winner cases
         for (GamePlayer gp : winningTeam.getPlayers()) {
-            Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
+            Map<String, Object> newCommonMap = MapFormatters.gamePlayerFormatter(gp);
+            newCommonMap.putAll(commonMap);
             runConfigCommands(configYML.getStringList("game.command-actions.on-win"), commonMap);
         }
 
@@ -1225,8 +1254,11 @@ public class Game {
 
 
     public void assignTeam(GamePlayer gp, GameTeam team) {
-        if (team.isFull() || (this.getPlayers().size() == 2 * teamCapacity.min().intValue() && !team.getPlayers().isEmpty())) {
-            throw new TeamFullException("Team %s is at or above its max capacity (%d/%d)!".formatted(team.getName(), team.getPlayers().size(), team.getCapacity()));
+
+        // If one player -> any team
+        // Two players -> can't join same team
+        if (team.isFull() || team.getPlayers().size() == this.getPlayers().size() - 1) {
+            throw new RuntimeException("Team is full.");
         }
 
         team.addPlayer(gp);
@@ -1281,7 +1313,7 @@ public class Game {
         }
         
         if (chosenTeam == null) {
-            throw new TeamFullException(String.format("All teams in game %s are full", gameID));
+            throw new RuntimeException(String.format("All teams in game %s are full", gameID));
         }
 
 
@@ -1305,7 +1337,6 @@ public class Game {
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
             }
         }
-
     }
 
     private void spawnPlayer(Player p, Location l) {
@@ -1570,6 +1601,9 @@ public class Game {
     }
 
     public static Game getByPlayer(Player p) {
+        if (p == null)
+            return null;
+
         for (Map.Entry<String, Game> entry : gameIDMap.entrySet()) {
             if (entry.getValue().getBukkitPlayers().contains(p)) {
                 return entry.getValue();
@@ -2009,6 +2043,11 @@ public class Game {
                 + "gameState=" + gameState + ","
                 + "defaultGamemode=" + defaultGamemode.name() +
                 "}";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof Game && ((Game) other).gameID == this.gameID;
     }
 
 }

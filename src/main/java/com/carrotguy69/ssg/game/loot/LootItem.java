@@ -79,24 +79,8 @@ public class LootItem {
         this.weightedEnchants = weightedEnchants;
     }
 
-    public void addEnchant(LootEnchant enchant) {
-        this.weightedEnchants.add(enchant);
-    }
-
-    public boolean removeEnchant(LootEnchant enchant) {
-        return this.weightedEnchants.remove(enchant);
-    }
-
     public void setBindingEnchants(List<LootEnchant> bindingEnchants) {
         this.bindingEnchants = bindingEnchants;
-    }
-
-    public void addBindingEnchant(LootEnchant enchant) {
-        this.bindingEnchants.add(enchant);
-    }
-
-    public boolean removeBindingEnchant(LootEnchant enchant) {
-        return this.weightedEnchants.remove(enchant);
     }
 
 
@@ -144,7 +128,9 @@ public class LootItem {
                     continue;
                 }
 
-                meta.addEnchant(mcEnchantment, enchant.getLevel().generateRandom(0).intValue(), true); // boolean is for allowing unsafe enchantments
+                is.addUnsafeEnchantment(mcEnchantment, enchant.getLevel().generateRandom(0).intValue());
+
+//                meta.addEnchant(mcEnchantment, enchant.getLevel().generateRandom(0).intValue(), true); // commented out in favor of the above line ^
             }
         }
 

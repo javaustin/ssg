@@ -1,7 +1,6 @@
 package com.carrotguy69.ssg.cmd.game.team;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
-import com.carrotguy69.ssg.exceptions.TeamFullException;
 import com.carrotguy69.ssg.game.Game;
 
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -93,7 +92,7 @@ public class Join implements CommandExecutor {
 
             game.updateScoreboard();
         }
-        catch (TeamFullException e) {
+        catch (RuntimeException e) {
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_FULL), commonMap);
         }
 

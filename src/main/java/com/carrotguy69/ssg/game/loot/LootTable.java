@@ -118,8 +118,8 @@ public class LootTable {
             it.setDisplayName(name);
             it.setLore(lore);
 
-            it.setWeightedEnchants(enchants.stream().filter(e -> e.getWeight() < 0).toList());
-            it.setBindingEnchants(enchants.stream().filter(e -> e.getWeight() >= 0).toList());
+            it.setWeightedEnchants(enchants.stream().filter(e -> e.getWeight() > 0).toList());
+            it.setBindingEnchants(enchants.stream().filter(e -> e.getWeight() <= 0).toList());
 
             results.add(it);
         }

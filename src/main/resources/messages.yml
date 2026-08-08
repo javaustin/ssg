@@ -53,7 +53,7 @@ game:
   info:
     blurb: |
         &f-------------------- &6&lSpeed&a&lSG &f--------------------
-        &eFight to the death!! Loot chests from around the map to gather the best possible gear, then use it to fight off your opponents. &cLast man standing wins!
+        &eFight to the death!! Loot chests from around the map to gather the best possible gear, then use it to fight off your opponents. The last man standing wins!
         &f--------------------------------------------------
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
     invul-over: "&4Invulnerability has worn off!"

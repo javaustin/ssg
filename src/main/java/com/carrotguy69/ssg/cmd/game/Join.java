@@ -66,7 +66,6 @@ public class Join implements CommandExecutor {
                 game = SpeedSG.gameIDMap.values().stream().max(Comparator.comparingInt(g -> g.getPlayers().size())).stream().findFirst().orElseThrow();
             }
             catch (NoSuchElementException ex) {
-                Logger.warning("No SSG games found!");
                     MessageUtils.sendParsedMessage(
                             sender,
                             MessageGrabber.grab(SSGMessageKey.ERROR_NO_GAMES),
