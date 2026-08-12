@@ -128,9 +128,8 @@ public class LootItem {
                     continue;
                 }
 
-                is.addUnsafeEnchantment(mcEnchantment, enchant.getLevel().generateRandom(0).intValue());
 
-//                meta.addEnchant(mcEnchantment, enchant.getLevel().generateRandom(0).intValue(), true); // commented out in favor of the above line ^
+                meta.addEnchant(mcEnchantment, enchant.getLevel().generateRandom(0).intValue(), true);
             }
         }
 

@@ -22,10 +22,10 @@ lobby:
 
   # teamFormatter, gamePlayer
   team:
-    join: "You joined {team-color}{team-name}"
+    join: "&eYou joined {team-color}{team-name}"
     join-announcement: "{player-team-color}{player} joined the team"
 
-    leave: "You left {team-color}{team-name}"
+    leave: "&eYou left {team-color}{team-name}"
     leave-announcement: "{player-team-color}{player} left the team"
 
     list:
@@ -53,7 +53,7 @@ game:
   info:
     blurb: |
         &f-------------------- &6&lSpeed&a&lSG &f--------------------
-        &eblurb something something something
+        &eFight to the death!! Loot chests from around the map to gather the best possible gear, then use it to fight off your opponents. The last man standing wins!
         &f--------------------------------------------------
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
     invul-over: "&4Invulnerability has worn off!"
@@ -190,7 +190,7 @@ game:
       Members: {winner-team-members}
       
       Top killers:{top-killers}
-      ---------------------------------------------
+      &f-----------------------------------------------
 
 
 

@@ -16,7 +16,7 @@
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/game/team/List.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/cmd/game/team/_TeamSupercommand.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/eventHandler/CoreChatHandler.java
-/home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/exceptions/TeamFullException.java
+/home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/eventHandler/VanishHandler.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/game/Game.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/game/GamePlayer.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/game/GameState.java
@@ -36,7 +36,6 @@
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/messages/SSGMessageKey.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/messages/utils/MapFormatters.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/tabCompleters/Game.java
-/home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/tabCompleters/Print.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/tabCompleters/Team.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/utils/Logger.java
 /home/austin/Documents/dev/ssg/src/main/java/com/carrotguy69/ssg/utils/Startup.java

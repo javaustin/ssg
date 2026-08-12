@@ -70,6 +70,7 @@ game:
       ["&dTeam 1 ", "&dTeam 2 ", "&dTeam 3 ", "&dTeam 4 "]
 
     # Short team names used where space is limited. Should contain the same number of entries as "names".
+    # These will be used to look up teams in command contexts (e.g., "/team join T1").
     short-names:
       ["T1", "T2", "T3", "T4"]
 
@@ -102,10 +103,10 @@ scoreboards:
 
   lobby:
     - "&6&lSpeed&a&lSG" # The first entry of this list will become the scoreboard title
-    - "&7{date-short}"
-    - "&7{time-short}"
+    - "&7{player-date-short}"
+    - "&7{player-time-short}"
     - "&0"
-    - "&eYou are on {player-team-prefix}"
+    - "&eYou are on &f{player-team-prefix}"
     - "&1"
     - "&eRank: {player-rank-prefix-display}"
     - "&2"
@@ -119,8 +120,8 @@ scoreboards:
 
   game:
     - "&6&lSpeed&a&lSG"
-    - "&7{date-short}"
-    - "&7{time-short}"
+    - "&7{player-date-short}"
+    - "&7{player-time-short}"
     - "&1"
     - "&eYou are on {player-team-prefix}"
     - "&2"

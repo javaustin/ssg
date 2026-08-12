@@ -9,7 +9,6 @@ com/carrotguy69/ssg/cmd/game/List.class
 com/carrotguy69/ssg/game/map/sources/StaticSource.class
 com/carrotguy69/ssg/game/Game$6.class
 com/carrotguy69/ssg/game/Game$11.class
-com/carrotguy69/ssg/tabCompleters/Print.class
 com/carrotguy69/ssg/game/Game$3.class
 com/carrotguy69/ssg/game/map/GameMap.class
 com/carrotguy69/ssg/utils/objects/ColorUtils.class
@@ -18,6 +17,7 @@ com/carrotguy69/ssg/game/GamePlayer.class
 com/carrotguy69/ssg/game/Game$2.class
 com/carrotguy69/ssg/utils/Startup.class
 com/carrotguy69/ssg/messages/utils/MapFormatters.class
+com/carrotguy69/ssg/eventHandler/VanishHandler.class
 com/carrotguy69/ssg/cmd/game/_GameSupercommand.class
 com/carrotguy69/ssg/cmd/game/Leave.class
 com/carrotguy69/ssg/game/loot/LootManager.class
@@ -43,7 +43,6 @@ com/carrotguy69/ssg/game/map/sources/WorldCopySource.class
 com/carrotguy69/ssg/game/other/DamageSource.class
 com/carrotguy69/ssg/game/Game$11$1.class
 com/carrotguy69/ssg/game/GameState.class
-com/carrotguy69/ssg/exceptions/TeamFullException.class
 com/carrotguy69/ssg/game/map/sources/MapSource$Type.class
 com/carrotguy69/ssg/cmd/game/Create.class
 com/carrotguy69/ssg/tabCompleters/Team.class

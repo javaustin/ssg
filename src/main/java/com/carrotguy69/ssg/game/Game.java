@@ -960,6 +960,8 @@ public class Game {
 
         if (attacker != null) {
 
+            attacker.getBukkitPlayer().playSound(attacker.getBukkitPlayer(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 2.0f);
+
             double kills = attacker.getTemporaryStat("kills", 0);
 
             attacker.setTemporaryStat("kills", kills + 1);
@@ -1844,11 +1846,6 @@ public class Game {
 
             Map<String, Object> commonMap = new HashMap<>(Map.copyOf(ogCommonMap));
             commonMap.putAll(MapFormatters.gamePlayerFormatter(gp));
-            commonMap.put("date", TimeUtils.dateOf(unixTimeNow(), CXYZ.timezone));
-            commonMap.put("date-short", TimeUtils.dateOfShort(unixTimeNow(), CXYZ.timezone));
-            commonMap.put("time", TimeUtils.timeOf(unixTimeNow(), CXYZ.timezone));
-            commonMap.put("time-short", TimeUtils.timeOfShort(unixTimeNow(), CXYZ.timezone));
-
 
             Objective objective = scoreboard.registerNewObjective("sidebar", Criteria.DUMMY, f(scoreboardLines.getFirst()));
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -2032,22 +2029,21 @@ public class Game {
 
     @Override
     public String toString() {
-        // todo: clean up the toString so it doesn't look so ass when im trying to debug
         return "Game{"
                 + "gameID=" + gameID + ","
-                + "teams=" + teams + ","
-                + "players=" + players + ","
-                + "taskIDs=" + taskIDs + ","
-                + "teamCapacity=" + teamCapacity + ","
-                + "lootTable=" + lootTable + ","
-                + "gameState=" + gameState + ","
+                + "teams=" + teams.stream().map(GameTeam::getName).toList() + ","
+                + "players=" + players.stream().map(GamePlayer::getNetworkPlayer).map(NetworkPlayer::getUsername).toList() + ","
+                + "taskIDs(size)=" + taskIDs.size() + ","
+                + "teamCapacity=" + teamCapacity.toPrettyString() + ","
+                + "lootTable=" + lootTable.getName() + ","
+                + "gameState=" + gameState.name() + ","
                 + "defaultGamemode=" + defaultGamemode.name() +
                 "}";
     }
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof Game && ((Game) other).gameID == this.gameID;
+        return other instanceof Game && Objects.equals(((Game) other).gameID, this.gameID);
     }
 
 }

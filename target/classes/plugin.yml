@@ -13,17 +13,11 @@ softdepend:
 commands:
   ssg:
     description: Manage a SpeedSG game instance
-    usage: /ssg <create | delete | freeze | info| join | leave | list | ready | respawn | setlives | setting> [...]
+    usage: /ssg <create | delete | freeze | info | join | leave | list | ready | respawn | setlives | setting> [...]
     permission: "ssg"
 
 
 permissions:
-  ssg.test:
-    default: op
-
-  ssg.print:
-    default: op
-
   ssg:
     default: true
   ssg.create:

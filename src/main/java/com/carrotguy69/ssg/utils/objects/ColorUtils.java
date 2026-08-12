@@ -5,7 +5,7 @@ public class ColorUtils {
         // Gets first display color from a string "&aHello world" -> 0x55FF55
 
         if (input == null || input.isEmpty())
-            return 0xFFFFFF;
+            return -1;
 
         char[] chars = input.toCharArray();
 
@@ -39,7 +39,7 @@ public class ColorUtils {
             }
         }
 
-        return 0xFFFFFF;
+        return -1;
     }
 
     private static int getLegacyRGB(char code) {
@@ -65,6 +65,10 @@ public class ColorUtils {
     }
 
     public static String getColorCode(int rgb) {
+        if (rgb < 0) {
+            return "";
+        }
+
         switch (rgb) {
             case 0x000000: return "&0"; // black
             case 0x0000AA: return "&1"; // dark blue
@@ -75,7 +79,7 @@ public class ColorUtils {
             case 0xFFAA00: return "&6"; // gold
             case 0xAAAAAA: return "&7"; // gray
             case 0x555555: return "&8"; // dark gray
-            case 0x5555FF: return "&0"; // blue
+            case 0x5555FF: return "&9"; // blue
             case 0x55FF55: return "&a"; // green
             case 0x55FFFF: return "&b"; // aqua
             case 0xFF5555: return "&c"; // red

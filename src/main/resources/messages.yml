@@ -22,10 +22,10 @@ lobby:
 
   # teamFormatter, gamePlayer
   team:
-    join: "You joined {team-color}{team-name}"
+    join: "&eYou joined {team-color}{team-name}"
     join-announcement: "{player-team-color}{player} joined the team"
 
-    leave: "You left {team-color}{team-name}"
+    leave: "&eYou left {team-color}{team-name}"
     leave-announcement: "{player-team-color}{player} left the team"
 
     list:
