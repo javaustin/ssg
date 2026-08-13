@@ -17,6 +17,23 @@ game:
     # Default gamemode used for active players (spectators excluded).
     default-gamemode: adventure
 
+  click-actions:
+    # Execute commands upon right or left-clicking with an item in the hand.
+    #    item: a Minecraft item
+    #    click-type: [RIGHT_CLICK, LEFT_CLICK]
+    #    actions: Command actions executed from the context of the clicking player.
+
+#    red-wool:
+#      click-type: RIGHT_CLICK
+#      actions:
+#        - ssg team join T1
+#
+#    blue-wool:
+#      click-type: RIGHT_CLICK
+#      actions:
+#        - ssg team join T2
+
+
   command-actions:
     # Execute console commands upon common game events.
     # Leaving a list empty will execute no commands.
