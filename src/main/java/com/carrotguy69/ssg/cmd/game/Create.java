@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.cmd.game;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.cxyz.utils.NumberRange;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.loot.LootTable;
@@ -8,7 +9,6 @@ import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.utils.objects.NumberRange;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

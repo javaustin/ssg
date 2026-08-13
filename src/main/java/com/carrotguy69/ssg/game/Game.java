@@ -7,7 +7,8 @@ import com.carrotguy69.cxyz.models.config.channel.registry.ChannelRegistry;
 import com.carrotguy69.cxyz.models.db.GameStat;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
-import com.carrotguy69.cxyz.utils.TimeUtils;
+import com.carrotguy69.cxyz.utils.ColorUtils;
+import com.carrotguy69.cxyz.utils.NumberRange;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
@@ -16,8 +17,6 @@ import com.carrotguy69.ssg.game.other.Durations;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.utils.objects.ColorUtils;
-import com.carrotguy69.ssg.utils.objects.NumberRange;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +33,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.command.CommandException;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -64,7 +64,6 @@ import java.util.Random;
 
 import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
-import static com.carrotguy69.cxyz.utils.TimeUtils.unixTimeNow;
 
 import static com.carrotguy69.ssg.SpeedSG.*;
 import static com.carrotguy69.ssg.messages.SSGMessageKey.*;
@@ -1048,11 +1047,16 @@ public class Game {
         }
     }
 
-    private static void runConfigCommands(List<String> commandLines, Map<String, Object> commonMap) {
+    public static void runConfigCommands(List<String> commandLines, Map<String, Object> commonMap) {
         for (String line : commandLines) {
             String formattedLine = formatPlaceholders(line, commonMap);
 
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedLine);
+            try {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedLine);
+            }
+            catch (CommandException ignore) {
+
+            }
         }
     }
 
@@ -1061,6 +1065,10 @@ public class Game {
     }
 
     private static void dropInventory(Player p) {
+        if (configYML.getBoolean("game.misc.keep-inventory")) {
+            return;
+        }
+
         PlayerInventory inv = p.getInventory();
 
         for (int i = 0; i < inv.getSize(); i++) {

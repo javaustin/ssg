@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.utils.objects;
+package com.carrotguy69.ssg.utils;
 
 import com.carrotguy69.cxyz.utils.ObjectUtils;
 import org.bukkit.Bukkit;

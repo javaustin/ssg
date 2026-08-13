@@ -2,7 +2,6 @@ package com.carrotguy69.ssg.tabCompleters;
 
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameTeam;
-import com.carrotguy69.ssg.utils.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -11,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Team implements TabCompleter {

@@ -6,7 +6,7 @@ import com.carrotguy69.ssg.game.map.sources.MapSource;
 import com.carrotguy69.ssg.game.map.sources.SchematicSource;
 import com.carrotguy69.ssg.game.map.sources.StaticSource;
 import com.carrotguy69.ssg.game.map.sources.WorldCopySource;
-import com.carrotguy69.ssg.utils.objects.LocationUtils;
+import com.carrotguy69.ssg.utils.LocationUtils;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;

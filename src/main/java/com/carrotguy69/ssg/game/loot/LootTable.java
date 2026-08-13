@@ -1,9 +1,9 @@
 package com.carrotguy69.ssg.game.loot;
 
 import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
+import com.carrotguy69.cxyz.utils.NumberRange;
 import com.carrotguy69.ssg.SpeedSG;
-import com.carrotguy69.ssg.utils.Logger;
-import com.carrotguy69.ssg.utils.objects.NumberRange;
+import com.carrotguy69.ssg.other.Logger;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;

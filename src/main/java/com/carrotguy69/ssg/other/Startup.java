@@ -1,4 +1,4 @@
-package com.carrotguy69.ssg.utils;
+package com.carrotguy69.ssg.other;
 
 import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.ssg.SpeedSG;

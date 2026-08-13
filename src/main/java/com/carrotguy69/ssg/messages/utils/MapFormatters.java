@@ -1,5 +1,6 @@
 package com.carrotguy69.ssg.messages.utils;
 
+import com.carrotguy69.cxyz.utils.ColorUtils;
 import com.carrotguy69.cxyz.utils.TimeUtils;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -7,7 +8,6 @@ import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.GameTeam;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
-import com.carrotguy69.ssg.utils.objects.ColorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;

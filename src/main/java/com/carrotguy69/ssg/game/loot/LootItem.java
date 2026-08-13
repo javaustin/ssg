@@ -1,6 +1,6 @@
 package com.carrotguy69.ssg.game.loot;
 
-import com.carrotguy69.ssg.utils.objects.NumberRange;
+import com.carrotguy69.cxyz.utils.NumberRange;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;

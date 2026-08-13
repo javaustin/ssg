@@ -7,7 +7,6 @@ import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-import com.carrotguy69.ssg.utils.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

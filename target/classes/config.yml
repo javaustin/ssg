@@ -8,6 +8,9 @@ game:
     respawn-seconds: 5
 
   misc:
+    # Should players keep their inventory upon a non-final death. (Players will always drop their inventory upon final death.)
+    keep-inventory: false
+
     # Should players be allowed to join an ongoing countdown after everyone has already been placed into their starting cages?
     allow-join-during-start: true
 
@@ -44,7 +47,8 @@ game:
 
       # Runs once for a players' death and involves the attacker.
       # [!] Beware of duplicate commands. The command actions in on-death will also run during a kill.
-      -
+      - effect give {attacker} minecraft:instant_health
+      - show {attacker} &4+ &l2.0❤
 
     on-win:
       # Available placeholders {player}, {game}

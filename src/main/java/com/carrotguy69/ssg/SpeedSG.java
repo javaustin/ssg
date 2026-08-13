@@ -13,10 +13,13 @@ import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
-import com.carrotguy69.ssg.utils.Logger;
-import com.carrotguy69.ssg.utils.Startup;
+import com.carrotguy69.ssg.messages.utils.MapFormatters;
+import com.carrotguy69.ssg.other.Logger;
+import com.carrotguy69.ssg.other.Startup;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -33,8 +36,10 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -284,6 +289,41 @@ public final class SpeedSG extends JavaPlugin implements Listener {
              e.setCancelled(true);
         }
 
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent e) {
+
+        Game game = Game.getByPlayer(e.getPlayer());
+
+        if (game == null) {
+            return;
+        }
+
+        ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
+
+        ConfigurationSection section = configYML.getConfigurationSection("game.click-actions");
+
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                try {
+                    Material material = Material.valueOf(key.toUpperCase().replace("-", "_"));
+                    String actionTypeString = section.getString(key + ".click-type", "RIGHT_CLICK");
+
+                    if (!e.getAction().name().startsWith(actionTypeString.toUpperCase().replace("-", "_")) || material != hand.getType()) {
+                        continue;
+                    }
+
+                    List<String> actions = section.getStringList(key + ".actions");
+
+                    Game.runConfigCommands(actions, MapFormatters.gamePlayerFormatter(game.getPlayer(e.getPlayer())));
+                }
+                catch (IllegalArgumentException ex) {
+                    Logger.info("Failed to run click action command because %s is not a valid item!".formatted(key));
+                }
+            }
+
+        }
     }
 
 }
