@@ -5,6 +5,8 @@ import com.carrotguy69.cxyz.events.custom.PublicChatEvent;
 import com.carrotguy69.cxyz.events.custom.VanishToggleEvent;
 import com.carrotguy69.cxyz.events.custom.base.Priority;
 import com.carrotguy69.cxyz.events.custom.service.EventService;
+import com.carrotguy69.cxyz.utils.NumberRange;
+import com.carrotguy69.ssg.cmd.game.Create;
 import com.carrotguy69.ssg.eventHandler.CoreChatHandler;
 import com.carrotguy69.ssg.eventHandler.VanishHandler;
 import com.carrotguy69.ssg.game.other.DamageSource;
@@ -17,6 +19,7 @@ import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import com.carrotguy69.ssg.other.Logger;
 import com.carrotguy69.ssg.other.Startup;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -34,18 +37,28 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.UUID;
 
 public final class SpeedSG extends JavaPlugin implements Listener {
 
@@ -70,7 +83,21 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static List<String> lobbyScoreboardLines = new ArrayList<>();
     public static List<String> gameScoreboardLines = new ArrayList<>();
 
+    public static List<UUID> noInteractionTicks = new ArrayList<>();
+
     public static boolean scoreboardsEnabled = true;
+
+    public static boolean autoJoinEnabled = false;
+    public static AutoJoinScope autoJoinScope;
+
+    public enum AutoJoinScope {
+        SERVER,
+        WORLD;
+        public static AutoJoinScope fromString(@Nullable String s) {
+            return s != null && s.toUpperCase().equals(SERVER.name()) ? SERVER : WORLD;
+        }
+    }
+
 
     public static SpeedSG plugin;
     public static CXYZ cxyz;
@@ -81,7 +108,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         - better config files (good descriptions of keys and examples)
         - fulfill config files with all applicable examples
         - better README.md (description, features, hyperlinks to config)
-        - retest assignTeam(p, team) with two and three players
     */
 
     @Override
@@ -103,6 +129,37 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         // Plugin shutdown logic
 
         Logger.info("See ya later!");
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        if (!autoJoinEnabled) {
+            return;
+        }
+
+        if (!(autoJoinScope == AutoJoinScope.SERVER || (autoJoinScope == AutoJoinScope.WORLD && e.getPlayer().getWorld().equals(GameMap.getMaps().getFirst().getWorld())))) {
+            return;
+        }
+
+        Game game;
+        try {
+            game = SpeedSG.gameIDMap.values().stream().max(Comparator.comparingInt(g -> g.getPlayers().size())).stream().findFirst().orElseThrow();
+        }
+        catch (NoSuchElementException ex) {
+            game = new Game(
+                    Create.generateValidGameID(),
+                    gameMaps.size() - 1 > 0
+                            ? new ArrayList<>(gameMaps).get(new Random().nextInt(0, gameMaps.size() - 1))
+                            : new ArrayList<>(gameMaps).getFirst(),
+                    lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst(),
+                    new NumberRange(2, Math.max(configYML.getStringList("game.teams.names").size(), configYML.getStringList("game.teams.short-names").size())),
+                    new NumberRange(1, 4),
+                    1
+            );
+        }
+
+        GamePlayer gamePlayer = new GamePlayer(e.getPlayer().getUniqueId());
+        game.addPlayer(gamePlayer);
     }
 
     @EventHandler
@@ -184,13 +241,6 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             }
         }
 
-        if (reason == null) {
-            return;
-        }
-
-        // todo: When an explosion occurs, players will immediately be killed before we can cancel damage through here. To prevent this immediate killing, we will need to
-        //  (eventually) cancel all explosions and replace them with an explosion particle effect and sound.
-
         Game game = Game.getByPlayer(p);
 
         if (game == null) {
@@ -201,24 +251,28 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
 
         GamePlayer gp = game.getPlayer(p); // The above check ensures that the game player is not null (because the player is sourced from a game)
-        GamePlayer attackerGP = game.getPlayer(attacker);
+        GamePlayer attackerGP = null;
+
+        if (attacker != null) {
+            attackerGP = game.getPlayer(attacker);
+        }
 
         if (attackerGP == null) { // attacker was outside the game
             e.setCancelled(true);
-            return;
         }
 
-        DamageSource source = new DamageSource(attackerGP, reason);
-        game.setLastDamageSource(gp, source);
+        else {
+            DamageSource source = new DamageSource(attackerGP, reason);
+            game.setLastDamageSource(gp, source);
 
-        double damageTaken = gp.getTemporaryStat("damage-taken", 0.0);
-        gp.setTemporaryStat("damage-taken", damageTaken + e.getFinalDamage());
+            double damageTaken = gp.getTemporaryStat("damage-taken", 0.0);
+            gp.setTemporaryStat("damage-taken", damageTaken + e.getFinalDamage());
 
-        double damageDealt = gp.getTemporaryStat("damage-dealt", 0.0);
-        attackerGP.setTemporaryStat("damage-dealt", damageDealt + e.getFinalDamage());
+            double damageDealt = gp.getTemporaryStat("damage-dealt", 0.0);
+            attackerGP.setTemporaryStat("damage-dealt", damageDealt + e.getFinalDamage());
+        }
 
         double hp = p.getHealth() - e.getFinalDamage();
-
         if (hp <= 0) {
             e.setCancelled(true);
             game.eliminate(gp);
@@ -323,6 +377,61 @@ public final class SpeedSG extends JavaPlugin implements Listener {
                 }
             }
 
+        }
+    }
+
+    @EventHandler
+    public void onInventory(InventoryClickEvent e) {
+        Player p = (Player) e.getWhoClicked();
+
+        Game game = Game.getByPlayer(p);
+
+        if (game == null) {
+            return;
+        }
+
+        if (game.getGameState() == GameState.WAITING && p.getGameMode() != GameMode.CREATIVE) {
+            e.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onInventory(InventoryDragEvent e) {
+        Player p = (Player) e.getWhoClicked();
+
+        Game game = Game.getByPlayer(p);
+
+        if (game == null) {
+            return;
+        }
+
+        if (game.getGameState() == GameState.WAITING && p.getGameMode() != GameMode.CREATIVE) {
+            e.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent e) {
+        Player p = e.getPlayer();
+
+        Game game = Game.getByPlayer(p);
+
+        if (game == null) {
+            return;
+        }
+
+        if (game.getGameState() == GameState.WAITING && p.getGameMode() != GameMode.CREATIVE) {
+            e.setCancelled(true);
+            noInteractionTicks.add(e.getPlayer().getUniqueId());
+
+            new BukkitRunnable() {public void run() {
+                noInteractionTicks.remove(e.getPlayer().getUniqueId());
+            }}.runTaskLater(this, 1);
+            return;
         }
     }
 

@@ -63,17 +63,20 @@ public class MapFormatters {
         String aliveIndicator = MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.ALIVE_INDICATOR) : "";
         String deadIndicator = MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) != null ? MessageGrabber.grab(SSGMessageKey.DEAD_INDICATOR) : "&7&lDEAD ";
 
-        String name = gt != null ? gt.getName() : "&fN/A";
+        String name = gt != null ? gt.getName() : "";
+
+        String defaultDisplayName = "N/A";
 
         commonMap.put("team", name);
         commonMap.put("team-prefix", name);
         commonMap.put("team-name", name);
 
-        commonMap.put("team-stripped", name.strip());
-        commonMap.put("team-prefix-stripped", name.strip());
-        commonMap.put("team-name-stripped", name.strip());
+        String strippedOrDefaultName = !name.isBlank() ? name.strip() : defaultDisplayName;
+        commonMap.put("team-display", strippedOrDefaultName);
+        commonMap.put("team-prefix-display", strippedOrDefaultName);
+        commonMap.put("team-name-display", strippedOrDefaultName);
 
-        commonMap.put("team-short-name-stripped", gt != null ? gt.getShortName().strip() : "");
+        commonMap.put("team-short-name-display", gt != null ? gt.getShortName().strip() : defaultDisplayName);
 
         commonMap.put("team-short-name", gt != null ? gt.getShortName() : "");
         commonMap.put("team-color", gt != null ? ColorUtils.getColorCode(gt.getRGBColor()) : "");

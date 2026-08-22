@@ -7,6 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +42,6 @@ public class LootManager {
         this.r = new Random();
 
         sumWeights();
-    }
-
-    public void setRandom(Random r) {
-        this.r = r;
     }
 
     public void addItem(LootItem item) {
@@ -155,7 +152,8 @@ public class LootManager {
         // Use simple-enchant to apply enchants.
         // simple-enchant is considered to be enabled if (enchants != null && !enchants.isEmpty())
 
-        if (!simpleEnchantEnabled || simpleEnchantPool == null || simpleEnchantPool.isEmpty()) {
+        if (!simpleEnchantEnabled || simpleEnchantPool == null || simpleEnchantPool.isEmpty() || !item.getBindingEnchants().isEmpty() || !item.getWeightedEnchants().isEmpty()) {
+            // Do not simple enchant if the item already has enchnants, or the simple enchant pool is empty.
             return;
         }
 
@@ -263,6 +261,7 @@ public class LootManager {
             if (lootEnchant.getWeight() < 0)
                 continue;
 
+
             totalWeight += lootEnchant.getWeight();
         }
 
@@ -288,10 +287,11 @@ public class LootManager {
      * <p>
      *     Note: Some of the returned enchants may be of the same type
      */
-    private List<LootEnchant> selectEnchants(List<LootEnchant> pool, int limit) {
+    private List<LootEnchant> selectEnchants(List<LootEnchant> pool, int amount) {
+        // The amount of enchants selected is already determined. So we will do no bias or distribution logic here.
         List<LootEnchant> enchants = new ArrayList<>();
 
-        for (int i = 0; i < limit; i++) {
+        for (int i = 0; i < amount; i++) {
             LootEnchant enchant = selectEnchant(pool);
 
             enchants.add(enchant);

@@ -1,6 +1,7 @@
 package com.carrotguy69.ssg.cmd.game.team;
 
 import com.carrotguy69.cxyz.messages.MessageUtils;
+import com.carrotguy69.cxyz.utils.ObjectUtils;
 import com.carrotguy69.ssg.game.Game;
 
 import com.carrotguy69.ssg.game.GamePlayer;
@@ -47,6 +48,9 @@ public class Join implements CommandExecutor {
             return true;
         }
 
+        boolean beQuiet = String.join(" ", args).contains("-s");
+        ObjectUtils.removeItem(args, "-s");
+
         Game game = Game.getByPlayer(p);
 
         if (game == null) {
@@ -66,11 +70,19 @@ public class Join implements CommandExecutor {
         Map<String, Object> commonMap = MapFormatters.teamFormatter(team); // team is allowed to be null for the formatter
 
         if (originalTeam != null && originalTeam.equals(team)) {
+            if (beQuiet) {
+                return true;
+            }
+
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_ALREADY_IN_TEAM), commonMap);
             return true;
         }
 
         if (team == null) {
+            if (beQuiet) {
+                return true;
+            }
+
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.INVALID_TEAM), commonMap);
             return true;
         }
@@ -93,6 +105,11 @@ public class Join implements CommandExecutor {
             game.updateScoreboard();
         }
         catch (RuntimeException e) {
+
+            if (beQuiet) {
+                return true;
+            }
+
             MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.ERROR_TEAM_FULL), commonMap);
         }
 

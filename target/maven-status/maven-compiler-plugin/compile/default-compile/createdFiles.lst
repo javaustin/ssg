@@ -3,11 +3,13 @@ com/carrotguy69/ssg/other/Startup.class
 com/carrotguy69/ssg/cmd/game/Respawn.class
 com/carrotguy69/ssg/cmd/game/team/Join.class
 com/carrotguy69/ssg/game/other/Durations.class
+com/carrotguy69/ssg/SpeedSG$AutoJoinScope.class
 com/carrotguy69/ssg/cmd/game/Freeze.class
 com/carrotguy69/ssg/cmd/game/team/_TeamSupercommand.class
 com/carrotguy69/ssg/cmd/game/List.class
 com/carrotguy69/ssg/game/map/sources/StaticSource.class
 com/carrotguy69/ssg/game/Game$6.class
+com/carrotguy69/ssg/game/Game$12$1.class
 com/carrotguy69/ssg/game/Game$11.class
 com/carrotguy69/ssg/game/Game$3.class
 com/carrotguy69/ssg/game/map/GameMap.class
@@ -38,7 +40,8 @@ com/carrotguy69/ssg/cmd/game/team/Leave.class
 com/carrotguy69/ssg/cmd/game/Setting.class
 com/carrotguy69/ssg/game/map/sources/WorldCopySource.class
 com/carrotguy69/ssg/game/other/DamageSource.class
-com/carrotguy69/ssg/game/Game$11$1.class
+com/carrotguy69/ssg/game/Game$13.class
+com/carrotguy69/ssg/SpeedSG$1.class
 com/carrotguy69/ssg/other/Tasks.class
 com/carrotguy69/ssg/game/GameState.class
 com/carrotguy69/ssg/game/map/sources/MapSource$Type.class

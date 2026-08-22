@@ -1,3 +1,10 @@
+auto-join:
+  enabled: true    # If this is enabled, players that join the (server or world depending on scope) will automatically be added to an SSG game.
+  scope: server    # Scope
+                   #   server: Any player who joins the server will be automatically added
+                   #   world: Any player who joins the world will be automatically added
+
+
 game:
 
   respawns:
@@ -21,17 +28,20 @@ game:
     # Execute commands upon right or left-clicking with an item in the hand.
     #    item: a Minecraft item
     #    click-type: [RIGHT_CLICK, LEFT_CLICK]
-    #    actions: Command actions executed from the context of the clicking player.
+    #    actions: Command actions executed from the console.
 
-#    red-wool:
-#      click-type: RIGHT_CLICK
-#      actions:
-#        - ssg team join T1
-#
-#    blue-wool:
-#      click-type: RIGHT_CLICK
-#      actions:
-#        - ssg team join T2
+    gray-dye:
+      click-type: RIGHT_CLICK
+      actions:
+        - "minecraft:item replace entity {player} hotbar.4 with minecraft:lime_dye[minecraft:custom_name=[{\"text\":\"Ready\",\"italic\":false,\"color\":\"green\"}],lore=[[{\"text\":\"Right click to toggle your ready status.\",\"italic\":false,\"color\":\"yellow\"}]]] 1"
+        - sudo {player} ssg ready
+
+    lime-dye:
+      click-type: RIGHT_CLICK
+      actions:
+        - sudo {player} ssg ready
+        - "minecraft:item replace entity {player} hotbar.4 with minecraft:gray_dye[minecraft:custom_name=[{\"text\":\"Not Ready\",\"italic\":false,\"color\":\"red\"}],lore=[[{\"text\":\"Right click to toggle your ready status.\",\"italic\":false,\"color\":\"white\"}]]] 1"
+
 
 
   command-actions:
@@ -42,12 +52,16 @@ game:
     on-lobby:
       # Available placeholders: {player}, {game}
       # NOT A LOOP! Runs for individual players in the lobby if they newly join.
-      -
+      - "minecraft:item replace entity {player} hotbar.4 with minecraft:gray_dye[minecraft:custom_name=[{\"text\":\"Not Ready\",\"italic\":false,\"color\":\"red\"}],lore=[[{\"text\":\"Right click to toggle your ready status. If all players are ready, the lobby countdown timer will be skipped.\",\"italic\":false,\"color\":\"white\"}]]] 1"
+
 
     on-prep:
       # Available placeholders: {game}
       # NOT A LOOP! Runs ONLY one time while the arena is prepped and players are spawned.
-      -
+      - "difficulty hard"
+      - "gamerule locator_bar false"
+      - "gamerule send_command_feedback false"
+      - "gamerule command_block_output false"
 
     on-start:
       # Available placeholders: {player}, {game}
@@ -64,14 +78,17 @@ game:
 
       # Runs once for a players' death and involves the attacker.
       # [!] Beware of duplicate commands. The command actions in on-death will also run during a kill.
-      - effect give {attacker} minecraft:instant_health
-      - show {attacker} &4+ &l2.0❤
+      - "effect give {attacker} minecraft:instant_health"
+      - "show {attacker} &4+ &l2.0❤"
+      - "show {attacker} -actionBar &6+ 5 coins (kill)"
+      - "coins add 5 {attacker}"
 
     on-win:
       # Available placeholders {player}, {game}
 
       # Runs once for every player on the winning team.
-      -
+      - "show {attacker} &6+ 10 coins (win)"
+      - "coins add 10 {attacker}"
 
     on-lose:
       # Available placeholders {player}, {game}
@@ -88,7 +105,7 @@ game:
     # If this list is shorter than the number of required teams,
     # remaining teams will automatically be named: ["&aTeam 1", "&aTeam 2", "&aTeam 3"]
     names:
-      ["&dTeam 1 ", "&dTeam 2 ", "&dTeam 3 ", "&dTeam 4 "]
+      ["&cTeam 1 ", "&cTeam 2 ", "&cTeam 3 ", "&cTeam 4 "]
 
     # Short team names used where space is limited. Should contain the same number of entries as "names".
     # These will be used to look up teams in command contexts (e.g., "/team join T1").
@@ -127,7 +144,7 @@ scoreboards:
     - "&7{player-date-short}"
     - "&7{player-time-short}"
     - "&0"
-    - "&eYou are on &f{player-team-prefix}"
+    - "&eYou are on &f{player-team-prefix-display}"
     - "&1"
     - "&eRank: {player-rank-prefix-display}"
     - "&2"
@@ -144,7 +161,7 @@ scoreboards:
     - "&7{player-date-short}"
     - "&7{player-time-short}"
     - "&1"
-    - "&eYou are on {player-team-prefix}"
+    - "&eYou are on &f{player-team-prefix-display}"
     - "&2"
     - "&eKills: &f{player-temp-stat-kills}"
     - "&eLives: &f{player-lives}"

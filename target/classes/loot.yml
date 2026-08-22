@@ -5,7 +5,7 @@ loot-tables:
       items-per-chest: 3-7
 
       simple-enchant: true
-      enchants-per-item: 3
+      enchants-per-item: 0-3
 
     enchant-pool:
       # [!] Enchant pool is ignored if simple-enchant is false.
@@ -22,22 +22,162 @@ loot-tables:
         level: 1-2
         weight: 1
 
+      - id: FEATHER_FALLING
+        level: 1-3
+        weight: 0.5
+
+      - id: PROTECTION
+        level: 1-3
+        weight: 0.3
+
     item-pool:
+      - id: stick
+        amount: 1-3
+        weight: 0.7
 
-      - id: diamond_sword
-        amount: 0-1 # can be integer or range of integer
-        name: "&4God Sword"
-        lore:
-          - "&eFancy lore"
-          - "&3and the second line"
+      - id: milk_bucket
+        amount: 1
+        weight: 0.2
 
-        enchants: # Always applied
-          - id: SHARPNESS
-            level: 1
-            weight: 0.2
+      - id: iron_ingot
+        amount: 1-2
+        weight: 0.5
 
+      - id: diamond
+        amount: 1
         weight: 0.1
 
-      - id: cooked_beef
-        amount: 2-4 # can be integer or range of integer
+      - id: experience_bottle
+        amount: 1-3
+
+      - id: wooden_sword
+        weight: 2
+      - id: golden_sword
         weight: 1
+      - id: stone_sword
+        weight: 1
+      - id: iron_sword
+        weight: 0.5
+      - id: diamond_sword
+        weight: 0.03
+
+      - id: iron_shovel
+        weight: 0.05
+        enchants:
+          - id: SHARPNESS
+            level: 2
+            weight: -1 # A weight <= 0 means it will always be applied.
+
+      - id: diamond_shovel
+        weight: 0.02
+        enchants:
+            - id: SHARPNESS
+              level: 2
+              weight: -1
+
+      - id: bow
+        weight: 0.2
+        enchants:
+          - id: POWER
+            level: 1-2
+            weight: 0.2
+
+          - id: PUNCH
+            level: 1-2
+            weight: 0.1
+
+      - id: crossbow
+        weight: 0.15
+        enchants:
+            - id: PIERCING
+              level: 1
+              weight: 0.2
+
+      - id: arrow
+        weight: 1
+        amount: 1-4
+
+      - id: leather_helmet
+        weight: 0.5
+
+      - id: leather_chestplate
+        weight: 0.45
+
+      - id: leather_leggings
+        weight: 0.47
+
+      - id: leather_boots
+        weight: 0.5
+
+      - id: golden_helmet
+        weight: 0.35
+
+      - id: golden_chestplate
+        weight: 0.3
+
+      - id: golden_leggings
+        weight: 0.33
+
+      - id: chainmail_boots
+        weight: 0.35
+
+      - id: chainmail_helmet
+        weight: 0.3
+
+      - id: chainmail_chestplate
+        weight: 0.25
+
+      - id: chainmail_leggings
+        weight: 0.22
+
+      - id: chainmail_boots
+        weight: 0.3
+
+      - id: iron_helmet
+        weight: 0.2
+
+      - id: iron_chestplate
+        weight: 0.15
+
+      - id: iron_leggings
+        weight: 0.17
+
+      - id: iron_boots
+        weight: 0.2
+
+      - id: diamond_helmet
+        weight: 0.03
+
+      - id: diamond_boots
+        weight: 0.05
+
+      - id: apple
+        weight: 4
+
+      - id: cooked_beef
+        weight: 2
+
+      - id: golden_apple
+        weight: 0.2
+
+      # Reference for potion types: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionType.html#enum-constant-summary
+
+      - id: splash_potion
+        weight: 0.2
+        potion-data:
+          - type: HEALING
+
+      - id: splash_potion
+        weight: 0.2
+        potion-data:
+          - type: POISON
+
+      - id: potion
+        weight: 0.4
+        potion-data:
+          - type: SPEED
+
+      - id: potion
+        weight: 0.4
+        potion-data:
+          - type: FIRE_RESISTANCE

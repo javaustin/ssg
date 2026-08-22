@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.carrotguy69.ssg.SpeedSG.configYML;
 import static com.carrotguy69.ssg.SpeedSG.gameMaps;
 import static com.carrotguy69.ssg.SpeedSG.lootTables;
 
@@ -44,7 +45,7 @@ public class Create implements CommandExecutor {
         GameMap gameMap = gameMaps.size() - 1 > 0 ? gameMaps.get(new Random().nextInt(0, gameMaps.size() - 1)) : gameMaps.getFirst();
         LootTable lootTable = lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst();
         NumberRange teamCapacity = new NumberRange(1, 1);
-        NumberRange amountOfTeams = new NumberRange(2, 16);
+        NumberRange amountOfTeams = new NumberRange(2, Math.max(configYML.getStringList("game.teams.names").size(), configYML.getStringList("game.teams.short-names").size()));
         int maxLives = 1;
 
         if (args.length >= 1) {
@@ -152,7 +153,7 @@ public class Create implements CommandExecutor {
         return true;
     }
 
-    private String generateValidGameID() {
+    public static String generateValidGameID() {
         for (int i = 1; i < 100; i++) {
             Game game = Game.getByID("ssg-" + i);
 

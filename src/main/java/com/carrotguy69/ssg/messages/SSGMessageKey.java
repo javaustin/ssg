@@ -183,6 +183,13 @@ public enum SSGMessageKey {
 
     SET_PLAYER_LIVES("command.set-player-lives"),
     GET_PLAYER_LIVES("command.get-player-lives"),
+
+    COMMAND_DELETE_GAME_TITLE("command.delete-announcement-title.title"),
+    COMMAND_DELETE_GAME_SUBTITLE("command.delete-announcement-title.subtitle"),
+    COMMAND_DELETE_GAME_FADE_IN_TICKS("command.delete-announcement-title.fade-in-ticks"),
+    COMMAND_DELETE_GAME_STAY_TICKS("command.delete-announcement-title.stay-ticks"),
+    COMMAND_DELETE_GAME_FADE_OUT_TICKS("command.delete-announcement-title.fade-out-ticks"),
+
     ;
 
     private final String path;

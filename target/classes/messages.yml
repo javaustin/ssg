@@ -30,7 +30,7 @@ lobby:
 
     list:
       list: |
-        {player-team-stripped}: {members}
+        {player-team-display}: {members}
 
       team-members-list:
         entry-format: "{player-rank-color}{player}"
@@ -38,7 +38,7 @@ lobby:
         max-entries: 9999
 
   info:
-    all-ready: "&eAll players have readied up! Skiping countdown."
+    all-ready: "&aAll players have readied up! Skipping countdown."
     start-countdown: "&eGame starting in &6{count} &eseconds." # + {count}
     start-cancel: "&eStart cancelled! There are not enough players to start a game." # N/A
 
@@ -186,7 +186,7 @@ game:
       ---------------------------------------------
 
     team-winner: |
-      &f---------- {winner-team-color}{winner-team-stripped} &6&lwon the game! &f----------
+      &f---------- {winner-team-color}{winner-team-display} &6&lwon the game! &f----------
       Members: {winner-team-members}
       
       Top killers:{top-killers}
@@ -198,6 +198,12 @@ command:
   # gameFormatter
   create: "[&aCreated new game ((id: {game-id}))!](HOVER:&eClick to join)(RUN_COMMAND:/ssg join {game-id})"
   delete: "&aDeleted game {game-id}"
+  delete-announcement-title:
+    title: "&eGame deleted"
+    subtitle: "&eAn admin has deleted the game!"
+    fade-in-ticks: 0
+    stay-ticks: 40
+    fade-out-ticks: 20
   join: "&aYou joined game {game-id}!"
   leave: "&aYou left game {game-id}!"
 

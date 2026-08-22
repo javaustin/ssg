@@ -9,9 +9,12 @@ import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.carrotguy69.ssg.SpeedSG.f;
 
@@ -23,6 +26,9 @@ public class LootItem {
     private String displayName;
     private ArrayList<String> lore;
 
+    private PotionType potionData = null;
+
+
     private List<LootEnchant> weightedEnchants = new ArrayList<>();
     private List<LootEnchant> bindingEnchants = new ArrayList<>();
 
@@ -32,7 +38,26 @@ public class LootItem {
         this.weight = weight;
 
         // Determine if the item is valid
-        Material.valueOf(id.toUpperCase());
+        try {
+            Material.valueOf(id.toUpperCase().replace("-", "_"));
+        }
+        catch (IllegalArgumentException e) {
+            throw new RuntimeException(String.format("Could not load the item %s because it is not a valid minecraft item!", id));
+        }
+    }
+
+    public void setPotionData(PotionType potionEffect) {
+        if (potionEffect == null) {
+            return;
+        }
+
+        this.potionData = potionEffect;
+
+//        new PotionEffect(PotionEffectType.MY_TYPE, duration, amplifier, ambient, particles);
+    }
+
+    public PotionType getPotionData() {
+        return this.potionData;
     }
 
     public String getID() {
@@ -92,7 +117,7 @@ public class LootItem {
         }
 
         ItemStack is = new ItemStack(
-                Material.valueOf(id),
+                Material.valueOf(id.toUpperCase().replace("-", "_")),
                 stackAmount
         );
 
@@ -117,8 +142,8 @@ public class LootItem {
             meta.setLore(coloredLore);
         }
 
-        if (weightedEnchants != null) {
-            for (LootEnchant enchant : weightedEnchants) {
+        if (bindingEnchants != null) {
+            for (LootEnchant enchant : bindingEnchants) {
 
                 Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
 
@@ -133,6 +158,59 @@ public class LootItem {
             }
         }
 
+        if (weightedEnchants != null) {
+
+            int bias = 3;
+            int amount = (int) Math.ceil(Math.pow(new Random().nextDouble(0, 1), bias) * (weightedEnchants.size() + 1)) - 1;
+
+            List<LootEnchant> selected = new ArrayList<>();
+
+            double totalWeight = 0;
+
+            for (LootEnchant lootEnchant : weightedEnchants) {
+                // sum the total weight
+                if (lootEnchant.getWeight() < 0)
+                    continue;
+
+                totalWeight += lootEnchant.getWeight();
+            }
+
+            double roll = 0 != totalWeight ? new Random().nextDouble(0, totalWeight) : 0;
+
+            double cumulative = 0;
+            for (int i = 0; i < Math.min(amount, weightedEnchants.size()); i++) {
+                LootEnchant lootEnchant = weightedEnchants.get(i);
+
+                cumulative += lootEnchant.getWeight();
+                if (roll < cumulative) {
+                    selected.add(lootEnchant);
+                }
+            }
+
+            if (selected.isEmpty() && is.getType() == Material.ENCHANTED_BOOK && !weightedEnchants.isEmpty()) {
+                selected.add(weightedEnchants.getFirst());
+            }
+
+            for (LootEnchant enchant : selected) {
+                Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+
+                Enchantment mcEnchantment = registry.get(NamespacedKey.minecraft(enchant.getID()));
+
+                if (mcEnchantment == null) {
+                    continue;
+                }
+
+                meta.addEnchant(mcEnchantment, enchant.getLevel().generateRandom(0).intValue(), true);
+            }
+        }
+
+        if (potionData != null && id.toUpperCase().contains("POTION")) {
+            PotionMeta potionMeta = (PotionMeta) meta;
+
+            potionMeta.setBasePotionType(potionData);
+            is.setItemMeta(potionMeta);
+        }
+
         is.setItemMeta(meta);
 
         return is;
@@ -143,6 +221,7 @@ public class LootItem {
         lootItem.displayName = displayName;
         lootItem.lore = lore;
         lootItem.weightedEnchants = new ArrayList<>(this.weightedEnchants);
+        lootItem.potionData = potionData;
 
         return lootItem;
     }

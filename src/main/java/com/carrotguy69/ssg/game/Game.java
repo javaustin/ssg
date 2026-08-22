@@ -62,6 +62,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Random;
 
+import static com.carrotguy69.cxyz.CXYZ.msgYML;
 import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
 
@@ -113,6 +114,9 @@ public class Game {
     public Game(String id, GameMap map, LootTable lootTable, NumberRange amountOfTeams, NumberRange teamCapacity, int maxLives) {
 
         this.gameID = id.toLowerCase();
+
+        gameIDMap.put(id, this);
+
         this.map = map;
 
         if (map.getID().equalsIgnoreCase("lobby")) {
@@ -174,7 +178,21 @@ public class Game {
 
         lobbyMap.getWorld().setSpawnLocation(lobbyMap.getSpawns().getFirst());
 
-        tryLobbyCountdown();
+        taskIDs.add(
+                new BukkitRunnable() {public void run() {
+                    if (gameState == GameState.WAITING) {
+                        updateScoreboard();
+                    }
+                    else {
+                        this.cancel();
+                    }
+
+                }}.runTaskTimer(plugin, 20, 20).getTaskId()
+        );
+
+        if (isPlayable()) {
+            tryLobbyCountdown();
+        }
     }
 
     public void addPlayer(GamePlayer gp) {
@@ -197,8 +215,20 @@ public class Game {
         gp.setTemporaryStat("kills", 0);
         gp.setLives(maxLives);
 
+        GameStat tdmLifetimeKills = GameStat.getStat(gp.getUUID(), "tdm-lifetime-kills");
+        GameStat tdmLifetimeWins = GameStat.getStat(gp.getUUID(), "tdm-lifetime-wins");
+
+        if (tdmLifetimeKills == null) {
+            GameStat.setStat(gp.getUUID(), "tdm-lifetime-kills", "0").sync();
+        }
+
+        if (tdmLifetimeWins == null) {
+            GameStat.setStat(gp.getUUID(), "tdm-lifetime-wins", "0").sync();
+        }
+
         if (gameState == GameState.WAITING) {
             spawnPlayer(p, lobbyMap.getSpawns().size() > 1 ? lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size() - 1)) : lobbyMap.getSpawns().getFirst());
+            p.getInventory().clear();
 
             this.announce(
                     MessageGrabber.grab(LOBBY_JOIN),
@@ -230,6 +260,7 @@ public class Game {
                 int spawnIndex = (int) Math.ceil((double) team.getIndex() / teams.size()) * map.getSpawns().size();
 
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
+                p.getInventory().clear();
 
                 Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
 
@@ -370,6 +401,11 @@ public class Game {
             int j = (i < nSpawns) ? i : (i % nSpawns);
 
             spawnPlayer(players.get(i), lobbyMap.getSpawns().get(j));
+            players.get(i).getInventory().clear();
+
+            Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
+            commonMap.putAll(MapFormatters.gamePlayerFormatter(this.getPlayer(players.get(i))));
+            runConfigCommands(configYML.getStringList("game.command-actions.on-lobby"), commonMap);
         }
 
         tryLobbyCountdown();
@@ -619,18 +655,6 @@ public class Game {
 
 
         for (GamePlayer gp : this.getPlayers()) {
-            gp.setTemporaryStat("kills", 0);
-            gp.setLives(maxLives);
-
-            GameStat sgLifetimeKills = GameStat.getStat(gp.getUUID(), "sg-lifetime-kills");
-            GameStat sgLifetimeWins = GameStat.getStat(gp.getUUID(), "sg-lifetime-wins");
-
-            if (sgLifetimeKills == null)
-                GameStat.setStat(gp.getUUID(), "sg-lifetime-kills", "0").sync();
-
-            if (sgLifetimeWins == null)
-                GameStat.setStat(gp.getUUID(), "sg-lifetime-wins", "0").sync();
-
             // command actions for on-start
             Map<String, Object> newCommonMap = new HashMap<>();
             newCommonMap.putAll(commonMap);
@@ -1008,9 +1032,6 @@ public class Game {
         if (gp.getLives() < 1) {
             gp.setLives(1);
         }
-        else {
-            return;
-        }
 
         if (gameState != GameState.ACTIVE) {
             return;
@@ -1023,6 +1044,7 @@ public class Game {
         int spawnIndex = (int) Math.ceil((double) team.getIndex() / getNonEmptyTeams().size()) * (map.getSpawns().size() - 1);
 
         spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex));
+        gp.getBukkitPlayer().getInventory().clear();
 
         BroadcastUtils.sendTitle(
                 List.of(gp.getBukkitPlayer()),
@@ -1107,7 +1129,7 @@ public class Game {
                 msgYML.getInt(WIN_FADE_OUT_TICKS.getPath(), 20)
         );
 
-        List<GamePlayer> loserPlayers = players.stream().filter(gp -> winningTeam.getPlayers().contains(gp)).toList();
+        List<GamePlayer> loserPlayers = players.stream().filter(gp -> !winningTeam.getPlayers().contains(gp)).toList();
         List<Player> loserBukkitPlayers = loserPlayers.stream().map(GamePlayer::getBukkitPlayer).toList();
 
         // Send game over title for losers
@@ -1267,7 +1289,7 @@ public class Game {
 
         // If one player -> any team
         // Two players -> can't join same team
-        if (team.isFull() || team.getPlayers().size() == this.getPlayers().size() - 1) {
+        if (team.isFull() || team.getPlayers().size() == this.getPlayers().size() - 1 && this.getPlayers().size() != 1) {
             throw new RuntimeException("Team is full.");
         }
 
@@ -1345,13 +1367,13 @@ public class Game {
                 Player p = gp.getBukkitPlayer();
 
                 spawnPlayer(p, map.getSpawns().get(spawnIndex));
+                p.getInventory().clear();
             }
         }
     }
 
     private void spawnPlayer(Player p, Location l) {
         p.closeInventory();
-        p.getInventory().clear();
         p.setFireTicks(0);
         p.setGameMode(defaultGamemode);
         p.setFlying(false);
@@ -1948,7 +1970,7 @@ public class Game {
 
         List<Player> keepPlayers = this.getBukkitPlayers();
 
-        this.delete();
+        this.delete(true);
         Game newGame = new Game(newGameID, newMap, newLootTable, newAmountOfTeams, newTeamCapacity, newMaxLives);
         newGame.frozen = this.frozen;
 
@@ -1963,7 +1985,7 @@ public class Game {
         return newGame;
     }
 
-    public void delete() {
+    public void delete(boolean isTransfer) {
         // Send players to lobby and cancel tasks
 
         this.cancelAllTasks();
@@ -1992,9 +2014,20 @@ public class Game {
             spawnPlayer(players.get(i), lobbyMap.getSpawns().get(j));
         }
 
+        if (!isTransfer) {
+            BroadcastUtils.sendTitle(
+                    getBukkitPlayers(),
+                    MessageGrabber.grab(SSGMessageKey.COMMAND_DELETE_GAME_TITLE),
+                    MessageGrabber.grab(SSGMessageKey.COMMAND_DELETE_GAME_SUBTITLE),
+                    msgYML.getInt(COMMAND_DELETE_GAME_FADE_IN_TICKS.getPath(), 0),
+                    msgYML.getInt(COMMAND_DELETE_GAME_STAY_TICKS.getPath(), 40),
+                    msgYML.getInt(COMMAND_DELETE_GAME_FADE_OUT_TICKS.getPath(), 20)
+            );
+        }
+
         closeScoreboard();
 
-        SpeedSG.gameIDMap.remove(this.gameID, this);
+        gameIDMap.remove(this.gameID, this);
     }
 
     public static NumberRange parseTeamCapacity(String input) {

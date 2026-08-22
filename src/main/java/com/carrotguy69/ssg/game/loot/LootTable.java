@@ -4,12 +4,18 @@ import com.carrotguy69.cxyz.exceptions.InvalidConfigException;
 import com.carrotguy69.cxyz.utils.NumberRange;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.other.Logger;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import static com.carrotguy69.ssg.SpeedSG.lootTables;
 
 public class LootTable {
@@ -51,7 +57,7 @@ public class LootTable {
             NumberRange itemsPerChest = NumberRange.fromString(lootTableSection.getString("settings.items-per-chest", "3-7"));
 
             boolean simpleEnchant = lootTableSection.getBoolean("settings.simple-enchant", false);
-            NumberRange enchantsPerItem = NumberRange.fromString(lootTableSection.getString("settings.enchants-per-item", "23"));
+            NumberRange enchantsPerItem = NumberRange.fromString(lootTableSection.getString("settings.enchants-per-item", "0-3"));
 
 
             // Do not get simpleEnchantPool if simple-enchant is disabled.
@@ -87,6 +93,7 @@ public class LootTable {
 
             Object loreObj = item.get("lore");
             Object enchantsObj = item.get("enchants");
+            Object potionsObj = item.get("potion-data");
 
             if (idObj == null) {
                 continue;
@@ -102,11 +109,12 @@ public class LootTable {
 
             String id = idObj.toString();
             NumberRange amount = NumberRange.fromString(amountObj.toString());
-            NumberRange weight = NumberRange.fromString(weightObj.toString());
+            double weight = Double.parseDouble(weightObj.toString());
 
             String name = nameObj != null ? (String) nameObj : null;
             ArrayList<String> lore = loreObj != null ? (ArrayList<String>) loreObj : null;
             List<Map<?, ?>> enchantsListMap = enchantsObj != null ? (List<Map<?, ?>>) enchantsObj : null;
+            List<Map<?, ?>> potionsListMap = potionsObj != null ? (List<Map<?, ?>>) potionsObj : null;
 
             // Convert enchants list map to List<LootEnchant>
 
@@ -114,12 +122,17 @@ public class LootTable {
             if (enchantsListMap != null)
                 enchants = getEnchantPool(enchantsListMap);
 
-            LootItem it = new LootItem(id.toUpperCase(), amount, weight.generateRandom(2).doubleValue());
+            LootItem it = new LootItem(id.toUpperCase(), amount, weight);
             it.setDisplayName(name);
             it.setLore(lore);
 
             it.setWeightedEnchants(enchants.stream().filter(e -> e.getWeight() > 0).toList());
             it.setBindingEnchants(enchants.stream().filter(e -> e.getWeight() <= 0).toList());
+
+            if (potionsListMap != null) {
+                it.setPotionData(getPotionData(potionsListMap));
+            }
+
 
             results.add(it);
         }
@@ -135,6 +148,33 @@ public class LootTable {
         List<Map<?, ?>> enchants = lootTableSection.getMapList("enchant-pool");
 
         return getEnchantPool(enchants);
+    }
+
+    private static PotionType getPotionData(List<Map<?, ?>> potionsListMap) {
+
+        if (potionsListMap == null) {
+            throw new RuntimeException("how null?");
+        }
+
+        if (potionsListMap.isEmpty()) {
+            throw new RuntimeException("why empty?");
+        }
+
+        for (Map<?, ?> effect : potionsListMap) {
+            Object typeObj = effect.get("type");
+
+            String type = typeObj.toString();
+            try {
+                type = type.toUpperCase().replace("-", "_");
+                return PotionType.valueOf(type);
+            }
+            catch (RuntimeException e) {
+                Logger.warning("Ignoring exception caused by an invalid potion name: " + e);
+                continue;
+            }
+        }
+
+        return null;
     }
 
     private static List<LootEnchant> getEnchantPool(List<Map<?, ?>> enchants) {
@@ -159,13 +199,13 @@ public class LootTable {
 
             String id = idObj.toString();
             NumberRange level = NumberRange.fromString(levelObj.toString());
-            NumberRange weight = NumberRange.fromString(weightObj.toString());
+            double weight = Double.parseDouble(weightObj.toString());
 
             try {
-                results.add(new LootEnchant(id.toLowerCase(), level, weight.generateRandom(2).doubleValue()));
+                results.add(new LootEnchant(id.toLowerCase(), level, weight));
             }
             catch (RuntimeException e) {
-                Logger.warning("Ignoring exception caused by an invalid enchantment name: " + e);
+                Logger.warning("Ignoring exception caused by an invalid enchantment name, level, and/or weight: " + e);
             }
         }
 

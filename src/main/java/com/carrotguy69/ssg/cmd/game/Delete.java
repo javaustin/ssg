@@ -44,7 +44,7 @@ public class Delete implements CommandExecutor {
             return true;
         }
 
-        game.delete();
+        game.delete(false);
 
         SpeedSG.gameIDMap.remove(key, game);
 

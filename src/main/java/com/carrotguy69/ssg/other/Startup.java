@@ -67,7 +67,7 @@ public class Startup {
     }
 
     public static void loadConstants() {
-        gameMaps = GameMap.loadMaps();
+        gameMaps = GameMap.getMaps();
 
         if (gameMaps.stream().noneMatch(gameMap -> gameMap.getID().equalsIgnoreCase("lobby"))) {
             throw new InvalidConfigException("maps.yml", "lobby", "Lobby map not found!");
@@ -79,6 +79,10 @@ public class Startup {
 
             SpeedSG.lobbyMap = lobbyMap;
         }
+
+        autoJoinEnabled = configYML.getBoolean("auto-join.enabled");
+        autoJoinScope = AutoJoinScope.fromString(configYML.getString("auto-join.scope"));
+
 
         lootTables = LootTable.loadLootTables();
 

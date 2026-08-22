@@ -194,7 +194,7 @@ public class GameMap {
         }
     }
 
-    public static List<GameMap> loadMaps() {
+    public static List<GameMap> getMaps() {
 
         List<GameMap> results = new ArrayList<>();
 
