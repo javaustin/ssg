@@ -150,6 +150,7 @@ public class LootItem {
                 Enchantment mcEnchantment = registry.get(NamespacedKey.minecraft(enchant.getID()));
 
                 if (mcEnchantment == null) {
+                    meta.setEnchantmentGlintOverride(Boolean.TRUE);
                     continue;
                 }
 
@@ -197,6 +198,7 @@ public class LootItem {
                 Enchantment mcEnchantment = registry.get(NamespacedKey.minecraft(enchant.getID()));
 
                 if (mcEnchantment == null) {
+                    meta.setEnchantmentGlintOverride(Boolean.TRUE);
                     continue;
                 }
 

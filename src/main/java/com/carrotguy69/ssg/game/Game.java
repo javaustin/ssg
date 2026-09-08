@@ -227,7 +227,7 @@ public class Game {
         }
 
         if (gameState == GameState.WAITING) {
-            spawnPlayer(p, lobbyMap.getSpawns().size() > 1 ? lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size() - 1)) : lobbyMap.getSpawns().getFirst());
+            spawnPlayer(p, lobbyMap.getSpawns().size() > 1 ? lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size())) : lobbyMap.getSpawns().getFirst());
             p.getInventory().clear();
 
             this.announce(
@@ -464,8 +464,8 @@ public class Game {
 
             if (!isPlayable()) {
 
-                announce(MessageGrabber.grab(START_CANCELLED), Map.of(), List.of());
-                BroadcastUtils.playSound(getBukkitPlayers(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
+//                announce(MessageGrabber.grab(START_CANCELLED), Map.of(), List.of());
+//                BroadcastUtils.playSound(getBukkitPlayers(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
 
                 counting = false;
 
@@ -822,7 +822,7 @@ public class Game {
 
         // If comparison fails (due to same values), return a random team
         catch (NoSuchElementException ex) {
-            return teams.get(random.nextInt(0, teams.size() - 1));
+            return teams.get(random.nextInt(0, teams.size()));
         }
     }
 
@@ -1416,7 +1416,7 @@ public class Game {
                 }
 
                 chest.getInventory().setItem(
-                        new Random().nextInt(0, chest.getInventory().getSize() - 1),
+                        new Random().nextInt(0, chest.getInventory().getSize()),
                         stack
                 );
             }

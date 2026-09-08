@@ -105,9 +105,11 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     /*
 
     TODO:
+        - make sure same team players cant damage eachother
         - better config files (good descriptions of keys and examples)
         - fulfill config files with all applicable examples
         - better README.md (description, features, hyperlinks to config)
+        - map rotation seems to be cavern -> castle -> cavern ...
     */
 
     @Override
@@ -149,9 +151,9 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             game = new Game(
                     Create.generateValidGameID(),
                     gameMaps.size() - 1 > 0
-                            ? new ArrayList<>(gameMaps).get(new Random().nextInt(0, gameMaps.size() - 1))
+                            ? new ArrayList<>(gameMaps).get(new Random().nextInt(0, gameMaps.size()))
                             : new ArrayList<>(gameMaps).getFirst(),
-                    lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size() - 1)) : lootTables.getFirst(),
+                    lootTables.size() - 1 > 0 ? lootTables.get(new Random().nextInt(0, lootTables.size())) : lootTables.getFirst(),
                     new NumberRange(2, Math.max(configYML.getStringList("game.teams.names").size(), configYML.getStringList("game.teams.short-names").size())),
                     new NumberRange(1, 4),
                     1
@@ -258,6 +260,10 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
 
         if (attackerGP == null) { // attacker was outside the game
+            e.setCancelled(true);
+        }
+
+        else if (attackerGP.getTeam().equals(gp.getTeam())) {
             e.setCancelled(true);
         }
 

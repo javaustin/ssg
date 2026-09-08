@@ -87,8 +87,8 @@ game:
       # Available placeholders {player}, {game}
 
       # Runs once for every player on the winning team.
-      - "show {attacker} &6+ 10 coins (win)"
-      - "coins add 10 {attacker}"
+      - "show {player} &6+ 10 coins (win)"
+      - "coins add 10 {player}"
 
     on-lose:
       # Available placeholders {player}, {game}
