@@ -30,7 +30,7 @@ SpeedSG (SSG) is a fast-paced version of classic survival games built atop the [
 - The [**CXYZ**](https://github.com/javaustin/cxyz) plugin installed on the server
 
 ### Build
-*Note: This step is not required. You can use the already-provided jars in the `/target` directory*
+###### *Note: This step is not required. You can use the already-provided jars in the `/target` directory*
 
 Run the following Maven command in the project directory:
 ```bash
@@ -44,7 +44,8 @@ The shaded plugin jar will be created in `target/`.
 1. Build the plugin jar or use the provided jars in `target/`.
 2. Copy the generated jar into your server’s `plugins/` directory.
 3. Install the **CXYZ** plugin on the same server, since SSG depends on it at runtime.
-4. Start or restart your server
+4. Start or restart your server to install the plugin. 
+5. Once finished, modify `config.yml` and `maps.yml` to support your server. Restart to apply changes.
 
 ### Configuration
 [View config.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/config.yml)  
