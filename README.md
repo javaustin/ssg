@@ -30,7 +30,7 @@ SpeedSG (SSG) is a fast-paced version of classic survival games built atop the [
 - The [**CXYZ**](https://github.com/javaustin/cxyz) plugin installed on the server
 
 ### Build
-<small>Note: This step is not required. You can use the already-provided jars in the `/target` directory</small>
+*Note: This step is not required. You can use the already-provided jars in the `/target` directory*
 
 Run the following Maven command in the project directory:
 ```bash
@@ -47,7 +47,7 @@ The shaded plugin jar will be created in `target/`.
 4. Start or restart your server
 
 ### Configuration
-[View config.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/config.yml)
-[View loot.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/loot.yml)
-[View maps.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/maps.yml)
-[View messages.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/messages.yml)
+[View config.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/config.yml)  
+[View loot.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/loot.yml)  
+[View maps.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/maps.yml)  
+[View messages.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/messages.yml)  
