@@ -10,15 +10,16 @@ SpeedSG (SSG) is a fast-paced version of classic survival games built atop the [
 --- 
 
 ## Features
-- **Auto Join**: Allow players to automatically join a game upon joining the world or server
-- **Team Support**: Supports both solo and team-based games seamlessly
-- **Scoreboard GUI**: Lobby and in-game scoreboards with configurable info
-- **Loot Tables**: Custom loot tables for chests with refilling
-- **Event-based automation**: Run commands on death, on kill, game start, etc.
-- **Click action-based automation**: Run commands when right/left-clicking with a specific item
-- **Configurable Respawns**: Configure respawn amount per player, respawn times, or disable respawns all-together
+- **Easy Setup:** Use the `/ssg` command to easily create, join, or customize your SSG games.
+- **Auto Join**: Allow players to automatically join a game upon joining the world or server.
+- **Team Support**: Supports both solo and team-based games seamlessly.
+- **Loot Tables**: Create completely custom chest loot tables with custom enchants, lore's, potion data, etc.
+- **Scoreboard GUI**: Lobby and in-game scoreboards with configurable info.
+- **Discord Support:** Set up a Discord webhook integration to post game data directly to your discord!
+- **Event-based automation**: Automatically run commands on death, on kill, game start, etc.
+- **Click-based automation**: Allow players to right or left click items as a shortcut to commands
 - **Unlimited Customization**: Customize every single message in the plugin using the [messages.yml](https://github.com/javaustin/ssg/blob/main/src/main/resources/messages.yml) file
-
+- **Configurable Respawns**: Configure respawn amount per player, respawn times, or disable respawns all-together.
 --- 
 
 ## Installation
@@ -44,7 +45,7 @@ The shaded plugin jar will be created in `target/`.
 1. Build the plugin jar or use the provided jars in `target/`.
 2. Copy the generated jar into your server’s `plugins/` directory.
 3. Install the **CXYZ** plugin on the same server, since SSG depends on it at runtime.
-4. Start or restart your server to install the plugin. 
+4. Restart your server to install the plugin – this will generate the required config files.
 5. Once finished, modify `config.yml` and `maps.yml` to support your server. Restart to apply changes.
 
 ### Configuration
