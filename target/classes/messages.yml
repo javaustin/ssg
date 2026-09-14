@@ -14,26 +14,30 @@ indicators:
 
 lobby:
   # gamePlayer
-  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player}: {player-chat-color}{content}" # + content
-  join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the lobby."
-  leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the lobby."
+  chat: "{player-team-prefix}{player-rank-prefix}{player-rank-color}{player-display-name}: {player-chat-color}{content}" # + content
+  join: "{player-rank-prefix}{player-rank-color}{player-display-name} &ejoined the lobby."
+  leave: "{player-rank-prefix}{player-rank-color}{player-display-name} &eleft the lobby."
+
+  chat-webhook: "**{player-display-name}**: {content}"
+  join-webhook: "**{player-display-name}** joined the lobby."
+  leave-webhook: "**{player-display-name}** left the lobby."
 
   teams-reset-announcement: "&cTeams have been reset by an admin!"
 
   # teamFormatter, gamePlayer
   team:
     join: "&eYou joined {team-color}{team-name}"
-    join-announcement: "{player-team-color}{player} joined the team"
+    join-announcement: "{player-team-color}{player-display-name} joined the team"
 
     leave: "&eYou left {team-color}{team-name}"
-    leave-announcement: "{player-team-color}{player} left the team"
+    leave-announcement: "{player-team-color}{player-display-name} left the team"
 
     list:
       list: |
         {player-team-display}: {members}
 
       team-members-list:
-        entry-format: "{player-rank-color}{player}"
+        entry-format: "{player-rank-color}{player-display-name}"
         separator: ", "
         max-entries: 9999
 
@@ -44,9 +48,13 @@ lobby:
 
 game:
   # gamePlayer
-  chat: "{player-dead}{player-team-prefix}{player-rank-color}{player}: &f{content}" # + {content}
-  join: "{player-rank-prefix}{player-rank-color}{player} &ejoined the game."
-  leave: "{player-rank-prefix}{player-rank-color}{player} &eleft the game."
+  chat: "{player-dead}{player-team-prefix}{player-rank-color}{player-display-name}: &f{content}" # + {content}
+  join: "{player-rank-prefix}{player-rank-color}{player-display-name} &ejoined the game."
+  leave: "{player-rank-prefix}{player-rank-color}{player-display-name} &eleft the game."
+
+  chat-webhook: "**{player-team-prefix}{player-display-name}**: {content}"
+  join-webhook: "**{player-display-name}** joined the game."
+  leave-webhook: "**{player-display-name}** left the game."
 
   timer-reset-announcement: "&a{timer} timer was reset by an admin!"
 
@@ -80,7 +88,7 @@ game:
       message: "&6The world border will start shrinking!"
 
 
-  # ALL (if applicable): playerFormatter ({player}, {attacker}), teamFormatter ({team})
+  # ALL (if applicable): playerFormatter ({player-display-name}, {attacker}), teamFormatter ({team})
   death:
     announcement:
 
@@ -88,10 +96,15 @@ game:
         default: "&4{team}&4has been eliminated!"
 
       player:
-        melee: "&c{player} was killed by {attacker}! {final-kill-indicator}"
-        projectile: "&c{player} was shot by {attacker}!  {final-kill-indicator}"
-        explosive: "&c{player} was blown up by {attacker}!  {final-kill-indicator}"
-        default: "&c{player} died! {final-kill-indicator}"
+        melee: "&c{player-display-name} was killed by {attacker}! {final-kill-indicator}"
+        projectile: "&c{player-display-name} was shot by {attacker}!  {final-kill-indicator}"
+        explosive: "&c{player-display-name} was blown up by {attacker}!  {final-kill-indicator}"
+        default: "&c{player-display-name} died! {final-kill-indicator}"
+
+        melee-webhook: "{player-display-name} was killed by {attacker}!"
+        projectile-webhook: "{player-display-name} was shot by {attacker}!"
+        explosive-webhook: "{player-display-name} was blown up by {attacker}!"
+        default-webhook: "{player-display-name} died!"
 
     message:
       team:
@@ -118,7 +131,7 @@ game:
       fade-out-ticks: 20
 
 
-  # gamePlayerFormatter {player}, teamFormatter {team}
+  # gamePlayerFormatter {player-display-name}, teamFormatter {team}
   kill:
     message:
       team:
@@ -141,10 +154,10 @@ game:
       fade-out-ticks: 20
 
     message: "&aYou have been respawned!"
-    respawned-by-admin-announcement: "&e{player} was respawned by an admin!"
+    respawned-by-admin-announcement: "&e{player-display-name} was respawned by an admin!"
 
 
-  # gamePlayerFormatter ({winner-player}, {player}), teamFormatter ({winner-team}, {team})
+  # gamePlayerFormatter ({winner-player}, {player-display-name}), teamFormatter ({winner-team}, {team})
   win:
     victory-title:
       title: "&6&lVICTORY"
@@ -164,13 +177,13 @@ game:
   recaps:
     # This defines the {top-killers} placeholder in the recaps. {i} represents the position number in the leaderboard.
     top-killers-numbered-list:
-      entry-format: "{player-rank-color}{player}: &7{player-temp-stat-kills} kills"
+      entry-format: "{player-rank-color}{player-display-name}: &7{player-temp-stat-kills} kills"
       separator: "\n&f{i}.)) "
       max-entries: 3
 
     # This defines the {team-members} placeholder in the recaps
     team-list:
-      entry-format: "{player-rank-color}{player}"
+      entry-format: "{player-rank-color}{player-display-name}"
       separator: ", "
       max-entries: 9999
 
@@ -185,6 +198,12 @@ game:
       Top killers:{top-killers}
       ---------------------------------------------
 
+    solo-winner-webhook-display:
+      title: "{winner-player} won the game!"
+      description: "**Final health:** {winner-player-health}\n**Round kills:** {winner-player-temp-stat-kills}\n**Lifetime kills:** {winner-player-stat-sg-lifetime-kills} ((#{winner-player-stat-sg-lifetime-kills-ranking}))\n**Lifetime wins:** {winner-player-stat-sg-lifetime-wins} ((#{winner-player-stat-sg-lifetime-wins-ranking}))\n\nTop killers:{top-killers}"
+      color: -1 # If color < 0, then the color will show as the winner team color
+
+
     team-winner: |
       &f---------- {winner-team-color}{winner-team-display} &6&lwon the game! &f----------
       Members: {winner-team-members}
@@ -192,6 +211,10 @@ game:
       Top killers:{top-killers}
       &f-----------------------------------------------
 
+    team-winner-webhook-display:
+      title: "{winner-team-display} won the game!"
+      description: "**Members**: {winner-team-members}\n\n**Top Killers:** {top-killers}"
+      color: -1 # If color < 0, then the color will show as the winner team color
 
 
 command:
@@ -229,8 +252,8 @@ command:
   toggle-not-ready: "&aYou are not ready!"
   toggle-ready-fail: "&eThis command is only available in the lobby."
 
-  set-player-lives: "&aSet {player}'s lives to {player-lives}."
-  get-player-lives: "&a{player} has {player-lives} lives."
+  set-player-lives: "&aSet {player-display-name}'s lives to {player-lives}."
+  get-player-lives: "&a{player-display-name} has {player-lives} lives."
 
   info:
     message: |

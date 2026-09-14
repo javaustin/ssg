@@ -18,6 +18,7 @@ import com.carrotguy69.ssg.game.map.GameMap;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import com.carrotguy69.ssg.other.Logger;
 import com.carrotguy69.ssg.other.Startup;
+import com.carrotguy69.ssg.utils.LeaderboardUpdater;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -147,6 +148,16 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         // Register event handler with the core plugin's EventService
         EventService.registerHandler(PublicChatEvent.class, new CoreChatHandler(), Priority.NORMAL);
         EventService.registerHandler(VanishToggleEvent.class, new VanishHandler(), Priority.NORMAL);
+
+        new BukkitRunnable() {public void run() {
+            if (!CXYZ.isInitialized()) {
+                return;
+            }
+
+            LeaderboardUpdater.update();
+            this.cancel();
+
+        }}.runTaskTimer(this, 0L, 2L);
     }
 
     @Override

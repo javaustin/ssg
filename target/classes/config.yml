@@ -7,6 +7,20 @@ auto-join:
 
 game:
 
+  # Send game info to a discord webhook
+  webhook:
+    enabled: true
+    url: "YOUR WEBHOOK URL HERE"
+
+    log-events:
+      - lobby_join
+      - lobby_leave
+      - game_join
+      - game_leave
+      - death
+      - win_recap
+      - chat
+
   respawns:
     # Number of lives each player starts with. A player's life is removed if they are eliminated.
     default-lives: 1
@@ -173,3 +187,74 @@ scoreboards:
     - "&5"
     - "&b&l/discord"
     - "&6cerrot.xyz"
+
+discord-leaderboards:
+
+  top-killers:
+    settings:
+      stat-key: "sg-lifetime-kills"
+      entry-format: "**{player}**: {player-stat-sg-lifetime-kills}"
+      separator: "\n**{i}.)** "
+      limit: 10
+
+    webhook:
+      webhook-url: "YOUR WEBHOOK URL HERE"
+
+      content: ""
+      embeds:
+        - title: "Top Killers – SpeedSG"
+          description: "{leaderboard}"
+          color: 938183
+
+          title-url: ""
+          thumbnail-url: ""
+          image-url: ""
+
+          timestamp: ""
+
+          author:
+            name: ""
+            url: ""
+            icon-url: ""
+
+          footer:
+            text: "Last updated on {timestamp}"
+            i on-url: ""
+
+      edit-mode: true
+      message-url: "https://discord.com/channels/1238973352144666737/1241447347880333342/1547888922665816097"
+
+
+  top-winners:
+    settings:
+      stat-key: "sg-lifetime-wins"
+      entry-format: "**{player}**: {player-stat-sg-lifetime-wins}"
+      separator: "\n**{i}.)** "
+      limit: 10
+
+    webhook:
+      webhook-url: "YOUR WEBHOOK URL HERE"
+
+      content: ""
+      embeds:
+        - title: "Top Winners – SpeedSG"
+          description: "{leaderboard}"
+          color: 938183
+
+          title-url: ""
+          thumbnail-url: ""
+          image-url: ""
+
+          timestamp: ""
+
+          author:
+            name: ""
+            url: ""
+            icon-url: ""
+
+          footer:
+            text: "Last updated on {timestamp}"
+            icon-url: ""
+
+      edit-mode: true
+      message-url: "https://discord.com/channels/1238973352144666737/1241447347880333342/1547888787709890573"

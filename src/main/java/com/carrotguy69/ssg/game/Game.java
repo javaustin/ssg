@@ -19,6 +19,7 @@ import com.carrotguy69.ssg.game.other.Durations;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
+import com.carrotguy69.ssg.utils.LeaderboardUpdater;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -2162,6 +2163,8 @@ public class Game {
 
     public void delete(boolean isTransfer) {
         // Send players to lobby and cancel tasks
+
+        LeaderboardUpdater.update();
 
         this.cancelAllTasks();
 

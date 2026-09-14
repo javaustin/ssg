@@ -200,7 +200,7 @@ game:
 
     solo-winner-webhook-display:
       title: "{winner-player} won the game!"
-      description: "**Final health:** {winner-player-health}\n**Round kills:** {winner-player-temp-stat-kills}\n**Lifetime kills:** {winner-player-stat-sg-lifetime-kills} ((#{winner-player-stat-sg-lifetime-kills-ranking})\)n**Lifetime wins:** {winner-player-stat-sg-lifetime-wins} ((#{winner-player-stat-sg-lifetime-wins-ranking}))\n\nTop killers:{top-killers}"
+      description: "**Final health:** {winner-player-health}\n**Round kills:** {winner-player-temp-stat-kills}\n**Lifetime kills:** {winner-player-stat-sg-lifetime-kills} ((#{winner-player-stat-sg-lifetime-kills-ranking}))\n**Lifetime wins:** {winner-player-stat-sg-lifetime-wins} ((#{winner-player-stat-sg-lifetime-wins-ranking}))\n\nTop killers:{top-killers}"
       color: -1 # If color < 0, then the color will show as the winner team color
 
 

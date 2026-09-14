@@ -10,7 +10,7 @@ game:
   # Send game info to a discord webhook
   webhook:
     enabled: true
-    url: ""
+    url: "YOUR WEBHOOK URL HERE"
 
     log-events:
       - lobby_join
@@ -219,7 +219,7 @@ discord-leaderboards:
 
           footer:
             text: "Last updated on {timestamp}"
-            icon-url: ""
+            i on-url: ""
 
       edit-mode: true
       message-url: "https://discord.com/channels/1238973352144666737/1241447347880333342/1547888922665816097"

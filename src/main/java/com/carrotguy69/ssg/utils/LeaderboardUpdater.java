@@ -18,6 +18,7 @@ import java.util.Map;
 
 public class LeaderboardUpdater {
 
+
     public static void update() {
         ConfigurationSection section = SpeedSG.configYML.getConfigurationSection("discord-leaderboards");
 
@@ -27,10 +28,14 @@ public class LeaderboardUpdater {
 
         for (String key : section.getKeys(false)) {
 
-            String stat = section.getString(key + ".settings.stat-key");
-            String entryFormat = section.getString(key + ".settings.entry-format");
-            String delimiter = section.getString(key + ".settings.separator", "\n{i}.)");
-            int limit = section.getInt(key + ".settings.limit", 10);
+            String stat = SpeedSG.configYML.getString("discord-leaderboards." + key + ".settings.stat-key");
+            String entryFormat = SpeedSG.configYML.getString("discord-leaderboards." + key + ".settings.entry-format");
+            String delimiter = SpeedSG.configYML.getString("discord-leaderboards." + key + ".settings.separator");
+            int limit = SpeedSG.configYML.getInt("discord-leaderboards." + key + ".settings.limit", 10);
+
+            if (delimiter == null) {
+                delimiter = "\n{i}.) ";
+            }
 
             if (entryFormat == null) {
                 Logger.warning("Failed to update leaderboard " + key + " because no entry format was provided.");
