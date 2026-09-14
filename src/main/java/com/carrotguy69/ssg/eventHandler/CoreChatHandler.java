@@ -2,7 +2,10 @@ package com.carrotguy69.ssg.eventHandler;
 
 import com.carrotguy69.cxyz.events.custom.PublicChatEvent;
 import com.carrotguy69.cxyz.events.custom.base.EventHandler;
+import com.carrotguy69.cxyz.messages.MessageParser;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
+import com.carrotguy69.cxyz.webhook.DiscordWebhook;
+import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
@@ -42,17 +45,23 @@ public class CoreChatHandler implements EventHandler<PublicChatEvent> {
         commonMap.put("message", content);
         commonMap.put("content", content);
 
-        switch (game.getGameState()) {
-            case WAITING:
-            case RESET:
-                game.announce(MessageGrabber.grab(SSGMessageKey.LOBBY_CHAT), commonMap, List.of(), np);
-                break;
+        SSGMessageKey key = switch (game.getGameState()) {
+            case WAITING, RESET -> SSGMessageKey.LOBBY_CHAT;
+            default -> SSGMessageKey.GAME_CHAT;
+        };
 
-            case ACTIVE:
-            case STARTING:
-            case ENDING:
-                game.announce(MessageGrabber.grab(SSGMessageKey.GAME_CHAT), commonMap, List.of(), np);
-                break;
+
+        String webhookText = MessageGrabber.grab(SSGMessageKey.valueOf(key.name() + "_WEBHOOK"));
+
+        game.announce(MessageGrabber.grab(SSGMessageKey.LOBBY_CHAT), commonMap, List.of(), np);
+
+        if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(SpeedSG.WebhookSettings.Event.CHAT)) {
+
+            String webhookContent = MessageParser.getStrippedText(new MessageParser(webhookText, commonMap).parse());
+
+            DiscordWebhook webhook = new DiscordWebhook(SpeedSG.WebhookSettings.url, webhookContent, List.of());
+
+            webhook.send();
         }
 
         return true;

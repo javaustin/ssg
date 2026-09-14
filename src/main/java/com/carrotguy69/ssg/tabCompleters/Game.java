@@ -118,7 +118,7 @@ public class Game implements TabCompleter {
         }
 
         if (subcommands.contains(args[0])) {
-            if (!sender.hasPermission("ssg.game." + args[0])) {
+            if (!sender.hasPermission("ssg." + args[0])) {
                 results.clear();
             }
         }

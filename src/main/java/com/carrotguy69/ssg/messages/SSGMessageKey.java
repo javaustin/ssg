@@ -12,6 +12,10 @@ public enum SSGMessageKey {
     LOBBY_JOIN("lobby.join"),
     LOBBY_LEAVE("lobby.leave"),
 
+    LOBBY_CHAT_WEBHOOK("lobby.chat-webhook"),
+    LOBBY_JOIN_WEBHOOK("lobby.join-webhook"),
+    LOBBY_LEAVE_WEBHOOK("lobby.leave-webhook"),
+
     LOBBY_TEAMS_RESET_ANNOUNCEMENT("lobby.teams-reset-announcement"),
 
     LOBBY_COUNTDOWN("lobby.info.start-countdown"),
@@ -34,6 +38,11 @@ public enum SSGMessageKey {
     GAME_CHAT("game.chat"),
     GAME_JOIN("game.join"),
     GAME_LEAVE("game.leave"),
+
+    GAME_CHAT_WEBHOOK("game.chat-webhook"),
+    GAME_JOIN_WEBHOOK("game.join-webhook"),
+    GAME_LEAVE_WEBHOOK("game.leave-webhook"),
+
 
     GAME_TIMER_RESET_ANNOUNCEMENT("game.timer-reset-announcement"),
 
@@ -62,6 +71,11 @@ public enum SSGMessageKey {
     DEATH_ANNOUNCEMENT_PROJECTILE("game.death.announcement.player.projectile"),
     DEATH_ANNOUNCEMENT_EXPLOSIVE("game.death.announcement.player.explosive"),
     DEATH_ANNOUNCEMENT_NATURAL("game.death.announcement.player.default"),
+
+    DEATH_ANNOUNCEMENT_MELEE_WEBHOOK("game.death.announcement.player.melee-webhook"),
+    DEATH_ANNOUNCEMENT_PROJECTILE_WEBHOOK("game.death.announcement.player.projectile-webhook"),
+    DEATH_ANNOUNCEMENT_EXPLOSIVE_WEBHOOK("game.death.announcement.player.explosive-webhook"),
+    DEATH_ANNOUNCEMENT_NATURAL_WEBHOOK("game.death.announcement.player.default-webhook"),
 
     DEATH_MESSAGE_MELEE("game.death.message.player.melee"),
     DEATH_MESSAGE_PROJECTILE("game.death.message.player.projectile"),
@@ -120,7 +134,17 @@ public enum SSGMessageKey {
 
 
     RECAP_SOLO_WINNER("game.recaps.solo-winner"),
+
+    RECAP_SOLO_WINNER_WEBHOOK_TITLE("game.recaps.solo-winner-webhook-display.title"),
+    RECAP_SOLO_WINNER_WEBHOOK_DESCRIPTION("game.recaps.solo-winner-webhook-display.description"),
+    RECAP_SOLO_WINNER_WEBHOOK_COLOR("game.recaps.solo-winner-webhook-display.color"),
+
     RECAP_TEAM_WINNER("game.recaps.team-winner"),
+
+    RECAP_TEAM_WINNER_WEBHOOK_TITLE("game.recaps.team-winner-webhook-display.title"),
+    RECAP_TEAM_WINNER_WEBHOOK_DESCRIPTION("game.recaps.team-winner-webhook-display.description"),
+    RECAP_TEAM_WINNER_WEBHOOK_COLOR("game.recaps.team-winner-webhook-display.color"),
+
 
     INVALID_GAME("errors.args.invalid.game"),
     INVALID_MAP("errors.args.invalid.map"),

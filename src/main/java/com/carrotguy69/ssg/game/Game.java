@@ -9,6 +9,8 @@ import com.carrotguy69.cxyz.models.db.NetworkPlayer;
 import com.carrotguy69.cxyz.utils.BroadcastUtils;
 import com.carrotguy69.cxyz.utils.ColorUtils;
 import com.carrotguy69.cxyz.utils.NumberRange;
+import com.carrotguy69.cxyz.webhook.DiscordEmbed;
+import com.carrotguy69.cxyz.webhook.DiscordWebhook;
 import com.carrotguy69.ssg.SpeedSG;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
@@ -17,11 +19,11 @@ import com.carrotguy69.ssg.game.other.Durations;
 import com.carrotguy69.ssg.messages.MessageGrabber;
 import com.carrotguy69.ssg.messages.SSGMessageKey;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
-
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -62,12 +64,89 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Random;
 
+import static com.carrotguy69.cxyz.CXYZ.f;
 import static com.carrotguy69.cxyz.CXYZ.msgYML;
 import static com.carrotguy69.cxyz.CXYZ.random;
 import static com.carrotguy69.cxyz.messages.MessageUtils.formatPlaceholders;
-
-import static com.carrotguy69.ssg.SpeedSG.*;
-import static com.carrotguy69.ssg.messages.SSGMessageKey.*;
+import static com.carrotguy69.ssg.SpeedSG.WebhookSettings;
+import static com.carrotguy69.ssg.SpeedSG.configYML;
+import static com.carrotguy69.ssg.SpeedSG.gameIDMap;
+import static com.carrotguy69.ssg.SpeedSG.gameMaps;
+import static com.carrotguy69.ssg.SpeedSG.gameScoreboardLines;
+import static com.carrotguy69.ssg.SpeedSG.lobbyMap;
+import static com.carrotguy69.ssg.SpeedSG.lobbyScoreboardLines;
+import static com.carrotguy69.ssg.SpeedSG.plugin;
+import static com.carrotguy69.ssg.SpeedSG.scoreboardsEnabled;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.CHEST_REFILLED_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.COMMAND_DELETE_GAME_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.COMMAND_DELETE_GAME_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.COMMAND_DELETE_GAME_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_ANNOUNCEMENT_TEAM;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_MESSAGE_TEAM;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_NO_RESPAWN_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_NO_RESPAWN_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_NO_RESPAWN_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_NO_RESPAWN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_NO_RESPAWN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_RESPAWN_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_RESPAWN_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_RESPAWN_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_RESPAWN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.DEATH_RESPAWN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.FINAL_KILL_INDICATOR;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.GAME_JOIN;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.GAME_JOIN_WEBHOOK;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.GAME_LEAVE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.GAME_LEAVE_WEBHOOK;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.INFO_BLURB;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.INFO_MID_GAME_JOIN_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.INVUL_COUNTDOWN_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.INVUL_OVER_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.KILL_MESSAGE_TEAM;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_ALL_READY;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_COUNTDOWN;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_JOIN;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_JOIN_WEBHOOK;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_LEAVE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_LEAVE_WEBHOOK;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOBBY_TEAMS_RESET_ANNOUNCEMENT;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOSE_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOSE_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOSE_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOSE_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.LOSE_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.MID_GAME_JOIN_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.MID_GAME_JOIN_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.MID_GAME_JOIN_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.MID_GAME_JOIN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.MID_GAME_JOIN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RECAP_SOLO_WINNER;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RECAP_TEAM_WINNER;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_BY_ADMIN_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.RESPAWN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.SHOWDOWN_MESSAGE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.SHOWDOWN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.SHOWDOWN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.START_CANCELLED;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TEAM_JOIN;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TEAM_JOIN_ANNOUNCEMENT;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TEAM_LIST_DELIMITER;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TEAM_LIST_ENTRY_FORMAT;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TEAM_LIST_MAX_ENTRIES;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TOP_KILLERS_LIST_DELIMITER;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TOP_KILLERS_LIST_ENTRY_FORMAT;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.TOP_KILLERS_LIST_MAX_ENTRIES;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.WIN_FADE_IN_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.WIN_FADE_OUT_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.WIN_STAY_TICKS;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.WIN_SUBTITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.WIN_TITLE;
+import static com.carrotguy69.ssg.messages.SSGMessageKey.valueOf;
 
 public class Game {
 
@@ -195,7 +274,7 @@ public class Game {
         }
     }
 
-    public void addPlayer(GamePlayer gp) {
+    public void addPlayer(GamePlayer gp, boolean isTransfer) {
 
         if (gp == null) {
             return;
@@ -215,32 +294,42 @@ public class Game {
         gp.setTemporaryStat("kills", 0);
         gp.setLives(maxLives);
 
-        GameStat tdmLifetimeKills = GameStat.getStat(gp.getUUID(), "tdm-lifetime-kills");
-        GameStat tdmLifetimeWins = GameStat.getStat(gp.getUUID(), "tdm-lifetime-wins");
+        GameStat sgLifetimeKills = GameStat.getStat(gp.getUUID(), "sg-lifetime-kills");
+        GameStat sgLifetimeWins = GameStat.getStat(gp.getUUID(), "sg-lifetime-wins");
 
-        if (tdmLifetimeKills == null) {
-            GameStat.setStat(gp.getUUID(), "tdm-lifetime-kills", "0").sync();
+        if (sgLifetimeKills == null) {
+            GameStat.setStat(gp.getUUID(), "sg-lifetime-kills", "0").sync();
         }
 
-        if (tdmLifetimeWins == null) {
-            GameStat.setStat(gp.getUUID(), "tdm-lifetime-wins", "0").sync();
+        if (sgLifetimeWins == null) {
+            GameStat.setStat(gp.getUUID(), "sg-lifetime-wins", "0").sync();
         }
 
         if (gameState == GameState.WAITING) {
             spawnPlayer(p, lobbyMap.getSpawns().size() > 1 ? lobbyMap.getSpawns().get(new Random().nextInt(0, lobbyMap.getSpawns().size())) : lobbyMap.getSpawns().getFirst());
-            p.getInventory().clear();
 
-            this.announce(
-                    MessageGrabber.grab(LOBBY_JOIN),
-                    MapFormatters.gamePlayerFormatter(gp),
-                    List.of()
-            );
+            Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
+            commonMap.putAll(MapFormatters.gameFormatter(this));
 
+            if (!isTransfer) {
+                this.announce(
+                        MessageGrabber.grab(LOBBY_JOIN),
+                        commonMap,
+                        List.of()
+                );
 
-            Map<String, Object> commonMap = MapFormatters.gameFormatter(this);
-            commonMap.putAll(MapFormatters.gamePlayerFormatter(gp));
+                if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(WebhookSettings.Event.LOBBY_JOIN)) {
+
+                    String desc = ChatColor.stripColor(f(formatPlaceholders(MessageGrabber.grab(LOBBY_JOIN_WEBHOOK), commonMap)));
+
+                    DiscordEmbed embed = new DiscordEmbed().create("", desc, Color.YELLOW.asRGB());
+
+                    new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed))
+                            .send();
+                }
+            }
+
             runConfigCommands(configYML.getStringList("game.command-actions.on-lobby"), commonMap);
-
 
             if (isPlayable()) {
                 tryLobbyCountdown();
@@ -311,6 +400,16 @@ public class Game {
                     commonMap,
                     List.of()
             );
+
+            if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(WebhookSettings.Event.LOBBY_LEAVE)) {
+
+                String desc = ChatColor.stripColor(f(formatPlaceholders(MessageGrabber.grab(LOBBY_LEAVE_WEBHOOK), commonMap)));
+
+                DiscordEmbed embed = new DiscordEmbed().create("", desc, Color.YELLOW.asRGB());
+
+                new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed))
+                        .send();
+            }
         }
 
         else {
@@ -320,6 +419,16 @@ public class Game {
                     commonMap,
                     List.of()
             );
+
+            if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(WebhookSettings.Event.GAME_LEAVE)) {
+
+                String desc = ChatColor.stripColor(f(formatPlaceholders(MessageGrabber.grab(GAME_LEAVE_WEBHOOK), commonMap)));
+
+                DiscordEmbed embed = new DiscordEmbed().create("", desc, Color.YELLOW.asRGB());
+
+                new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed))
+                        .send();
+            }
 
             if (gameState == GameState.ACTIVE) {
                 gp.setLives(1);
@@ -414,12 +523,25 @@ public class Game {
     private void handleJoinMidGame(GamePlayer gp) {
         Player p = gp.getBukkitPlayer();
 
+        Map<String, Object> commonMap = MapFormatters.gamePlayerFormatter(gp);
+
+
         // Message
         MessageUtils.sendParsedMessage(
                 p,
                 MessageGrabber.grab(INFO_MID_GAME_JOIN_MESSAGE),
-                Map.of()
+                commonMap
         );
+
+        if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(WebhookSettings.Event.GAME_JOIN)) {
+
+            String desc = ChatColor.stripColor(f(formatPlaceholders(MessageGrabber.grab(GAME_JOIN_WEBHOOK), commonMap)));
+
+            DiscordEmbed embed = new DiscordEmbed().create("", desc, Color.GRAY.asRGB());
+
+            new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed))
+                    .send();
+        }
 
         BroadcastUtils.sendTitle(
                 List.of(p),
@@ -907,12 +1029,32 @@ public class Game {
             commonMap.putAll(MapFormatters.cloneFormaterToNewKey(MapFormatters.gamePlayerFormatter(attacker), "player", "attacker"));
         }
 
+        String unparsed = MessageGrabber.grab(SSGMessageKey.valueOf("DEATH_ANNOUNCEMENT_" + lastDamageSource.reason().name().toUpperCase()));
+
         // Announce death to game
         announce(
-                MessageGrabber.grab(valueOf("DEATH_ANNOUNCEMENT_" + lastDamageSource.reason().name().toUpperCase())),
+                unparsed,
                 commonMap,
                 List.of()
         );
+
+        if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(SpeedSG.WebhookSettings.Event.DEATH)) {
+            unparsed = MessageGrabber.grab(SSGMessageKey.valueOf("DEATH_ANNOUNCEMENT_" + lastDamageSource.reason().name().toUpperCase() + "_WEBHOOK"));
+
+            String desc = formatPlaceholders(unparsed, commonMap);
+
+            int color = Color.MAROON.asRGB();
+
+            if (attacker != null) {
+                color = attacker.getTeam().getRGBColor();
+            }
+
+            DiscordEmbed embed = new DiscordEmbed().create("", desc, color);
+
+            DiscordWebhook webhook = new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed));
+
+            webhook.send();
+        }
 
         // Send death message to the player who died
         MessageUtils.sendParsedMessage(
@@ -1170,7 +1312,7 @@ public class Game {
         for (GamePlayer gp : winningTeam.getPlayers()) {
             Map<String, Object> newCommonMap = MapFormatters.gamePlayerFormatter(gp);
             newCommonMap.putAll(commonMap);
-            runConfigCommands(configYML.getStringList("game.command-actions.on-win"), commonMap);
+            runConfigCommands(configYML.getStringList("game.command-actions.on-win"), newCommonMap);
         }
 
         new BukkitRunnable(){
@@ -1265,6 +1407,39 @@ public class Game {
         unparsed = unparsed.replace("{top-killers}", topKillersText);
 
         announce(unparsed, commonMap, List.of());
+
+
+        if (SpeedSG.WebhookSettings.enabled && SpeedSG.WebhookSettings.eventsLogged.contains(SpeedSG.WebhookSettings.Event.WIN_RECAP)) {
+            String gameType = isSolos() ? "SOLO" : "TEAM";
+            // Going to use a custom message for this only
+
+
+            String title = MessageGrabber.grab(SSGMessageKey.valueOf("RECAP_" + gameType + "_WINNER_WEBHOOK_TITLE"));
+            String desc = MessageGrabber.grab(SSGMessageKey.valueOf("RECAP_" + gameType + "_WINNER_WEBHOOK_DESCRIPTION"));
+            int color = msgYML.getInt(SSGMessageKey.valueOf("RECAP_" + gameType + "_WINNER_WEBHOOK_COLOR").getPath(), -1);
+
+            title = title.replace("{winner-team-members}", teamMembersText);
+            title = title.replace("{top-killers}", topKillersText);
+            title = title.replace("))", ")");
+
+            desc = desc.replace("{winner-team-members}", teamMembersText);
+            desc = desc.replace("{top-killers}", topKillersText);
+            desc = desc.replace("))", ")");
+
+            title = formatPlaceholders(title, commonMap);
+            desc = formatPlaceholders(desc, commonMap);
+
+
+            if (color < 0) {
+                color = winningTeam.getRGBColor();
+            }
+
+            DiscordEmbed embed = new DiscordEmbed().create(ChatColor.stripColor(f(title)), ChatColor.stripColor(f(desc)), color);
+
+            DiscordWebhook webhook = new DiscordWebhook(SpeedSG.WebhookSettings.url, "", List.of(embed));
+
+            webhook.send();
+        }
     }
 
     private void sendSoloRecap(GameTeam winningTeam) {
@@ -1976,7 +2151,7 @@ public class Game {
 
         new BukkitRunnable() {public void run() {
             for (Player p : keepPlayers) {
-                newGame.addPlayer(new GamePlayer(p.getUniqueId()));
+                newGame.addPlayer(new GamePlayer(p.getUniqueId()), true);
             }
         }}.runTaskLater(CXYZ.plugin, 2L);
 

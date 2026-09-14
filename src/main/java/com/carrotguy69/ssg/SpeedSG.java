@@ -90,6 +90,29 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static boolean autoJoinEnabled = false;
     public static AutoJoinScope autoJoinScope;
 
+    public static class WebhookSettings {
+        public static boolean enabled = false;
+        public static String url = "";
+        public static List<Event> eventsLogged = new ArrayList<>();
+
+        public static void setEventsLogged(List<String> list) {
+            for (String event : list) {
+                Event e = Event.valueOf(event.toUpperCase().replace("-", "_"));
+                eventsLogged.add(e);
+            }
+        }
+
+        public enum Event {
+            LOBBY_JOIN,
+            LOBBY_LEAVE,
+            GAME_JOIN,
+            GAME_LEAVE,
+            DEATH,
+            WIN_RECAP,
+            CHAT
+        }
+    }
+
     public enum AutoJoinScope {
         SERVER,
         WORLD;
@@ -161,7 +184,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
 
         GamePlayer gamePlayer = new GamePlayer(e.getPlayer().getUniqueId());
-        game.addPlayer(gamePlayer);
+        game.addPlayer(gamePlayer, false);
     }
 
     @EventHandler
@@ -354,7 +377,9 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
 
-        Game game = Game.getByPlayer(e.getPlayer());
+        Player p = e.getPlayer();
+
+        Game game = Game.getByPlayer(p);
 
         if (game == null) {
             return;
@@ -362,24 +387,36 @@ public final class SpeedSG extends JavaPlugin implements Listener {
 
         ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
 
+        if (noInteractionTicks.contains(p.getUniqueId())) {
+            return;
+        }
+
+        else {
+            noInteractionTicks.add(p.getUniqueId());
+
+            new BukkitRunnable() {public void run() {
+                noInteractionTicks.remove(p.getUniqueId());
+            }}.runTaskLater(this, 1);
+        }
+
         ConfigurationSection section = configYML.getConfigurationSection("game.click-actions");
 
         if (section != null) {
             for (String key : section.getKeys(false)) {
                 try {
                     Material material = Material.valueOf(key.toUpperCase().replace("-", "_"));
-                    String actionTypeString = section.getString(key + ".click-type", "RIGHT_CLICK");
+                    String actionTypeString = section.getString(key + ".click-type", "ANY");
 
-                    if (!e.getAction().name().startsWith(actionTypeString.toUpperCase().replace("-", "_")) || material != hand.getType()) {
+                    if (!e.getAction().name().startsWith(actionTypeString.toUpperCase().replace("-", "_")) && !actionTypeString.equalsIgnoreCase("ANY") || material != hand.getType()) {
                         continue;
                     }
 
                     List<String> actions = section.getStringList(key + ".actions");
 
-                    Game.runConfigCommands(actions, MapFormatters.gamePlayerFormatter(game.getPlayer(e.getPlayer())));
+                    Game.runConfigCommands(actions, MapFormatters.gamePlayerFormatter(game.getPlayer(p)));
                 }
                 catch (IllegalArgumentException ex) {
-                    Logger.info("Failed to run click action command because %s is not a valid item!".formatted(key));
+                    Logger.warning("Failed to run click action command because %s is not a valid item!".formatted(key));
                 }
             }
 

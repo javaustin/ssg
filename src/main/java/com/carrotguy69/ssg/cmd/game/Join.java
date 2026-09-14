@@ -96,7 +96,7 @@ public class Join implements CommandExecutor {
 
 
         GamePlayer gp = new GamePlayer(p.getUniqueId());
-        game.addPlayer(gp);
+        game.addPlayer(gp, false);
 
 
         Map<String, Object> commonMap = MapFormatters.gameFormatter(game);
