@@ -29,6 +29,9 @@ game:
     respawn-seconds: 5
 
   misc:
+    # The format of player names that appear in the tab list
+    player-tab-name-format: "{player-rank-color}{player-team-prefix}{player-display-name}"
+
     # Should players keep their inventory upon a non-final death. (Players will always drop their inventory upon final death.)
     keep-inventory: false
 
@@ -66,6 +69,7 @@ game:
     on-lobby:
       # Available placeholders: {player}, {game}
       # NOT A LOOP! Runs for individual players in the lobby if they newly join.
+      - "clear {player}"
       - "minecraft:item replace entity {player} hotbar.4 with minecraft:gray_dye[minecraft:custom_name=[{\"text\":\"Not Ready\",\"italic\":false,\"color\":\"red\"}],lore=[[{\"text\":\"Right click to toggle your ready status. If all players are ready, the lobby countdown timer will be skipped.\",\"italic\":false,\"color\":\"white\"}]]] 1"
 
 
@@ -94,14 +98,14 @@ game:
       # [!] Beware of duplicate commands. The command actions in on-death will also run during a kill.
       - "effect give {attacker} minecraft:instant_health"
       - "show {attacker} &4+ &l2.0❤"
-      - "show {attacker} -actionBar &6+ 5 coins (kill)"
+      - "show {attacker} -actionBar &6+ 5 coins ((kill))"
       - "coins add 5 {attacker}"
 
     on-win:
       # Available placeholders {player}, {game}
 
       # Runs once for every player on the winning team.
-      - "show {player} &6+ 10 coins (win)"
+      - "show {player} &6+ 10 coins ((win))"
       - "coins add 10 {player}"
 
     on-lose:

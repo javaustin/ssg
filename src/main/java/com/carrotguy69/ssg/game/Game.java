@@ -384,6 +384,7 @@ public class Game {
         originalPlayersSize = this.getPlayers().size();
         originalTeamsSize = this.getTeams().size();
 
+        gp.updateTabName();
         updateScoreboard();
     }
 
@@ -450,6 +451,8 @@ public class Game {
         originalPlayersSize = this.getPlayers().size();
         originalTeamsSize = this.getTeams().size();
 
+        if (gp.getBukkitPlayer() != null)
+            gp.clearTabName();
 
         updateScoreboard();
     }
@@ -1561,7 +1564,7 @@ public class Game {
                 p.removePotionEffect(effect.getType());
         }
 
-        p.teleport(l.clone().add(0.5, 1, 0.5));
+        p.teleport(l);
     }
 
     private void removeGroundItems() {

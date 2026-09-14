@@ -1,6 +1,9 @@
 package com.carrotguy69.ssg.game;
 
+import com.carrotguy69.cxyz.messages.MessageUtils;
 import com.carrotguy69.cxyz.models.db.NetworkPlayer;
+import com.carrotguy69.ssg.SpeedSG;
+import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -8,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.carrotguy69.cxyz.CXYZ.f;
 import static com.carrotguy69.ssg.SpeedSG.configYML;
+import static com.carrotguy69.ssg.SpeedSG.playerTabNameFormat;
 
 public class GamePlayer {
     private final UUID uuid;
@@ -83,6 +88,16 @@ public class GamePlayer {
 
     public Game getGame() {
         return Game.getByPlayer(this.getBukkitPlayer());
+    }
+
+    public void updateTabName() {
+
+        if (playerTabNameFormat != null)
+            this.getBukkitPlayer().setPlayerListName(f(MessageUtils.formatPlaceholders(SpeedSG.playerTabNameFormat, MapFormatters.gamePlayerFormatter(this))));
+    }
+
+    public void clearTabName() {
+        this.getBukkitPlayer().setPlayerListName(null);
     }
 
     @Override

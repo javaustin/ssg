@@ -90,6 +90,7 @@ public class Startup {
         autoJoinEnabled = configYML.getBoolean("auto-join.enabled");
         autoJoinScope = AutoJoinScope.fromString(configYML.getString("auto-join.scope"));
 
+        playerTabNameFormat = configYML.getString("game.misc.player-tab-name-format");
 
         lootTables = LootTable.loadLootTables();
 

@@ -91,6 +91,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static boolean autoJoinEnabled = false;
     public static AutoJoinScope autoJoinScope;
 
+    public static String playerTabNameFormat;
+
     public static class WebhookSettings {
         public static boolean enabled = false;
         public static String url = "";
@@ -163,6 +165,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
+        LeaderboardUpdater.update();
 
         Logger.info("See ya later!");
     }
