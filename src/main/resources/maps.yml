@@ -52,6 +52,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: -163, y: 40, z: -60, yaw: 90.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -91,6 +92,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: -613, y: 65, z: -458, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -130,6 +132,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: 36, y: 28, z: -74, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -169,6 +172,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: 295, y: 20, z: -118, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -208,6 +212,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: 2078, y: 34, z: 2176, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -247,6 +252,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: 155, y: 43, z: -388, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -286,6 +292,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: -539, y: 30, z: -706, yaw: 0.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 
@@ -325,6 +332,7 @@ maps:
     world-border:
       enabled: true
       shrink: true
+      center: {world: "ssg-world", x: -958, y: 36, z: -561, yaw: 90.0, pitch: 90.0}
       final-width: 10
       seconds: 60
 #

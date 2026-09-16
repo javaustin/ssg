@@ -9,20 +9,26 @@ import com.carrotguy69.cxyz.utils.NumberRange;
 import com.carrotguy69.ssg.cmd.game.Create;
 import com.carrotguy69.ssg.eventHandler.CoreChatHandler;
 import com.carrotguy69.ssg.eventHandler.VanishHandler;
-import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.game.Game;
 import com.carrotguy69.ssg.game.GamePlayer;
 import com.carrotguy69.ssg.game.GameState;
 import com.carrotguy69.ssg.game.loot.LootTable;
 import com.carrotguy69.ssg.game.map.GameMap;
+import com.carrotguy69.ssg.game.other.DamageSource;
 import com.carrotguy69.ssg.messages.utils.MapFormatters;
 import com.carrotguy69.ssg.other.Logger;
 import com.carrotguy69.ssg.other.Startup;
 import com.carrotguy69.ssg.utils.LeaderboardUpdater;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.type.Dispenser;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
@@ -30,14 +36,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -47,6 +55,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -92,6 +101,8 @@ public final class SpeedSG extends JavaPlugin implements Listener {
     public static AutoJoinScope autoJoinScope;
 
     public static String playerTabNameFormat;
+
+    public static HashMap<UUID, UUID> whoOwnsTNT = new HashMap<>(); // key: TNT entity uuid, value: player uuid
 
     public static class WebhookSettings {
         public static boolean enabled = false;
@@ -383,7 +394,7 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
 
-        if ((e.getInventory().getType() != InventoryType.PLAYER && e.getInventory().getType() != InventoryType.CHEST)) {
+        if (p.getGameMode() != GameMode.CREATIVE && (e.getInventory().getType() != InventoryType.PLAYER && e.getInventory().getType() != InventoryType.CHEST)) {
              e.setCancelled(true);
         }
 
@@ -492,5 +503,32 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             return;
         }
     }
+
+    @EventHandler
+    public void onExplode(EntityExplodeEvent e) {
+
+        if (e.getEntityType() == EntityType.TNT) {
+            e.blockList().clear();
+        }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onDispense(BlockDispenseEvent e) {
+
+        // For some reason world guard killed our ability to spawn anyut
+
+        if (e.getBlock().getType() != Material.DISPENSER)
+            return;
+
+        ((Container) e.getBlock().getState()).getInventory().addItem(e.getItem().clone());
+
+        if (e.getItem().getType() != Material.TNT) {
+            return;
+        }
+
+        e.setCancelled(false);
+    }
+
 
 }

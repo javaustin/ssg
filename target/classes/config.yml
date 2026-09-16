@@ -70,6 +70,8 @@ game:
       # Available placeholders: {player}, {game}
       # NOT A LOOP! Runs for individual players in the lobby if they newly join.
       - "clear {player}"
+      - "minecraft:xp set {player} 0 levels"
+      - "minecraft:xp set {player} 0 points"
       - "minecraft:item replace entity {player} hotbar.4 with minecraft:gray_dye[minecraft:custom_name=[{\"text\":\"Not Ready\",\"italic\":false,\"color\":\"red\"}],lore=[[{\"text\":\"Right click to toggle your ready status. If all players are ready, the lobby countdown timer will be skipped.\",\"italic\":false,\"color\":\"white\"}]]] 1"
 
 

@@ -500,7 +500,7 @@ public class Game {
         int nPlayers = players.size();
 
         if (lobbyMap.getWorldBorderSettings().isBorderEnabled()) {
-            lobbyMap.getWorld().getWorldBorder().setCenter(Math.round(lobbyMap.getBounds().getCenterX()), Math.round(lobbyMap.getBounds().getCenterZ()));
+            lobbyMap.getWorld().getWorldBorder().setCenter(lobbyMap.getWorldBorderSettings().getCenter());
             lobbyMap.getWorld().getWorldBorder().setSize(Math.round(Math.max(lobbyMap.getBounds().getWidthX(), lobbyMap.getBounds().getWidthZ())));
         }
         else {
@@ -1190,7 +1190,10 @@ public class Game {
         int spawnIndex = (int) Math.ceil((double) team.getIndex() / getNonEmptyTeams().size()) * (map.getSpawns().size() - 1);
 
         spawnPlayer(gp.getBukkitPlayer(), map.getSpawns().get(spawnIndex));
-        gp.getBukkitPlayer().getInventory().clear();
+
+        if (!configYML.getBoolean("game.misc.keep-inventory")) {
+            gp.getBukkitPlayer().getInventory().clear();
+        }
 
         BroadcastUtils.sendTitle(
                 List.of(gp.getBukkitPlayer()),

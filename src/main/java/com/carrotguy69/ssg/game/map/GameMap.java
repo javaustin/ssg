@@ -54,12 +54,14 @@ public class GameMap {
         private final boolean shrink;
         private final double finalWidth;
         private final int shrinkTimeSeconds;
+        private final Location center;
 
-        public WorldBorderConfig(boolean enabled, boolean shrink, double finalWidth, int shrinkTimeSeconds) {
+        public WorldBorderConfig(boolean enabled, boolean shrink, double finalWidth, int shrinkTimeSeconds, Location center) {
             this.enabled = enabled;
             this.shrink = shrink;
             this.finalWidth = finalWidth;
             this.shrinkTimeSeconds = shrinkTimeSeconds;
+            this.center = center;
         }
 
         public boolean isBorderEnabled() {
@@ -76,6 +78,10 @@ public class GameMap {
 
         public int getShrinkTimeSeconds() {
             return this.shrinkTimeSeconds;
+        }
+
+        public Location getCenter() {
+            return center;
         }
     }
 
@@ -308,9 +314,10 @@ public class GameMap {
             boolean enabled = section.getBoolean(mapID + ".world-border.enabled", false);
             boolean shrink = section.getBoolean(mapID + ".world-border.shrink", false);
             double finalWidth = section.getDouble(mapID + ".world-border.final-width", Math.max(mapBounds.getWidthX(), mapBounds.getMaxZ()));
+            Location center = section.getLocation(mapID + ".world-border.center", mapBounds.getCenter().toLocation(world));
             int seconds = section.getInt(mapID + ".world-border.seconds", 60);
 
-            WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, finalWidth, seconds);
+            WorldBorderConfig borderConfig = new WorldBorderConfig(enabled, shrink, finalWidth, seconds, center);
 
             GameMap map = new GameMap(mapID, displayName, source, spawns, mapBounds, world, borderConfig);
 
