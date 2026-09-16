@@ -100,7 +100,7 @@ game:
       # [!] Beware of duplicate commands. The command actions in on-death will also run during a kill.
       - "effect give {attacker} minecraft:instant_health"
       - "show {attacker} &4+ &l2.0❤"
-      - "show {attacker} -actionBar &6+ 5 coins ((kill))"
+      - "show {attacker} -actionBar &6+ 5 coins (kill)"
       - "coins add 5 {attacker}"
 
     on-win:

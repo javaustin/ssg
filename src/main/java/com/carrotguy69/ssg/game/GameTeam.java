@@ -161,8 +161,6 @@ public class GameTeam {
     }
 
     public void sendTeamMessage(String unparsedContent, Map<String, Object> formatMap, List<GamePlayer> excludingPlayers) {
-        TextComponent component = MessageUtils.createMessage(unparsedContent, formatMap);
-
         for (GamePlayer gp : this.players) {
             if (gp.getBukkitPlayer() == null) {
                 continue;
@@ -173,7 +171,7 @@ public class GameTeam {
 
             Player p = gp.getBukkitPlayer();
 
-            p.sendMessage(component);
+            MessageUtils.sendParsedMessage(p, unparsedContent, formatMap);
         }
     }
 

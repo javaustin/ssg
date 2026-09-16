@@ -661,10 +661,10 @@ public class Game {
             else if (durations.gameStartCountdown > 0) {
                 // Not really in the mood to expose this to the config. We will keep this countdown as a hard coded title.
                 String color = switch (durations.gameStartCountdown) {
-                    case 3 -> "&e&l";
+                    case 3 -> "&c&l";
                     case 2 -> "&6&l";
-                    case 1 -> "&c&l";
-                    default -> "&a";
+                    case 1 -> "&e&l";
+                    default -> "&c";
                 };
 
                 List<Player> gamePlayers = players.stream().map(g -> Bukkit.getPlayer(g.getUUID())).toList();
