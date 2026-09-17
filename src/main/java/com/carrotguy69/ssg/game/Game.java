@@ -2144,7 +2144,7 @@ public class Game {
         map.isInUse = false;
 
         String newGameID = this.gameID;
-        GameMap newMap = nextMap.equals(map) ? gameMaps.stream().filter(m -> !Objects.equals(m, map)).findAny().orElse(map) : nextMap;
+        GameMap newMap = nextMap.equals(map) ? gameMaps.stream().filter(m -> !Objects.equals(m, map)).toList().get(random.nextInt(gameMaps.size() - 1)) : nextMap;
         LootTable newLootTable = nextLootTable;
         NumberRange newAmountOfTeams = nextAmountOfTeams;
         NumberRange newTeamCapacity = nextTeamCapacity;

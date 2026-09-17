@@ -27,21 +27,21 @@ maps:
 
     spawns:
       - {world: "ssg-world", x: -150, y: 32, z: -60, yaw: 90.0, pitch: 0.0}
-      - {world: "ssg-world", x: -151, y: 32, z: -65, yaw: 45.0, pitch: 0.0}
+      - {world: "ssg-world", x: -151, y: 32, z: -65, yaw: 66.5, pitch: 0.0}
       - {world: "ssg-world", x: -154, y: 32, z: -69, yaw: 45.0, pitch: 0.0}
-      - {world: "ssg-world", x: -158, y: 32, z: -72, yaw: 45.0, pitch: 0.0}
+      - {world: "ssg-world", x: -158, y: 32, z: -72, yaw: 22.5, pitch: 0.0}
       - {world: "ssg-world", x: -163, y: 32, z: -73, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -168, y: 32, z: -72, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -172, y: 32, z: -69, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -175, y: 32, z: -65, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -176, y: 32, z: -60, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -175, y: 32, z: -55, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -172, y: 32, z: -51, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -168, y: 32, z: -48, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -163, y: 32, z: -47, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -158, y: 32, z: -48, yaw: 180.0, pitch: 0.0}
+      - {world: "ssg-world", x: -168, y: 32, z: -72, yaw: -22.5, pitch: 0.0}
+      - {world: "ssg-world", x: -172, y: 32, z: -69, yaw: -45.0, pitch: 0.0}
+      - {world: "ssg-world", x: -175, y: 32, z: -65, yaw: -66.5, pitch: 0.0}
+      - {world: "ssg-world", x: -176, y: 32, z: -60, yaw: -90.0, pitch: 0.0}
+      - {world: "ssg-world", x: -175, y: 32, z: -55, yaw: -116.5, pitch: 0.0}
+      - {world: "ssg-world", x: -172, y: 32, z: -51, yaw: -135.0, pitch: 0.0}
+      - {world: "ssg-world", x: -168, y: 32, z: -48, yaw: -155.5, pitch: 0.0}
+      - {world: "ssg-world", x: -163, y: 32, z: -47, yaw: -180, pitch: 0.0}
+      - {world: "ssg-world", x: -158, y: 32, z: -48, yaw: 155.5, pitch: 0.0}
       - {world: "ssg-world", x: -154, y: 32, z: -51, yaw: 135.0, pitch: 0.0}
-      - {world: "ssg-world", x: -151, y: 32, z: -55, yaw: 135.0, pitch: 0.0}
+      - {world: "ssg-world", x: -151, y: 32, z: -55, yaw: 116.5, pitch: 0.0}
 
     bounds:
       pos1:
@@ -66,22 +66,22 @@ maps:
     world: "ssg-world"
 
     spawns:
-      - {world: "ssg-world", x: -621, y: 63, z: -458, yaw: 0.0, pitch: 45.0}
-      - {world: "ssg-world", x: -620, y: 63, z: -455, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -619, y: 63, z: -452, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -616, y: 63, z: -451, yaw: 0.0, pitch: 0.0}
+      - {world: "ssg-world", x: -621, y: 63, z: -458, yaw: -90.0, pitch: 45.0}
+      - {world: "ssg-world", x: -620, y: 63, z: -455, yaw: -66.5, pitch: 0.0}
+      - {world: "ssg-world", x: -619, y: 63, z: -452, yaw: -45.0, pitch: 0.0}
+      - {world: "ssg-world", x: -616, y: 63, z: -451, yaw: -22.5, pitch: 0.0}
       - {world: "ssg-world", x: -613, y: 63, z: -450, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -610, y: 63, z: -451, yaw: 135.0, pitch: 0.0}
-      - {world: "ssg-world", x: -607, y: 63, z: -452, yaw: 135.0, pitch: 0.0}
-      - {world: "ssg-world", x: -606, y: 63, z: -455, yaw: 135.0, pitch: 0.0}
+      - {world: "ssg-world", x: -610, y: 63, z: -451, yaw: 22.5, pitch: 0.0}
+      - {world: "ssg-world", x: -607, y: 63, z: -452, yaw: 45.0, pitch: 0.0}
+      - {world: "ssg-world", x: -606, y: 63, z: -455, yaw: 66.5, pitch: 0.0}
       - {world: "ssg-world", x: -605, y: 63, z: -458, yaw: 90.0, pitch: 0.0}
-      - {world: "ssg-world", x: -606, y: 63, z: -461, yaw: 45.0, pitch: 0.0}
-      - {world: "ssg-world", x: -607, y: 63, z: -464, yaw: 45.0, pitch: 0.0}
-      - {world: "ssg-world", x: -610, y: 63, z: -465, yaw: 45.0, pitch: 0.0}
-      - {world: "ssg-world", x: -613, y: 63, z: -466, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -616, y: 63, z: -465, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -619, y: 63, z: -464, yaw: 0.0, pitch: 0.0}
-      - {world: "ssg-world", x: -620, y: 63, z: -461, yaw: 0.0, pitch: 0.0}
+      - {world: "ssg-world", x: -606, y: 63, z: -461, yaw: 116.5, pitch: 0.0}
+      - {world: "ssg-world", x: -607, y: 63, z: -464, yaw: 135.0, pitch: 0.0}
+      - {world: "ssg-world", x: -610, y: 63, z: -465, yaw: 155.5, pitch: 0.0}
+      - {world: "ssg-world", x: -613, y: 63, z: -466, yaw: 180, pitch: 0.0}
+      - {world: "ssg-world", x: -616, y: 63, z: -465, yaw: -155.5, pitch: 0.0}
+      - {world: "ssg-world", x: -619, y: 63, z: -464, yaw: -135.0, pitch: 0.0}
+      - {world: "ssg-world", x: -620, y: 63, z: -461, yaw: -116.5, pitch: 0.0}
 
     bounds:
       pos1:

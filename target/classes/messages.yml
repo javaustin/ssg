@@ -62,7 +62,7 @@ game:
     blurb: |
         &f-------------------- &6&lSpeed&a&lSG &f--------------------
         &eFight to the death!! Loot chests from around the map to gather the best possible gear, then use it to fight off your opponents. The last man standing wins!
-        &f--------------------------------------------------
+        &f-------------------------------------------------
     invul-countdown: "&cInvulnerability wears off in {count} seconds." # {count}
     invul-over: "&4Invulnerability has worn off!"
     refill-announcement: "&6Chests refilled!" # N/A
@@ -189,14 +189,14 @@ game:
 
     # You can still use the team formatter {team} in the solo-winner recap.
     solo-winner: |
-      &f---------- {winner-player-rank-color}{winner-player} &6&lwon the game! &f----------
+      &f---------- {winner-player-rank-color}{winner-player} won the game! &f----------
       &4Final health: {winner-player-health}
       &cRound kills: {winner-player-temp-stat-kills}
       &6Lifetime kills: {winner-player-stat-sg-lifetime-kills} &7((#{winner-player-stat-sg-lifetime-kills-ranking}))
       &eLifetime wins: {winner-player-stat-sg-lifetime-wins} &7((#{winner-player-stat-sg-lifetime-wins-ranking}))
       
       Top killers:{top-killers}
-      ---------------------------------------------
+      &f--------------------------------{winner-player-length}
 
     solo-winner-webhook-display:
       title: "{winner-player} won the game!"
@@ -205,11 +205,11 @@ game:
 
 
     team-winner: |
-      &f---------- {winner-team-color}{winner-team-display} &6&lwon the game! &f----------
+      &f---------- {winner-team-color}{winner-team-display} won the game! &f----------
       Members: {winner-team-members}
       
       Top killers:{top-killers}
-      &f-----------------------------------------------
+      &f--------------------------------{winner-team-display-length}
 
     team-winner-webhook-display:
       title: "{winner-team-display} won the game!"
@@ -235,14 +235,15 @@ command:
       &f---------- &6&lSSG Available Games &r&f----------
       {games}
       [&f< Previous](RUN_COMMAND:/ssg list {previous-page})   &7Page {page}/{max-pages}   [&fNext >](RUN_COMMAND:/ssg list {next-page})
+      &f---------------------------------------------------------------
     blank: "&cThere are no SSG games running!"
     entry-format: "&f* [&a{game-id} (({game-team-capacity})) on {game-map} (({game-size} players))](HOVER:&eClick to join {game-id})(RUN_COMMAND:/ssg join {game-id})"
     separator: "\n"
     max-entries-per-page: 5
 
   setting:
-    get: "{key} for game &f{game} &ais &f{value}."
-    set: "&aSet {key} for &f{game} &ato &f{value}."
+    get: "&aThe current setting for &f{key} &ais &f{value}."
+    set: "&aSet &f{key} &ato &f{value}."
     fail: "&eThis setting cannot be updated during this time."
 
   freeze: "&7[[&4!&7]] {player-rank-prefix}{player-rank-color}{player-display-name} &efroze the game!"
@@ -265,7 +266,7 @@ command:
       &aAlive: &f{game-alive-players-size}/{game-original-players-size}
       &aNext Event: &f{game-next-event} &7(({game-next-event-time}))
       &aPlayers: &f{players}
-      &f----------------------------------
+      &f-------------------------
 
     blank: "&cYou are not in a SSG game."
     entry-format: "&f{player-rank-color}{player-dead}{player-display-name}"

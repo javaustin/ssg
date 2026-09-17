@@ -77,7 +77,7 @@ public class Setting implements CommandExecutor {
             GameMap map = GameMap.getByID(value);
 
             commonMap.put("input", value);
-            commonMap.put("value", value);
+            commonMap.put("value", value.toUpperCase());
 
             if (map == null || map.getID().equalsIgnoreCase("lobby")) {
                 MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.LOBBY_INVALID_MAP), commonMap);
@@ -106,7 +106,7 @@ public class Setting implements CommandExecutor {
             LootTable table = LootTable.getByName(value);
 
             commonMap.put("input", value);
-            commonMap.put("value", value);
+            commonMap.put("value", value.toUpperCase());
 
             if (table == null) {
                 MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.INVALID_LOOT_TABLE), Map.of("input", value));
@@ -145,7 +145,7 @@ public class Setting implements CommandExecutor {
 
                 game.setAmountOfTeams(range);
 
-                commonMap.put("value", value);
+                commonMap.put("value", value.toUpperCase());
                 MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_GAME_SETTING_SET), commonMap);
 
             }
@@ -197,7 +197,7 @@ public class Setting implements CommandExecutor {
             try {
                 game.setMaxLives(Integer.parseInt(value));
 
-                commonMap.put("value", value);
+                commonMap.put("value", value.toUpperCase());
                 MessageUtils.sendParsedMessage(sender, MessageGrabber.grab(SSGMessageKey.COMMAND_GAME_SETTING_SET), commonMap);
             }
             catch (RuntimeException e) {
