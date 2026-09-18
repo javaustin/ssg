@@ -25,6 +25,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.Directional;
@@ -34,6 +35,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
@@ -59,6 +61,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -292,6 +295,14 @@ public final class SpeedSG extends JavaPlugin implements Listener {
             }
         }
 
+        else if (attackerEntity instanceof TNTPrimed explosive) {
+
+            if (explosive.getSource() instanceof Player) {
+                attacker = (Player) explosive.getSource();
+                reason = DamageSource.Reason.EXPLOSIVE;
+            }
+        }
+
         Game game = Game.getByPlayer(p);
 
         if (game == null) {
@@ -488,12 +499,78 @@ public final class SpeedSG extends JavaPlugin implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onExplode(EntityExplodeEvent e) {
 
+        List<Block> tntBlocks = new ArrayList<>();
+
         if (e.getEntityType() == EntityType.TNT) {
-            e.blockList().clear();
+
+            double scalar = e.blockList().size() < 50 ? 4 : e.blockList().size() < 150 ? 2 : 1;
+
+            for (int i = 0; i < e.blockList().size(); i++) {
+                Block originalBlock = e.blockList().get(i);
+
+                if (originalBlock.getType() == Material.TNT) {
+                    tntBlocks.add(originalBlock);
+                    continue;
+                }
+
+                FallingBlock fallingBlock = e.getEntity().getWorld().spawnFallingBlock(originalBlock.getLocation(), originalBlock.getBlockData());
+
+                Vector velocity = new Vector();
+
+                for (int m = 0; m < scalar; m++){
+                    for (int k = 0; k < 2; k++) {
+                        velocity = velocity.add(originalBlock.getLocation().toVector());
+                        velocity = velocity.add(Vector.getRandom().multiply(0.5));
+                        velocity = velocity.subtract(e.getEntity().getLocation().toVector());
+
+                        if (k == 1 && originalBlock.getY() <= e.getEntity().getLocation().getY()) {
+                            // When TNT is placed on the ground, we want blocks to fly upward.
+                            // Without this statement, blocks would only fly downward relative to the TNT position.
+                            velocity = velocity.multiply(new Vector(0, -1, 0));
+                        }
+
+                        velocity = velocity.normalize();
+
+                        velocity = velocity.multiply((1.0 / originalBlock.getLocation().distance(e.getEntity().getLocation())) * 1.5);
+
+                        fallingBlock.setVelocity(velocity);
+                        fallingBlock.setCancelDrop(true);
+
+                        // Try to teleport to air so blocks don't get stuck in ground
+
+                        Vector step = velocity.clone();
+
+                        if (step.lengthSquared() == 0) {
+                            return;
+                        }
+
+                        step.normalize();
+
+                        Location next = fallingBlock.getLocation().clone();
+
+                        for (int s = 0; s < 15; s++) {
+                            if (next.getBlock().getType().isBlock()) {
+                                next.add(step);
+                            }
+
+                            else {
+                                fallingBlock.teleport(next);
+                                break;
+                            }
+                        }
+
+                        fallingBlock.setVelocity(velocity);
+                    }
+                }
+
+            }
         }
+
+        e.blockList().clear();
+        e.blockList().addAll(tntBlocks);
 
     }
 

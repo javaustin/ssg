@@ -51,12 +51,12 @@ game:
       click-type: RIGHT_CLICK
       actions:
         - "minecraft:item replace entity {player} hotbar.4 with minecraft:lime_dye[minecraft:custom_name=[{\"text\":\"Ready\",\"italic\":false,\"color\":\"green\"}],lore=[[{\"text\":\"Right click to toggle your ready status.\",\"italic\":false,\"color\":\"yellow\"}]]] 1"
-        - sudo {player} ssg ready
+        - sudo {player} -s ssg ready
 
     lime-dye:
       click-type: RIGHT_CLICK
       actions:
-        - sudo {player} ssg ready
+        - sudo {player} -s ssg ready
         - "minecraft:item replace entity {player} hotbar.4 with minecraft:gray_dye[minecraft:custom_name=[{\"text\":\"Not Ready\",\"italic\":false,\"color\":\"red\"}],lore=[[{\"text\":\"Right click to toggle your ready status.\",\"italic\":false,\"color\":\"white\"}]]] 1"
 
 
@@ -69,6 +69,7 @@ game:
     on-lobby:
       # Available placeholders: {player}, {game}
       # NOT A LOOP! Runs for individual players in the lobby if they newly join.
+      - "gamerule send_command_feedback false"
       - "clear {player}"
       - "minecraft:xp set {player} 0 levels"
       - "minecraft:xp set {player} 0 points"
@@ -101,14 +102,14 @@ game:
       - "effect give {attacker} minecraft:instant_health"
       - "show {attacker} &4+ &l2.0❤"
       - "show {attacker} -actionBar &6+ 5 coins (kill)"
-      - "coins add 5 {attacker}"
+      - "coins add 5 {attacker} -s"
 
     on-win:
       # Available placeholders {player}, {game}
 
       # Runs once for every player on the winning team.
       - "show {player} &6+ 10 coins ((win))"
-      - "coins add 10 {player}"
+      - "coins add 10 {player} -s"
 
     on-lose:
       # Available placeholders {player}, {game}
